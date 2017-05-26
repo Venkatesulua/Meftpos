@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright © 2016 by Vsoft Consulting Corporation.
+  ~
+  ~ All rights reserved. No part of this publication may be reproduced, distributed, or transmitted in any form or by
+  ~ any means, including photocopying, recording, or other electronic or mechanical methods, without the prior
+  ~ written permission of the publisher, except in the case of brief quotations embodied in critical reviews and certain
+  ~ other noncommercial uses permitted by copyright law. For permission requests, write to the publisher, addressed
+  ~ “Attention: Permissions Coordinator,” at the address below.
+  ~
+  ~ PTech Solutions Pvt. Ltd.
+  ~ www.vsoftconsulting.com/
+  ~
+  -->
+
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle" >
+
+    <!-- view background color -->
+    <solid android:color="#00000000" >
+    </solid>
+
+    <!-- view border color and width -->
+    <stroke
+        android:width="0.5dp"
+        android:color="#FFFFFF" >
+    </stroke>
+
+    <!-- If you want to add some padding -->
+
+
+    <!-- Here is the corner radius -->
+    <corners android:radius="5dp" />
+
+</shape>

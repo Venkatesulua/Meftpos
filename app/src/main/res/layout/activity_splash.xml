@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <com.mobileeftpos.android.eftpos.SplashScreen.KenBurnsView
+        android:id="@+id/ken_burns_images"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <ImageView
+        android:id="@+id/imagelogo"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="136dp"
+        android:src="@drawable/splash_logo"/>
+
+    <com.mobileeftpos.android.eftpos.SplashScreen.RobotoTextView
+        android:id="@+id/welcome_text"
+        style="@style/TextViewAppearance.Headline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imagelogo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:alpha="0.0"
+        android:text="@string/app_name"
+        android:textColor="@color/global_color_primary_light"
+        android:textSize="50sp"/>
+
+    <ImageView
+        android:id="@+id/environment"
+        android:layout_width="50dp"
+        android:layout_height="25dp"
+        android:scaleType="centerInside"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        />
+
+</RelativeLayout>
