@@ -17,7 +17,7 @@
     android:shape="rectangle" >
 
     <!-- view background color -->
-    <solid android:color="#00000000" >
+    <solid android:color="@color/cremywhite" >
     </solid>
 
     <!-- view border color and width -->

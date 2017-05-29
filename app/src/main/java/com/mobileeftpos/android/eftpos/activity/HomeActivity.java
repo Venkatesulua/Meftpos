@@ -27,6 +27,7 @@ public class HomeActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private int[] tabIcons = {
             R.drawable.home_icon,
+            R.drawable.receipt,
             R.drawable.historyicon,
             R.drawable.user
     };
@@ -53,13 +54,16 @@ public class HomeActivity extends AppCompatActivity {
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
         tabLayout.getTabAt(1).setIcon(tabIcons[1]);
         tabLayout.getTabAt(2).setIcon(tabIcons[2]);
+        tabLayout.getTabAt(3).setIcon(tabIcons[3]);
+
     }
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFrag(new OneFragment(),"");
         adapter.addFrag(new TwoFragment(), "");
-        adapter.addFrag(new ThreeFragment(), "");
+        adapter.addFrag(new ThirdFragment(), "");
+        adapter.addFrag(new FouthFragment(), "");
         viewPager.setAdapter(adapter);
     }
 

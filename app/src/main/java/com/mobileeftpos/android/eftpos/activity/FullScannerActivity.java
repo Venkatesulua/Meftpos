@@ -69,6 +69,7 @@ public class FullScannerActivity extends BaseScannerActivity implements MessageD
     }
 
 
+
     private  boolean checkAndRequestPermissions() {
 
         int locationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
@@ -173,7 +174,11 @@ public class FullScannerActivity extends BaseScannerActivity implements MessageD
             Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
             r.play();
         } catch (Exception e) {}
-        showMessageDialog("Contents = " + rawResult.getText() + ", Format = " + rawResult.getBarcodeFormat().toString());
+        TransactionType.barCodeValue=rawResult.getText();
+        if(TransactionType.barCodeValue!=null && TransactionType.barCodeValue.length()>0){
+            finish();
+        }
+       // showMessageDialog("Contents = " + rawResult.getText() + ", Format = " + rawResult.getBarcodeFormat().toString());
     }
 
     public void showMessageDialog(String message) {

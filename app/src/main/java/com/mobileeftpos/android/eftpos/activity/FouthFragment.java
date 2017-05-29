@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
 import com.mobileeftpos.android.eftpos.R;
 
@@ -19,12 +18,12 @@ import com.mobileeftpos.android.eftpos.R;
 /**
  * Created by Prathap on 4/26/17.
  */
-public class ThreeFragment extends Fragment {
+public class FouthFragment extends Fragment {
 
     private Button merchantInfo;
     private static final int REQUEST_INTERNET = 200;
 
-    public ThreeFragment() {
+    public FouthFragment() {
         // Required empty public constructor
     }
 
@@ -37,7 +36,7 @@ public class ThreeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_three, container, false);
+        View view = inflater.inflate(R.layout.fragment_four, container, false);
 
 
         merchantInfo = (Button) view.findViewById(R.id.merchant_info);

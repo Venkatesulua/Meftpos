@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
@@ -36,19 +37,18 @@ import java.util.Date;
 
 public class TransactionType extends AppCompatActivity {
 
-    private Button btnlCardPayment;
-    private Button btnAlipayPayment;
-    private Button btnCepasPayment;
     public GlobalVar globalVar = new GlobalVar();
     //public PaymentProcessing paymentProcess = new PaymentProcessing();
     public TransactionDetails trDetails = new TransactionDetails();
     AsyncTaskRunner mAsyncTask;
-
+    TextView backBtn;
+    public static String barCodeValue=null;
     public byte[] FinalData = new byte[1512];
     public int inFinalLength = 0;
     public Socket smtpSocket = null;
     ISOPackager1 packager = new ISOPackager1();
     ISOMsg isoMsg = new ISOMsg();
+    public static boolean isFromBarcodeScanner;
     private final String TAG = "my_custom_msg";
 
 
@@ -56,17 +56,8 @@ public class TransactionType extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transaction_type);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        barCodeValue=null;
+        isFromBarcodeScanner=false;
         addListenerOnButton();
 
     }
@@ -76,7 +67,13 @@ public class TransactionType extends AppCompatActivity {
         Button btnlCardPayment = (Button) findViewById(R.id.btnCardPayment);
         Button btnAlipayPayment = (Button) findViewById(R.id.btnAlipay);
         Button btnCepasPayment = (Button) findViewById(R.id.btnCepas);
-
+        backBtn=(TextView)findViewById(R.id.back_btn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
         btnlCardPayment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,7 +83,7 @@ public class TransactionType extends AppCompatActivity {
         btnAlipayPayment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i(TAG,"ALIPAY CLICK");
+                /*Log.i(TAG,"ALIPAY CLICK");
                 globalVar.setGTransactionType(Constants.TransType.ALIPAY_SALE);
                 Log.i(TAG,"ALIPAY CLICK_1");
                 //startActivity(new Intent(TransactionType.this,ScannerActivity.class));
@@ -97,7 +94,9 @@ public class TransactionType extends AppCompatActivity {
                 intentScan.putExtra(Constants.QRCODE.BARCODE_DISABLE_HISTORY, false);
                 Log.i(TAG,"ALIPAY CLICK_4");
                 startActivityForResult(intentScan, Constants.QRCODE.BARCODE_RESULT_CODE);
-                Log.i(TAG,"ALIPAY CLICK_5");
+                Log.i(TAG,"ALIPAY CLICK_5");*/
+                isFromBarcodeScanner=true;
+                startActivity(new Intent(TransactionType.this,FullScannerActivity.class));
             }
         });
 
@@ -109,7 +108,7 @@ public class TransactionType extends AppCompatActivity {
         });
     }
 
-    @Override
+   /* @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
@@ -123,16 +122,20 @@ public class TransactionType extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "QRCODE READ FAILED", Toast.LENGTH_SHORT).show();
             finish();
         }
+    }*/
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(isFromBarcodeScanner){
+            if(barCodeValue!=null && barCodeValue.length()>0) {
+                processBarcode(barCodeValue);
+            }
+
+        }
     }
 
     private void processBarcode(String contents) {
-        //ProgressDialog mProgressDialog;
-        //mProgressDialog = ProgressDialog.show(this, "PLEASE WAIT...", "Payment Processing" , false);
-        //mProgressDialog = ProgressDialog.show(TransactionType.this, "PLEASE WAIT...", "Payment Processing");
-       // mProgressDialog.show();
-        //Validate Card number in this Qrcode number and process the transaction
-
-        //paymentProcess.inSaleProcessing(contents);
         mAsyncTask = new AsyncTaskRunner();
         //mAsyncTask.execute(new String[] { "52.88.135.124", "10002" });
         mAsyncTask.execute(new String[] { "192.168.43.117", "9999" });
