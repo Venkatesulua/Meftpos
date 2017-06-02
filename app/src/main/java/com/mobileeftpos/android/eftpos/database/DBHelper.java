@@ -6,7 +6,9 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
+import com.mobileeftpos.android.eftpos.model.BarcodeModel;
 import com.mobileeftpos.android.eftpos.model.CardBinModel;
 import com.mobileeftpos.android.eftpos.model.CardTypeModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
@@ -34,6 +36,7 @@ public class DBHelper {
 
     private static final String DATABASE_NAME = "EFTPOS.db";
 
+    private final String TAG = "my_custom_msg";
     private static final int DATABASE_VERSION = 1;
 
 
@@ -435,6 +438,17 @@ public class DBHelper {
             + "] TEXT,["
             + DBStaticField.TOTAL_REPORT + "] TEXT)";
 
+    private static String Table_Alipay = "CREATE TABLE IF NOT EXISTS ["
+            + DBStaticField.ALIPAY_TABLE
+            + "] (["
+            + DBStaticField.ALIPAY_ID
+            + "] INTEGER PRIMARY KEY AUTOINCREMENT,["
+            + DBStaticField.PARTNER_ID
+            + "] TEXT,["
+            + DBStaticField.SELLER_ID
+            + "] TEXT,["
+            + DBStaticField.REGION_CODE + "] TEXT)";
+
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -461,6 +475,7 @@ public class DBHelper {
             db.execSQL(Table_Masking);
             db.execSQL(Table_Utility);
             db.execSQL(Table_Receipt);
+            db.execSQL(Table_Alipay);
 
         }
 
@@ -498,7 +513,47 @@ public class DBHelper {
                     + DBStaticField.COMMS_TABLE);
             db.execSQL("DROP TABLE IF EXISTS "
                     + DBStaticField.TABLE_HTT);
+            db.execSQL("DROP TABLE IF EXISTS "
+                    + DBStaticField.ALIPAY_TABLE);
             onCreate(db);
+        }
+
+
+    }
+
+    public void deleteallvalues(String TABLE_NAME){
+        SQLiteDatabase db = DBHelper.getWritableDatabase();
+        String sql = "drop table " + TABLE_NAME;
+        try {
+            db.execSQL(sql);
+            Log.i(TAG,"Drop Table Executed");
+        } catch (SQLException e) {
+            Log.i(TAG,"Drop Table Exception"+e.getMessage().toString());
+        }
+    }
+    public void CreateTables(){
+        SQLiteDatabase db = DBHelper.getWritableDatabase();
+        try {
+            db.execSQL(Table_HOST);
+            db.execSQL(Table_CBT);
+            db.execSQL(Table_CTT);
+            db.execSQL(Table_Password);
+            db.execSQL(Table_TransactionControlTable);
+            db.execSQL(Table_EZLINK);
+            db.execSQL(Table_ETHERNET);
+            db.execSQL(Table_CURRENCY);
+            db.execSQL(Table_COMMOS);
+            db.execSQL(Table_Limit);
+            db.execSQL(Table_Merchant);
+            db.execSQL(Table_HTT);
+            db.execSQL(Table_ReportTable);
+            db.execSQL(Table_Masking);
+            db.execSQL(Table_Utility);
+            db.execSQL(Table_Receipt);
+            db.execSQL(Table_Alipay);
+            Log.i(TAG,"Tables Created Successfully");
+        }catch (SQLException e) {
+            Log.i(TAG,"Tables Created Exceptions:::"+ e.getMessage().toString());
         }
 
     }
@@ -514,6 +569,7 @@ public class DBHelper {
     public void close() {
         DBHelper.close();
     }
+
 
 
     public boolean insertMerchantData(MerchantModel model) {
@@ -898,6 +954,7 @@ public class DBHelper {
 
         SQLiteDatabase db = DBHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
+        contentValues.put(DBStaticField.HDT_HOST_ID, model.getHDT_HOST_ID());
         contentValues.put(DBStaticField.HDT_HOST_ENABLED, model.getHDT_HOST_ENABLED());
         contentValues.put(DBStaticField.HDT_COM_INDEX, model.getHDT_COM_INDEX());
         contentValues.put(DBStaticField.HDT_REFERRAL_NUMBER, model.getHDT_REFERRAL_NUMBER());
@@ -945,6 +1002,7 @@ public class DBHelper {
         while (res.isAfterLast() == false) {
             if(Integer.parseInt(res.getString(res.getColumnIndex(DBStaticField.HDT_HOST_ID))) == inRecord_Num || inRecord_Num == 0)//Read the respective record needed
             {
+                hostModel.setHDT_HOST_ID(res.getString(res.getColumnIndex(DBStaticField.HDT_HOST_ID)));
                 hostModel.setHDT_HOST_ENABLED(res.getString(res.getColumnIndex(DBStaticField.HDT_HOST_ENABLED)));
                 hostModel.setHDT_COM_INDEX(res.getString(res.getColumnIndex(DBStaticField.HDT_COM_INDEX)));
                 hostModel.setHDT_REFERRAL_NUMBER(res.getString(res.getColumnIndex(DBStaticField.HDT_REFERRAL_NUMBER)));
@@ -989,6 +1047,7 @@ public class DBHelper {
 
         SQLiteDatabase db = DBHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
+        contentValues.put(DBStaticField.CDT_ID, model.getCDT_ID());
         contentValues.put(DBStaticField.CDT_LO_RANGE, model.getCDT_LO_RANGE());
         contentValues.put(DBStaticField.CDT_HI_RANGE, model.getCDT_HI_RANGE());
         contentValues.put(DBStaticField.CDT_HDT_REFERENCE, model.getCDT_HDT_REFERENCE());
@@ -1001,6 +1060,7 @@ public class DBHelper {
 
 
     public CardBinModel getCardBinData(int inRecord_Num) {
+        int infound=0;
         CardBinModel cardBinModel=new CardBinModel();
         SQLiteDatabase db = DBHelper.getReadableDatabase();
         Cursor res = db.rawQuery("SELECT * from " + DBStaticField.TABLE_CBT, null);
@@ -1009,16 +1069,20 @@ public class DBHelper {
         while (res.isAfterLast() == false) {
             if(Integer.parseInt(res.getString(res.getColumnIndex(DBStaticField.CDT_ID))) == inRecord_Num || inRecord_Num == 0)//Read the respective record needed
             {
+                cardBinModel.setCDT_ID(res.getString(res.getColumnIndex(DBStaticField.CDT_ID)));
                 cardBinModel.setCDT_LO_RANGE(res.getString(res.getColumnIndex(DBStaticField.CDT_LO_RANGE)));
                 cardBinModel.setCDT_HI_RANGE(res.getString(res.getColumnIndex(DBStaticField.CDT_HI_RANGE)));
                 cardBinModel.setCDT_HDT_REFERENCE(res.getString(res.getColumnIndex(DBStaticField.CDT_HDT_REFERENCE)));
                 cardBinModel.setCDT_CARD_TYPE_ARRAY(res.getString(res.getColumnIndex(DBStaticField.CDT_CARD_TYPE_ARRAY)));
                 cardBinModel.setCDT_CARD_NAME(res.getString(res.getColumnIndex(DBStaticField.CDT_CARD_NAME)));
+                infound=1;
                 break;
             }
             //array_list.add(pwdModel);
             res.moveToNext();
         }
+        if(infound == 0)
+            return null;
         return cardBinModel;
     }
 
@@ -1026,6 +1090,7 @@ public class DBHelper {
 
         SQLiteDatabase db = DBHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
+        contentValues.put(DBStaticField.CTT_ID, model.getCTT_ID());
         contentValues.put(DBStaticField.CTT_CARD_TYPE, model.getCTT_CARD_TYPE());
         contentValues.put(DBStaticField.CTT_CARD_LABEL, model.getCTT_CARD_LABEL());
         contentValues.put(DBStaticField.CTT_CARD_FORMAT, model.getCTT_CARD_FORMAT());
@@ -1055,6 +1120,7 @@ public class DBHelper {
         while (res.isAfterLast() == false) {
             if(Integer.parseInt(res.getString(res.getColumnIndex(DBStaticField.CTT_ID))) == inRecord_Num || inRecord_Num == 0)//Read the respective record needed
             {
+                CardTypeData.setCTT_ID(res.getString(res.getColumnIndex(DBStaticField.CTT_ID)));
                 CardTypeData.setCTT_CARD_TYPE(res.getString(res.getColumnIndex(DBStaticField.CTT_CARD_TYPE)));
                 CardTypeData.setCTT_CARD_LABEL(res.getString(res.getColumnIndex(DBStaticField.CTT_CARD_LABEL)));
                 CardTypeData.setCTT_CARD_FORMAT(res.getString(res.getColumnIndex(DBStaticField.CTT_CARD_FORMAT)));
@@ -1081,6 +1147,7 @@ public class DBHelper {
 
         SQLiteDatabase db = DBHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
+        contentValues.put(DBStaticField.COMMOS_ID, model.getCOMMOS_ID());
         contentValues.put(DBStaticField.COM_DESCRIPTION, model.getCOM_DESCRIPTION());
         contentValues.put(DBStaticField.COM_PRIMARY_TYPE, model.getCOM_PRIMARY_TYPE());
         contentValues.put(DBStaticField.COM_SECONDARY_TYPE, model.getCOM_SECONDARY_TYPE());
@@ -1115,6 +1182,7 @@ public class DBHelper {
         while (res.isAfterLast() == false) {
             if(Integer.parseInt(res.getString(res.getColumnIndex(DBStaticField.COMMOS_ID))) == inRecord_Num || inRecord_Num == 0)//Read the respective record needed
             {
+                commsData.setCOMMOS_ID(res.getString(res.getColumnIndex(DBStaticField.COMMOS_ID)));
                 commsData.setCOM_DESCRIPTION(res.getString(res.getColumnIndex(DBStaticField.COM_DESCRIPTION)));
                 commsData.setCOM_PRIMARY_TYPE(res.getString(res.getColumnIndex(DBStaticField.COM_PRIMARY_TYPE)));
                 commsData.setCOM_SECONDARY_TYPE(res.getString(res.getColumnIndex(DBStaticField.COM_SECONDARY_TYPE)));
@@ -1146,6 +1214,7 @@ public class DBHelper {
 
         SQLiteDatabase db = DBHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
+        contentValues.put(DBStaticField.CURRENCY_ID, model.getCURRENCY_ID());
         contentValues.put(DBStaticField.CURR_LABEL, model.getCURR_LABEL());
         contentValues.put(DBStaticField.CURR_EXPONENT, model.getCURR_EXPONENT());
         contentValues.put(DBStaticField.CURR_CODE, model.getCURR_CODE());
@@ -1164,6 +1233,7 @@ public class DBHelper {
         while (res.isAfterLast() == false) {
             if(Integer.parseInt(res.getString(res.getColumnIndex(DBStaticField.CURRENCY_ID))) == inRecord_Num || inRecord_Num == 0)//Read the respective record needed
             {
+                currenyModel.setCURRENCY_ID(res.getString(res.getColumnIndex(DBStaticField.CURRENCY_ID)));
                 currenyModel.setCURR_LABEL(res.getString(res.getColumnIndex(DBStaticField.CURR_LABEL)));
                 currenyModel.setCURR_EXPONENT(res.getString(res.getColumnIndex(DBStaticField.CURR_EXPONENT)));
                 currenyModel.setCURR_CODE(res.getString(res.getColumnIndex(DBStaticField.CURR_CODE)));
@@ -1254,6 +1324,43 @@ public class DBHelper {
 
         }
         return ezlinkModel;
+    }
+
+    public boolean insertBarocdeData(BarcodeModel model) {
+
+        SQLiteDatabase db = DBHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBStaticField.ALIPAY_ID, model.getALIPAY_ID());
+        contentValues.put(DBStaticField.PARTNER_ID, model.getPARTNER_ID());
+        contentValues.put(DBStaticField.SELLER_ID, model.getSELLER_ID());
+        contentValues.put(DBStaticField.REGION_CODE, model.getREGION_CODE());
+
+        db.insert(DBStaticField.ALIPAY_TABLE, null, contentValues);
+        return true;
+    }
+
+    public BarcodeModel getBarcodeData(int inRecord_Num) {
+        BarcodeModel barcodeModel=new BarcodeModel();
+        SQLiteDatabase db = DBHelper.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT * from " + DBStaticField.ALIPAY_TABLE, null);
+        res.moveToFirst();
+
+        while (res.isAfterLast() == false) {
+
+            if(Integer.parseInt(res.getString(res.getColumnIndex(DBStaticField.ALIPAY_ID))) == inRecord_Num || inRecord_Num == 0)//Read the respective record needed
+            {
+
+                barcodeModel.setALIPAY_ID(res.getString(res.getColumnIndex(DBStaticField.ALIPAY_ID)));
+                barcodeModel.setPARTNER_ID(res.getString(res.getColumnIndex(DBStaticField.PARTNER_ID)));
+                barcodeModel.setSELLER_ID(res.getString(res.getColumnIndex(DBStaticField.SELLER_ID)));
+                barcodeModel.setREGION_CODE(res.getString(res.getColumnIndex(DBStaticField.REGION_CODE)));
+                break;
+            }
+
+            // array_list.add(pwdModel);
+            res.moveToNext();
+        }
+        return barcodeModel;
     }
 
 

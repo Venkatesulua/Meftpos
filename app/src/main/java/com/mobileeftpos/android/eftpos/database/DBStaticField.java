@@ -17,9 +17,11 @@ public class DBStaticField {
 	public static final String TABLE_UTILITY="UtilityTable";
 	public static final String TABLE_MERCHANT="MerchantTable";
 	public static final String TABLE_HTT="TABLE_HTT";
+
 	public static final String TABLE_REPORT="TABLE_REPORT";
 	public static final String EZLINK_TABLE="EZLINK_TABLE";
 	public static final String COMMS_TABLE="COMMS_TABLE";
+	public static final String ALIPAY_TABLE="ALIPAY";
 
 
 	// Host Table Fields
@@ -245,6 +247,13 @@ public class DBStaticField {
 	public static final String DETAILED_REPORT="DETAILED_REPORT";
 	public static final String TIP_REPORT="TIP_REPORT";
 	public static final String TOTAL_REPORT="TOTAL_REPORT";
+
+
+	//ALIPAY
+	public static final String ALIPAY_ID="ALIPAY_ID";
+	public static final String PARTNER_ID="PARTNER_ID";
+	public static final String SELLER_ID="SELLER_ID";
+	public static final String REGION_CODE="REGION_CODE";
 
 
 

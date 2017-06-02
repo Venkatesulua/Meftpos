@@ -3,6 +3,7 @@ package com.mobileeftpos.android.eftpos.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SplashScreen.SplashActivity;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(btn_create_an_account)
     TextView signup;
     private boolean isValid = false;
+    private final String TAG = "my_custom_msg";
 
 
     @Override
@@ -48,6 +51,7 @@ public class LoginActivity extends AppCompatActivity {
         submitBtn.setOnClickListener(new ClickLIstener());
         txtForgotPassword.setOnClickListener(new ClickLIstener());
         signup.setOnClickListener(new ClickLIstener());
+
 
     }
 

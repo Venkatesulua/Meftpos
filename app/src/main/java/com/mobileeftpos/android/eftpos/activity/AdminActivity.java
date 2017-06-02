@@ -15,7 +15,10 @@ import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
 import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
+import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
+import com.mobileeftpos.android.eftpos.database.DBStaticField;
+import com.mobileeftpos.android.eftpos.model.BarcodeModel;
 import com.mobileeftpos.android.eftpos.model.CardBinModel;
 import com.mobileeftpos.android.eftpos.model.CardTypeModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
@@ -31,14 +34,11 @@ import com.mobileeftpos.android.eftpos.model.PasswordModel;
 import com.mobileeftpos.android.eftpos.model.ReceiptModel;
 import com.mobileeftpos.android.eftpos.model.ReportsModel;
 import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
-import com.mobileeftpos.android.eftpos.model.TransactionDetails;
 import com.mobileeftpos.android.eftpos.model.UtilityTable;
 
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -47,7 +47,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -109,14 +108,16 @@ public class AdminActivity extends Activity {
         globalVar.tmsParam.setTMS_CONNECTION_TYPE(connectionType.getText().toString());
         globalVar.tmsParam.setTMS_CONNECTION_TO(connectionTo.getText().toString());
 
+        globalVar.TmsData="";
 
         // Initialize at the booting time
         isoMsg.setPackager(packager);
-        globalVar.setGTransactionType(Constants.TransType.TMS_INITIAL_PACKET);
+        TransactionDetails.trxType = (Constants.TransType.TMS_INITIAL_PACKET);
         boolean msg_ok = false;
+
         while (true) {
 
-            if (globalVar.getGTransactionType() == Constants.TransType.TMS_SUBSEQUENT_PACKET) {
+            if (TransactionDetails.trxType == Constants.TransType.TMS_SUBSEQUENT_PACKET) {
                 if (globalVar.getGTotalNumberofTMSparts() == globalVar.getGPartToDownload()) {
                     msg_ok = true;
                     break;
@@ -141,7 +142,7 @@ public class AdminActivity extends Activity {
             }
             String stTemp = isoMsg.getString(39);
             if (stTemp.equals("00")) {
-                if (globalVar.getGTransactionType() == Constants.TransType.TMS_INITIAL_PACKET) {
+                if (TransactionDetails.trxType == Constants.TransType.TMS_INITIAL_PACKET) {
                     globalVar.setGPartToDownload(0);
                     int inret = vdProcessDownloadResponse(Constants.TransType.TMS_INITIAL_PACKET);
                     if (inret == Constants.TMSReturnValues.TMS_RESPONSE_DL_NOT_REQUIRED) {
@@ -158,7 +159,8 @@ public class AdminActivity extends Activity {
 
                         // goto lblNoChanges;
                     } else if (inret == Constants.TMSReturnValues.TMS_RESPONSE_DL_REQUIRED) {
-                        globalVar.setGTransactionType(Constants.TransType.TMS_SUBSEQUENT_PACKET);
+                        //globalVar.setGTransactionType(Constants.TransType.TMS_SUBSEQUENT_PACKET);
+                        TransactionDetails.trxType=Constants.TransType.TMS_SUBSEQUENT_PACKET;
 
                     } else {
                         msg_ok = false;
@@ -171,6 +173,9 @@ public class AdminActivity extends Activity {
                         break;
                     }
                 }
+            }
+            if (inDisconnection() != 0) {
+                return;
             }
         }
 
@@ -259,6 +264,28 @@ public class AdminActivity extends Activity {
         ReportsModel reportModel = new ReportsModel();
         TransactionControlModel transctrlModel = new TransactionControlModel();
         UtilityTable utilModel = new UtilityTable();
+        BarcodeModel barcodeModel = new BarcodeModel();
+
+
+        Log.i(TAG,"DELETE ALL THE CONTENT FROM  THE FILE");
+        databaseObj.deleteallvalues(DBStaticField.TABLE_HOST);//="HostTable";
+        databaseObj.deleteallvalues(DBStaticField.TABLE_CBT);//="CardBinTable";
+        databaseObj.deleteallvalues(DBStaticField.TABLE_CTT);//CardTypeTable";
+        databaseObj.deleteallvalues(DBStaticField.TABLE_PWD);//PasswordTable";
+        databaseObj.deleteallvalues(DBStaticField.TABLE_TCT);//TransactionControlTable";
+        databaseObj.deleteallvalues(DBStaticField.TABLE_ETHERNET);//EthernetTable";
+        databaseObj.deleteallvalues(DBStaticField.TABLE_CURRENCY);//CurrencyTable";
+        databaseObj.deleteallvalues(DBStaticField.TABLE_LIMIT);//LimitTable";
+        databaseObj.deleteallvalues(DBStaticField.TABLE_MASKING);//MaskingTable";
+        databaseObj.deleteallvalues(DBStaticField.TABLE_RECEIPT);//ReceiptTable";
+        databaseObj.deleteallvalues(DBStaticField.TABLE_UTILITY);//UtilityTable";
+        databaseObj.deleteallvalues(DBStaticField.TABLE_MERCHANT);//MerchantTable";
+        databaseObj.deleteallvalues(DBStaticField.TABLE_HTT);//TABLE_HTT";
+        databaseObj.deleteallvalues(DBStaticField.TABLE_REPORT);//TABLE_REPORT";
+        databaseObj.deleteallvalues(DBStaticField.EZLINK_TABLE);//EZLINK_TABLE";
+        databaseObj.deleteallvalues(DBStaticField.COMMS_TABLE);//COMMS_TABLE";
+        databaseObj.deleteallvalues(DBStaticField.ALIPAY_TABLE);//COMMS_TABLE";
+        databaseObj.CreateTables();
 
         for (inCounter = 0; inCounter < l_iNumParams; inCounter++) {
             globalVar.TmsData = globalVar.TmsData.substring(tms_offset);
@@ -403,6 +430,11 @@ public class AdminActivity extends Activity {
                 utilModel.setDEFAULT_APPROVAL_CODE(stValue);
             }
             else if (stParam.contains("HDT")) {
+
+                Log.i(TAG,"HOST ID::"+stParam.substring(3, 5));
+                hostModel.setHDT_HOST_ID(stParam.substring(3, 5));
+
+
                 inindex = stValue.indexOf(' ');
                 hostModel.setHDT_HOST_ENABLED(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
@@ -499,45 +531,83 @@ public class AdminActivity extends Activity {
                hostModel.setHDT_CUSTOM_OPTIONS(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
-                inindex = stValue.indexOf(' ');
-               hostModel.setHDT_CURR_INDEX(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
-
-                inindex = stValue.indexOf(' ');
-               hostModel.setHDT_PIGGYBACK_FLAG(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
-
-                inindex = stValue.indexOf(' ');
-               hostModel.setHDT_MINIMUM_AMT(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
-
-                inindex = stValue.indexOf(' ');
-               hostModel.setHDT_RATE(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
-
-                inindex = stValue.indexOf(' ');
-               hostModel.setHDT_REDIRECT_IF_DISABLE(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        hostModel.setHDT_CURR_INDEX(stValue);
+                    else
+                    hostModel.setHDT_CURR_INDEX(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        hostModel.setHDT_PIGGYBACK_FLAG(stValue);
+                    else
+                    hostModel.setHDT_PIGGYBACK_FLAG(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        hostModel.setHDT_MINIMUM_AMT(stValue);
+                    else
+                    hostModel.setHDT_MINIMUM_AMT(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        hostModel.setHDT_RATE(stValue);
+                    else
+                    hostModel.setHDT_RATE(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        hostModel.setHDT_REDIRECT_IF_DISABLE(stValue);
+                    else
+                    hostModel.setHDT_REDIRECT_IF_DISABLE(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        hostModel.setHDT_REVERSAL_COUNT(stValue);
+                    else
                    hostModel.setHDT_REVERSAL_COUNT(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        hostModel.setHDT_SIGCAP_INDEX(stValue);
+                    else
                    hostModel.setHDT_SIGCAP_INDEX(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        hostModel.setHDT_BATCH_GROUP_NUMBER(stValue);
+                    else
                    hostModel.setHDT_BATCH_GROUP_NUMBER(stValue.substring(0, inindex));
                    // stValue = stValue.substring(inindex + 1);
                 }
                 databaseObj.InsertHostTablelData(hostModel);
             } else if (stParam.contains("CDT")) {
+
+                Log.i(TAG,"CDT ID::"+stParam.substring(3, 5));
+                cbinModel.setCDT_ID(stParam.substring(3, 5));
+
                 inindex = stValue.indexOf(' ');
                 cbinModel.setCDT_LO_RANGE(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
@@ -552,17 +622,27 @@ public class AdminActivity extends Activity {
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    cbinModel.setCDT_CARD_TYPE_ARRAY(stValue.substring(0, inindex));
+                    if(inindex == -1)
+                        cbinModel.setCDT_CARD_TYPE_ARRAY(stValue);
+                    else
+                        cbinModel.setCDT_CARD_TYPE_ARRAY(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    cbinModel.setCDT_CARD_NAME(stValue.substring(0, inindex));
+                    if(inindex == -1)
+                        cbinModel.setCDT_CARD_NAME(stValue);
+                    else
+                        cbinModel.setCDT_CARD_NAME(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 databaseObj.InsertCardBinData(cbinModel);
             } else if (stParam.contains("CTT")) {
+
+                Log.i(TAG,"CTT ID::"+stParam.substring(3, 5));
+                cttModel.setCTT_ID(stParam.substring(3, 5));
+
                 inindex = stValue.indexOf(' ');
                 cttModel.setCTT_CARD_TYPE(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
@@ -589,46 +669,73 @@ public class AdminActivity extends Activity {
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        cttModel.setCTT_CUSTOM_OPTIONS(stValue);
+                    else
                     cttModel.setCTT_CUSTOM_OPTIONS(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
-                inindex = stValue.indexOf(' ');
-                cttModel.setCTT_CVV_FDBC_ENABLE(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        cttModel.setCTT_CVV_FDBC_ENABLE(stValue);
+                    else
+                    cttModel.setCTT_CVV_FDBC_ENABLE(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        cttModel.setCTT_PAN_MASK_ARRAY(stValue);
+                    else
                     cttModel.setCTT_PAN_MASK_ARRAY(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        cttModel.setCTT_EXPIRY_MASK_ARRAY(stValue);
+                    else
                     cttModel.setCTT_EXPIRY_MASK_ARRAY(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        cttModel.setCTT_QPSL(stValue);
+                    else
                     cttModel.setCTT_QPSL(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        cttModel.setCTT_DISABLE_EXPIRY_CHECK(stValue);
+                    else
                     cttModel.setCTT_DISABLE_EXPIRY_CHECK(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        cttModel.setCTT_MC501(stValue);
+                    else
                     cttModel.setCTT_MC501(stValue.substring(0, inindex));
                     //stValue = stValue.substring(inindex + 1);
                 }
 
                 databaseObj.InsertCardTypeData(cttModel);
             } else if (stParam.contains("COM")) {
+
+                Log.i(TAG,"COM ID::"+stParam.substring(3, 5));
+                comModel.setCOMMOS_ID(stParam.substring(3, 5));
+
                 inindex = stValue.indexOf(' ');
                 comModel.setCOM_DESCRIPTION(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
@@ -675,49 +782,73 @@ public class AdminActivity extends Activity {
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_IP_TIMEOUT(stValue.substring(0, inindex));
+                    if(inindex == -1)
+                        comModel.setCOM_IP_TIMEOUT(stValue);
+                    else
+                        comModel.setCOM_IP_TIMEOUT(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_CONNECT_SECONDARY(stValue.substring(0, inindex));
+                    if(inindex == -1)
+                        comModel.setCOM_CONNECT_SECONDARY(stValue);
+                    else
+                        comModel.setCOM_CONNECT_SECONDARY(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_SSL_INDEX(stValue.substring(0, inindex));
+                    if(inindex == -1)
+                        comModel.setCOM_SSL_INDEX(stValue);
+                    else
+                        comModel.setCOM_SSL_INDEX(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_MODEM_INDEX(stValue.substring(0, inindex));
+                    if(inindex == -1)
+                        comModel.setCOM_MODEM_INDEX(stValue);
+                    else
+                        comModel.setCOM_MODEM_INDEX(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_PPP_USER_ID(stValue.substring(0, inindex));
+                    if(inindex == -1)
+                        comModel.setCOM_PPP_USER_ID(stValue);
+                    else
+                        comModel.setCOM_PPP_USER_ID(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_PPP_PASSWORD(stValue.substring(0, inindex));
+                    if(inindex == -1)
+                        comModel.setCOM_PPP_PASSWORD(stValue);
+                    else
+                        comModel.setCOM_PPP_PASSWORD(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        comModel.setCOM_PPP_MODEM_STRING(stValue);
+                    else
                     comModel.setCOM_PPP_MODEM_STRING(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_PPP_TIMEOUT(stValue.substring(0, inindex));
+                    if(inindex == -1)
+                        comModel.setCOM_PPP_TIMEOUT(stValue);
+                    else
+                        comModel.setCOM_PPP_TIMEOUT(stValue.substring(0, inindex));
                     //stValue = stValue.substring(inindex + 1);
                 }
 
@@ -736,22 +867,34 @@ public class AdminActivity extends Activity {
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    ethernetModel.setGATEWAY(stValue.substring(0, inindex));
+                    if(inindex == -1)
+                        ethernetModel.setGATEWAY(stValue);
+                    else
+                        ethernetModel.setGATEWAY(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    ethernetModel.setDNS1(stValue.substring(0, inindex));
+                    if(inindex == -1)
+                        ethernetModel.setDNS1(stValue);
+                    else
+                        ethernetModel.setDNS1(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    ethernetModel.setDNS2(stValue.substring(0, inindex));
+                    if(inindex == -1)
+                        ethernetModel.setDNS2(stValue);
+                    else
+                        ethernetModel.setDNS2(stValue.substring(0, inindex));
                     //stValue = stValue.substring(inindex + 1);
                 }
                 databaseObj.InsertEthernetData(ethernetModel);
 
             } else if (stParam.contains("CUR")) {
+                Log.i(TAG,"CURR ID::"+stParam.substring(4, 6));
+                currModel.setCURRENCY_ID(stParam.substring(4, 6));
+
                 inindex = stValue.indexOf(' ');
                 currModel.setCURR_LABEL(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
@@ -788,26 +931,58 @@ public class AdminActivity extends Activity {
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        ezlinkModel.setEZLINK_PAYMENT_DEVICE_TYPE(stValue);
+                    else
                     ezlinkModel.setEZLINK_PAYMENT_DEVICE_TYPE(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        ezlinkModel.setEZLINK_TOPUP_DEVICE_TYPE(stValue);
+                    else
                     ezlinkModel.setEZLINK_TOPUP_DEVICE_TYPE(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        ezlinkModel.setEZLINK_BLACK_LIST_LAST_UPDATE(stValue);
+                    else
                     ezlinkModel.setEZLINK_BLACK_LIST_LAST_UPDATE(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        ezlinkModel.setEZLINK_TOPUP_PAYMENT_MODE(stValue);
+                    else
                     ezlinkModel.setEZLINK_TOPUP_PAYMENT_MODE(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 databaseObj.InsertEzlinkData(ezlinkModel);
+            }else if (stParam.contains("BARCODE")) {
+
+                Log.i(TAG,"BAR DOCDE::"+stValue);
+                inindex = stValue.indexOf(' ');
+                barcodeModel.setPARTNER_ID(stValue.substring(0, inindex));
+                stValue = stValue.substring(inindex + 1);
+
+                inindex = stValue.indexOf(' ');
+                barcodeModel.setSELLER_ID(stValue.substring(0, inindex));
+                stValue = stValue.substring(inindex + 1);
+
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if(inindex == -1)
+                        barcodeModel.setREGION_CODE(stValue);
+                    else
+                        barcodeModel.setREGION_CODE(stValue.substring(0, inindex));
+                }
+                //stValue = stValue.substring(inindex + 1);
+                databaseObj.insertBarocdeData(barcodeModel);
             }
 		}
 
@@ -824,6 +999,13 @@ public class AdminActivity extends Activity {
         MerchantModel merchantModeldata = new MerchantModel();
         merchantModeldata = databaseObj.getMerchantData(0);
         Log.i(TAG,"Merchant NAme"+merchantModeldata.getMERCHANT_NAME());
+
+       // if (merchantModeldata.equals(null)) {
+
+            Toast.makeText(AdminActivity.this, merchantModeldata.getMERCHANT_NAME().toString(), Toast.LENGTH_LONG).show();
+
+       // }
+
 
 
 
@@ -950,7 +1132,7 @@ public class AdminActivity extends Activity {
             //  Log.i(TAG,"Packager");
             // ISOMsg isoMsg = new ISOMsg();
             // isoMsg.setPackager(packager);
-            switch (globalVar.getGTransactionType()) {
+            switch (TransactionDetails.trxType) {
                 case Constants.TransType.TMS_INITIAL_PACKET:
                     isoMsg.setHeader(globalVar.tmsParam.getTMS_TPDU().getBytes());
                     isoMsg.setMTI("0100");
@@ -1149,6 +1331,9 @@ public class AdminActivity extends Activity {
             return Constants.TMSReturnValues.TMS_RESPONSE_DL_REQUIRED;
         } else if (inRequestType == Constants.TransType.TMS_SUBSEQUENT_PACKET) {
             globalVar.TmsData = globalVar.TmsData + isoMsg.getString(31);
+
+            //Log.i(TAG,"globalVar.TmsData:::"+globalVar.TmsData);
+            Log.i(TAG,"globalVar.TmsData_Len:::"+globalVar.TmsData.length());
 			/*
 			 * memset(temp1, 0, sizeof(temp1)); vdHexToStr(temp1, field_31, 2);
 			 *

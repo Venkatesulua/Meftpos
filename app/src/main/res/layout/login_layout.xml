@@ -2,12 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-     android:background="@drawable/login_bg"
+     android:background="@drawable/splash_bg"
     android:orientation="vertical">
 
     <LinearLayout android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#CC000000"
         android:orientation="vertical">
 
 
@@ -62,8 +61,8 @@
                         android:background="@drawable/all_corner_edittext_bg"
                         android:padding="10dp"
                         android:hint="UserID"
-                        android:textColor="#FFF"
-                         android:textColorHint="@color/cremywhite"
+                        android:textColor="#000"
+                         android:textColorHint="#A9A9A9"
                         android:drawableStart="@drawable/user_icon"
                         android:drawablePadding="8dp"
                         android:singleLine="true" />
@@ -79,9 +78,9 @@
                         android:layout_marginTop="20dp"
                         android:drawablePadding="8dp"
                          android:background="@drawable/all_corner_edittext_bg"
-                        android:textColor="#FFF"
+                        android:textColor="#000"
                         android:hint="Password"
-                        android:textColorHint="@color/cremywhite"
+                        android:textColorHint="#A9A9A9"
                         android:drawableStart="@drawable/key"
                         android:inputType="textPassword"
                         android:singleLine="true" />
