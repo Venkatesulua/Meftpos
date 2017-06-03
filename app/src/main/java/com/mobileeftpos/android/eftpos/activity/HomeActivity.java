@@ -30,7 +30,7 @@ public class HomeActivity extends AppCompatActivity {
             R.drawable.home_icon,
             R.drawable.receipt,
             R.drawable.historyicon,
-            R.drawable.user
+            R.drawable.user_settings
     };
     public static Context context;
 

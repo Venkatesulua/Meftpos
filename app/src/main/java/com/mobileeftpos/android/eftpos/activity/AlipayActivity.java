@@ -82,30 +82,29 @@ public class AlipayActivity extends AppCompatActivity {
 
         Log.i(TAG,"Alipay_onCreate_1");
         //startActivity(new Intent(AlipayActivity.this,FullScannerActivity.class));
-        Intent intentScan = new Intent(AlipayActivity.this, CaptureActivity.class);
-        Log.i(TAG,"ALIPAY CLICK_2");
-        intentScan.setAction(Constants.QRCODE.BARCODE_INTENT_ACTION);
-        Log.i(TAG,"ALIPAY CLICK_3");
-        intentScan.putExtra(Constants.QRCODE.BARCODE_DISABLE_HISTORY, false);
-        Log.i(TAG,"ALIPAY CLICK_4");
-        startActivityForResult(intentScan, Constants.QRCODE.BARCODE_RESULT_CODE);
-        Log.i(TAG,"ALIPAY CLICK_5");
+        Intent i = new Intent(AlipayActivity.this, FullScannerActivity.class);
+        i.putExtra("FromAlipayActivity", true);
+        startActivityForResult(i, 111);
+
+
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
-        Log.i(TAG,"onActivityResult");
-        if (requestCode == Constants.QRCODE.BARCODE_RESULT_CODE && resultCode == Activity.RESULT_OK) {
-            Log.i(TAG,"onActivityResult_2");
+        if(requestCode==111){
             String contents = intent.getStringExtra(Constants.QRCODE.BARCODE_INTENT_RESULT_KEY);
             processBarcode(contents);
+
         } else {
             Log.i(TAG,"onActivityResult_3");
             Toast.makeText(getApplicationContext(), "QRCODE READ FAILED", Toast.LENGTH_SHORT).show();
             finish();
         }
+
+
     }
 
    /* @Override
@@ -158,7 +157,7 @@ public class AlipayActivity extends AppCompatActivity {
             // execution of result of Long time consuming operation
             super.onPostExecute(result);
             Log.i(TAG,"Alipay:onPostExecute");
-            if(result.equals("0"))
+            if(result!=null && result.equals("0"))
             {
                 Log.i(TAG, "Aipay:onPostExecute:SUCCESS");
                 Log.i(TAG, "Aipay:onPostExecute:SUCCESS");

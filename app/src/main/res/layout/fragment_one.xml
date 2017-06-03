@@ -2,7 +2,35 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
+    android:background="@drawable/splash_bg"
     android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/colorPrimary">
+
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TRANSACTION MENU"
+            android:drawablePadding="5dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:textColor="#FFF"
+            android:textSize="18dp"
+            android:textStyle="bold"/>
+
+
+
+    </RelativeLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_below="@+id/relativr_layout"
+        android:background="@drawable/line_bg"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -14,61 +42,74 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/welcome_text"
-                style="@style/TextViewAppearance.Headline3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/app_name"
-                android:textColor="@color/colorPrimary"
-                android:textSize="50sp"
-                android:textStyle="bold" />
+
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
 
                 <LinearLayout
                     android:id="@+id/saleItem"
+                    android:layout_margin="1dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
+                    android:layout_height="150dp"
                     android:layout_weight="1"
+                    android:orientation="vertical"
                     android:background="@drawable/all_corner_home_button_bg"
                     android:gravity="center"
                     android:padding="10dp">
 
+                    <ImageView
+                        android:layout_width="90dp"
+                        android:layout_height="90dp"
+                        android:src="@drawable/sale_icon"/>
+
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="SALE"
+                        android:textSize="16dp"
+                        
+                        android:layout_marginTop="10dp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
+
 
                 <LinearLayout
                     android:id="@+id/settelmentItem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
+                    android:layout_height="150dp"
                     android:layout_weight="1"
+                    android:layout_margin="1dp"
+                    android:orientation="vertical"
                     android:background="@drawable/all_corner_home_button_bg"
                     android:gravity="center"
                     android:padding="10dp">
 
+                    <ImageView
+                        android:layout_width="140dp"
+                        android:layout_height="80dp"
+                        android:src="@drawable/settelment_icon"/>
+
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="SETTLEMENT"
+                        android:textSize="16dp"
+                        
+                        android:layout_marginTop="10dp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
+
+
             </LinearLayout>
 
             <LinearLayout
@@ -76,95 +117,131 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="horizontal">
-
-
                 <LinearLayout
                     android:id="@+id/voidItem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
+                    android:layout_height="150dp"
                     android:layout_weight="1"
+                    android:layout_margin="1dp"
+                    android:orientation="vertical"
                     android:background="@drawable/all_corner_home_button_bg"
                     android:gravity="center"
-
                     android:padding="10dp">
+
+                    <ImageView
+                        android:layout_width="90dp"
+                        android:layout_height="90dp"
+                        android:src="@drawable/void_icon"/>
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="VOID"
+                        android:textSize="16dp"
+                        
+                        android:layout_marginTop="10dp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
+
 
                 <LinearLayout
                     android:id="@+id/preauthItem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
+                    android:layout_height="150dp"
                     android:layout_weight="1"
+                    android:orientation="vertical"
                     android:background="@drawable/all_corner_home_button_bg"
                     android:gravity="center"
+                    android:layout_margin="1dp"
                     android:padding="10dp">
+
+                    <ImageView
+                        android:layout_width="140dp"
+                        android:layout_height="80dp"
+                        android:src="@drawable/preauth_icon"/>
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="PREAUTH"
+                        android:textSize="16dp"
+                        
+                        android:layout_marginTop="10dp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
+
+
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:orientation="horizontal">
+                 android:orientation="horizontal">
 
 
                 <LinearLayout
                     android:id="@+id/adjustItem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
+                    android:layout_height="150dp"
                     android:layout_weight="1"
+                    android:layout_margin="1dp"
+                    android:orientation="vertical"
                     android:background="@drawable/all_corner_home_button_bg"
                     android:gravity="center"
-
                     android:padding="10dp">
 
+                    <ImageView
+                        android:layout_width="90dp"
+                        android:layout_height="90dp"
+                        android:src="@drawable/adjust_icon"/>
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="60dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="ADJUST"
+                        android:textSize="16dp"
+                        
+                        android:layout_marginTop="10dp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
+
 
                 <LinearLayout
                     android:id="@+id/offlineItem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
+                    android:layout_height="150dp"
                     android:layout_weight="1"
+                    android:orientation="vertical"
                     android:background="@drawable/all_corner_home_button_bg"
                     android:gravity="center"
+                    android:layout_margin="1dp"
                     android:padding="10dp">
 
+                    <ImageView
+                        android:layout_width="180dp"
+                        android:layout_height="90dp"
+                        android:src="@drawable/offline_icon"/>
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="OFFLINE/CAPTURE"
+                        android:textSize="16dp"
+                        
+                        android:layout_marginTop="10dp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
+
+
             </LinearLayout>
 
             <LinearLayout
@@ -177,89 +254,127 @@
                 <LinearLayout
                     android:id="@+id/cashadvItem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
+                    android:layout_height="150dp"
                     android:layout_weight="1"
+                    android:layout_margin="1dp"
+
+                    android:orientation="vertical"
                     android:background="@drawable/all_corner_home_button_bg"
                     android:gravity="center"
-
                     android:padding="10dp">
 
+                    <ImageView
+                        android:layout_width="90dp"
+                        android:layout_height="90dp"
+                        android:src="@drawable/advance_icon"/>
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="60dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="CASH ADV"
+                        android:textSize="16dp"
+                        
+                        android:layout_marginTop="10dp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
+
 
                 <LinearLayout
                     android:id="@+id/topupItem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
+                    android:layout_height="150dp"
                     android:layout_weight="1"
+                    android:orientation="vertical"
                     android:background="@drawable/all_corner_home_button_bg"
                     android:gravity="center"
+                    android:layout_margin="1dp"
                     android:padding="10dp">
 
+                    <ImageView
+                        android:layout_width="180dp"
+                        android:layout_height="90dp"
+                        android:src="@drawable/topup_icon"/>
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="60dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="EZLINK TOPUP"
+                        android:textSize="16dp"
+                        
+                        android:layout_marginTop="10dp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
+
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:orientation="horizontal">
-
+                 android:orientation="horizontal">
 
                 <LinearLayout
                     android:id="@+id/cepasItem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
+                    android:layout_height="150dp"
                     android:layout_weight="1"
+                    android:orientation="vertical"
                     android:background="@drawable/all_corner_home_button_bg"
                     android:gravity="center"
+                    android:layout_margin="1dp"
                     android:padding="10dp">
+
+                    <ImageView
+                        android:layout_width="90dp"
+                        android:layout_height="90dp"
+                        android:src="@drawable/cepas_icon"/>
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="CEPAS"
+                        android:textSize="16dp"
+                        
+                        android:layout_marginTop="10dp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
+
 
                 <LinearLayout
                     android:id="@+id/alipayItem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
+                    android:layout_height="150dp"
                     android:layout_weight="1"
+                    android:layout_margin="1dp"
+                    android:orientation="vertical"
                     android:background="@drawable/all_corner_home_button_bg"
                     android:gravity="center"
                     android:padding="10dp">
 
+                    <ImageView
+                        android:layout_width="180dp"
+                        android:layout_height="90dp"
+                        android:src="@drawable/alipay_logo"/>
+
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="ALIPAY"
+                        android:textSize="16dp"
+                        
+                        android:layout_marginTop="10dp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
+
+
             </LinearLayout>
 
             <TextView

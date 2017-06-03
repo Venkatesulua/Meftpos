@@ -66,13 +66,10 @@ public class SplashActivity extends Activity {
             public void run() {
                 try {
 
-                    Intent i = new Intent(SplashActivity.this, LoginActivity.class);
-                    startActivity(i);
-                    overridePendingTransition(R.anim.right_enter, R.anim.left_out);
 
-                    /*if (SharedPreferenceStore.getEncryptedSharedPref("LoginStatus").equalsIgnoreCase
-                            ("true") || SharedPreferenceStore.getEncryptedSharedPref("LoginStatus").equalsIgnoreCase
-                            ("Skipped")) {
+
+                    if (SharedPreferenceStore.getEncryptedSharedPref(SharedPreferenceStore.KEY_LOGIN_STATUS).equalsIgnoreCase
+                            ("true")) {
                         Intent i = new Intent(SplashActivity.this, HomeActivity.class);
                         startActivity(i);
                         overridePendingTransition(R.anim.right_enter, R.anim.left_out);
@@ -80,7 +77,7 @@ public class SplashActivity extends Activity {
                         Intent i = new Intent(SplashActivity.this, LoginActivity.class);
                         startActivity(i);
                         overridePendingTransition(R.anim.right_enter, R.anim.left_out);
-                    }*/
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

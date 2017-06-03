@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#149F5B</color>
+    <color name="colorPrimary">#0191D6</color>
     <color name="colorPrimaryDark">#414141</color>
     <color name="colorAccent">#DC4E42</color>
     <color name="global_color_primary_light">#f5f5f5</color>
-    <color name="appthemecolor">#149F5B</color>
+    <color name="appthemecolor">#FC6000</color>
     <color name="cremywhite">#f5f5f5</color>
     <color name="TRANSPERENT">#88888888</color>
     <color name="actionbar_opacity">#33000000</color>
+    <color name="sky_blue">#0191D6</color>
+    <color name="blue">#0000FE</color>
+
+
 
 
 </resources>

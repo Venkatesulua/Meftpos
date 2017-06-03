@@ -21,17 +21,13 @@ public final class SharedPreferenceStore {
 	/**
 	 * Default Shared preference return value.
 	 */
+	public static final String KEY_LOGIN_STATUS = "LOGIN_STATUS";
 	public static final String KEY_UNASSIGNED = "";
 	private static final String LOG_TAG = SharedPreferenceStore.class.getSimpleName();
 	private static final String SHARED_PREFERENCE_NAME = SharedPreferenceStore.class
 			.getSimpleName();
 
-	/**
-	 * Private Constructor.
-	 */
-	private SharedPreferenceStore() {
 
-	}
 
 	/**
 	 * Set value Shared Preference.

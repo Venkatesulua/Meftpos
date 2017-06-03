@@ -4,9 +4,31 @@
     android:gravity="center"
     android:orientation="vertical">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/colorPrimary">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:drawablePadding="5dp"
+            android:text="TECHNICIAN MENU"
+            android:textColor="#FFF"
+            android:textSize="18dp"
+            android:textStyle="bold" />
+
+
+    </RelativeLayout>
+
+
     <ScrollView
         android:layout_width="match_parent"
-          android:layout_height="match_parent">
+          android:layout_height="match_parent"
+        android:background="@drawable/splash_bg">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -15,29 +37,11 @@
             android:layout_gravity="center"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/welcome_text"
-                style="@style/TextViewAppearance.Headline3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/app_name"
-                android:textColor="@color/colorPrimary"
-                android:textSize="50sp"
-                android:layout_marginBottom="50dp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
-
 
                 <LinearLayout
                     android:id="@+id/clrreverseItem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_margin="10dp"
                     android:layout_weight="1"
                     android:background="@drawable/all_corner_home_button_bg"
@@ -47,8 +51,9 @@
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
+                        android:textColor="@color/sky_blue"
                         android:text="CLEAR REVERSAL"
                         android:textStyle="bold" />
 
@@ -57,7 +62,7 @@
                 <LinearLayout
                     android:id="@+id/clrbatchItem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_margin="10dp"
                     android:layout_weight="1"
                     android:background="@drawable/all_corner_home_button_bg"
@@ -66,25 +71,20 @@
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
+                        android:textColor="@color/sky_blue"
                         android:text="CLEAR BATCH"
                         android:textStyle="bold" />
 
                 </LinearLayout>
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
 
 
                 <LinearLayout
                     android:id="@+id/printconfigitem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_margin="10dp"
                     android:layout_weight="1"
                     android:background="@drawable/all_corner_home_button_bg"
@@ -94,9 +94,10 @@
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="PRINT CONFIG"
+                        android:textColor="@color/sky_blue"
                         android:textStyle="bold" />
 
                 </LinearLayout>
@@ -104,7 +105,7 @@
                 <LinearLayout
                     android:id="@+id/mmsdownloaditem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_margin="10dp"
                     android:layout_weight="1"
                     android:background="@drawable/all_corner_home_button_bg"
@@ -113,25 +114,21 @@
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
+                        android:textColor="@color/sky_blue"
                         android:text="MMS DOWNLOAD"
                         android:textStyle="bold" />
 
                 </LinearLayout>
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
+
 
 
                 <LinearLayout
                     android:id="@+id/secureeditoritem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_margin="10dp"
                     android:layout_weight="1"
                     android:background="@drawable/all_corner_home_button_bg"
@@ -142,8 +139,9 @@
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
+                        android:textColor="@color/sky_blue"
                         android:text="SECURE EDITOR"
                         android:textStyle="bold" />
 
@@ -152,7 +150,7 @@
                 <LinearLayout
                     android:id="@+id/keyManagmentitem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_margin="10dp"
                     android:layout_weight="1"
                     android:background="@drawable/all_corner_home_button_bg"
@@ -162,13 +160,13 @@
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
+                        android:textColor="@color/sky_blue"
                         android:text="KEY MANAGEMENT"
                         android:textStyle="bold" />
 
                 </LinearLayout>
-            </LinearLayout>
 
 
         </LinearLayout>
