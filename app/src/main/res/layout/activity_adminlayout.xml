@@ -34,6 +34,11 @@
 
 
     </RelativeLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_below="@+id/relativr_layout"
+        android:background="@drawable/line_bg"/>
 
 
     <LinearLayout
@@ -56,16 +61,15 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:gravity="left"
-
+                android:textColor="#000"
                 android:text="APP NAME : "
-                android:textColor="@color/cremywhite" />
+                 />
 
             <EditText
                 android:id="@+id/etappname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textColor="@color/cremywhite"
                 android:background="@drawable/all_corner_edittext_bg"
                 android:padding="8dp" />
 
@@ -84,15 +88,16 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:gravity="left"
+                android:textColor="#000"
+
                 android:text="TERMINAL ID :"
-                android:textColor="@color/cremywhite" />
+                 />
 
             <EditText
                 android:id="@+id/etterminalid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textColor="@color/cremywhite"
                 android:background="@drawable/all_corner_edittext_bg"
                 android:padding="8dp" />
 
@@ -112,15 +117,15 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:gravity="left"
+                android:textColor="#000"
                 android:text="CONNECTION TYPE : "
-                android:textColor="@color/cremywhite" />
+                 />
 
             <EditText
                 android:id="@+id/etconnectiontype"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textColor="@color/cremywhite"
                 android:background="@drawable/all_corner_edittext_bg"
                 android:padding="8dp" />
 
@@ -139,15 +144,15 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:gravity="left"
+                android:textColor="#000"
                 android:text="CONNECTION TO : "
-                android:textColor="@color/cremywhite" />
+                />
 
             <EditText
                 android:id="@+id/etconnectionto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textColor="@color/cremywhite"
                 android:background="@drawable/all_corner_edittext_bg"
                 android:padding="8dp" />
 
@@ -167,6 +172,7 @@
                     android:background="@drawable/all_corner_button_red_bg"
                     android:gravity="center"
                     android:text="CLEAR"
+                    android:visibility="gone"
                     android:textColor="@color/cremywhite" />
 
                 <Button

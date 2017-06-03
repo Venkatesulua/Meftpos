@@ -2,6 +2,10 @@ package com.mobileeftpos.android.eftpos.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,10 +21,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
+import com.mobileeftpos.android.eftpos.SupportClasses.BluetoothUtil;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
+import com.mobileeftpos.android.eftpos.SupportClasses.ESCUtil;
 import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
 import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
-import com.mobileeftpos.android.eftpos.model.TransactionDetails;
+import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.database.DBHelper;
+import com.mobileeftpos.android.eftpos.model.BarcodeModel;
+import com.mobileeftpos.android.eftpos.model.CommsModel;
+import com.mobileeftpos.android.eftpos.model.CurrencyModel;
+import com.mobileeftpos.android.eftpos.model.HostModel;
+import com.mobileeftpos.android.eftpos.model.MerchantModel;
 
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
@@ -28,6 +40,7 @@ import org.jpos.iso.ISOMsg;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -50,15 +63,34 @@ public class TransactionType extends AppCompatActivity {
     ISOMsg isoMsg = new ISOMsg();
     public static boolean isFromBarcodeScanner;
     private final String TAG = "my_custom_msg";
+    private static DBHelper databaseObj;
+    public static Context context;
+
+    private BarcodeModel barcode = new BarcodeModel();
+    private CurrencyModel currModel = new CurrencyModel();
+    private HostModel hostData = new HostModel();
+    private CommsModel commData = new CommsModel();
+    private MerchantModel merchantData = new MerchantModel();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transaction_type);
+<<<<<<< HEAD
         barCodeValue=null;
         isFromBarcodeScanner=false;
         addListenerOnButton();
+=======
+        databaseObj = new DBHelper(TransactionType.this);
+        context = TransactionType.this;
+        barCodeValue=null;
+        isFromBarcodeScanner=false;
+        isFromBarcodeScanner=true;
+        Log.i(TAG,"Trans_Type_onCreate_1");
+        startActivity(new Intent(TransactionType.this,FullScannerActivity.class));
+        //addListenerOnButton();
+>>>>>>> venkat
 
     }
 
@@ -127,6 +159,10 @@ public class TransactionType extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+<<<<<<< HEAD
+=======
+        Log.i(TAG,"Trans_Type:onResume");
+>>>>>>> venkat
         if(isFromBarcodeScanner){
             if(barCodeValue!=null && barCodeValue.length()>0) {
                 processBarcode(barCodeValue);
@@ -136,10 +172,15 @@ public class TransactionType extends AppCompatActivity {
     }
 
     private void processBarcode(String contents) {
+<<<<<<< HEAD
+=======
+        Log.i(TAG,"Trans_Type:processBarcode");
+>>>>>>> venkat
         mAsyncTask = new AsyncTaskRunner();
         //mAsyncTask.execute(new String[] { "52.88.135.124", "10002" });
         mAsyncTask.execute(new String[] { "192.168.43.117", "9999" });
-        trDetails.setPAN(contents);
+        //trDetails.setPAN(contents);
+        TransactionDetails.PAN = contents;
 
     }
 
@@ -152,6 +193,7 @@ public class TransactionType extends AppCompatActivity {
         protected String doInBackground(String... params) {
             try {
 
+                Log.i(TAG,"Trans_Type:AsyncTaskRunner");
                 processRequest(params[0],params[1]);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -163,12 +205,14 @@ public class TransactionType extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             // execution of result of Long time consuming operation
+            Log.i(TAG,"Trans_Type:onPostExecute");
             progressDialog.dismiss();
         }
 
 
         @Override
         protected void onPreExecute() {
+            Log.i(TAG,"Trans_Type:onPreExecute");
             progressDialog = ProgressDialog.show(TransactionType.this,
                     "Payment Processing",
                     "Please wait...");
@@ -179,19 +223,61 @@ public class TransactionType extends AppCompatActivity {
 
     private void processRequest(String ServerIP,String Port) {
 
+        Log.i(TAG,"processRequest_1");
         isoMsg.setPackager(packager);
-        inCreatePacket();
-        if (inConnection(ServerIP, Port) != 0) {
-            return;
-        }
-        if (inSendRecvPacket() != 0) {
-            return;
-        }
-        if (inProcessPacket() != 0) {
-            return;
-        }
-        if (inDisconnection() != 0) {
-            return;
+        int inPhase=0;
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSS");
+        Date date = new Date();
+        String stDate = dateFormat.format(date);
+        TransactionDetails.trxDateTime=stDate;
+        //Password Entry
+        while(true) {
+            switch(inPhase++)
+            {
+                case 0://Validation; in force settlement;
+                    Log.i(TAG,"processRequest_2");
+                    if (trDetails.inSortPAN(databaseObj) == 1) {
+                        Log.i(TAG,"ERROR in SORTPAN");
+                        return ;
+                    }
+                    break;
+                case 1://
+                    inCreatePacket();
+                    break;
+                case 2://
+                    if (inConnection(ServerIP, Port) != 0) {
+                        return;
+                    }
+                    break;
+                case 3://
+                    if (inSendRecvPacket() != 0) {
+                        return;
+                    }
+                    break;
+                case 4://
+                    if (inProcessPacket() != 0) {
+                        return;
+                    }
+
+                    if (inDisconnection() != 0) {
+                        return;
+                    }
+                    break;
+                case 5://
+                    //save Record
+                    vdSaveRecord();
+                    break;
+                case 6://
+                    //Print receipt
+                    Log.i(TAG, "\nPrinting:");
+                    inPrintReceipt();
+                    break;
+                case 7://Show the receipt in the display and give option to print or email
+                    startActivity(new Intent(TransactionType.this, HomeActivity.class));
+                    return;
+                    //break;
+            }
         }
     }
 
@@ -199,6 +285,14 @@ public class TransactionType extends AppCompatActivity {
         String stde27 = "";
         String stde29 = "";
         inFinalLength=0;
+
+
+        barcode = databaseObj.getBarcodeData(0);
+        currModel = databaseObj.getCurrencyData(TransactionDetails.inGCURR);
+        hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        commData = databaseObj.getCommsData(TransactionDetails.inGCOM);
+        merchantData = databaseObj.getMerchantData(0);
+
         isoMsg.setPackager(packager);
         try {
 
@@ -237,32 +331,39 @@ public class TransactionType extends AppCompatActivity {
                     break;
                 case Constants.TransType.ALIPAY_SALE:
                     Log.i(TAG,"ALIPAY_SALE : ");
+                    Log.i(TAG,"PARTNER_ID::"+barcode.getPARTNER_ID());
+                    Log.i(TAG,"SELLER_ID::"+barcode.getSELLER_ID());
+                    Log.i(TAG,"REGION_CODE::"+barcode.getREGION_CODE());
+
+                    Log.i(TAG,"TransactionDetails.trxAmount::"+TransactionDetails.trxAmount);
+                    Log.i(TAG,"getHDT_TERMINAL_ID::"+hostData.getHDT_TERMINAL_ID());
+                    Log.i(TAG,"getMERCHANT_NAME::"+merchantData.getMERCHANT_NAME());
+
+
                     CreateTLVFields(1, Constants.MTI.Financial);
                     CreateTLVFields(3, Constants.PROCESSINGCODE.pcFinancialRequest);
-                    CreateTLVFields(4, "2088021411132342");
-                    CreateTLVFields(5,"2088021411132342");
-                    DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSS");
-                    Date date = new Date();
-                    String stDate = dateFormat.format(date);
-                    stDate = stDate+"00";
-                    CreateTLVFields(8,stDate);
-                    CreateTLVFields(9,"SGD");
-                    CreateTLVFields(10,"100");
+                    CreateTLVFields(4, barcode.getPARTNER_ID());
+                    CreateTLVFields(5,barcode.getSELLER_ID());
+
+
+                    CreateTLVFields(8,(TransactionDetails.trxDateTime+"00"));
+                    CreateTLVFields(9,currModel.getCURR_LABEL());
+                    CreateTLVFields(10,TransactionDetails.trxAmount);
                     CreateTLVFields(11,trDetails.getPAN());
-                    CreateTLVFields(41,"10000008");
+                    CreateTLVFields(41,hostData.getHDT_TERMINAL_ID());
 
                     String staddinfo ="merchant_name:";
-                    staddinfo = staddinfo + "REGRESSION";
+                    staddinfo = staddinfo + merchantData.getMERCHANT_NAME();
                     staddinfo = staddinfo + ",merchant_no:";
-                    staddinfo = staddinfo + "254000000000001";
+                    staddinfo = staddinfo + hostData.getHDT_MERCHANT_ID();
                     staddinfo = staddinfo + ",business_no:";
                     staddinfo = staddinfo + "0";
                     staddinfo = staddinfo + ",terminal_id:";
-                    staddinfo = staddinfo + "10000008";
+                    staddinfo = staddinfo + hostData.getHDT_TERMINAL_ID();
                     staddinfo = staddinfo + ",mcc:";
                     staddinfo = staddinfo + "0";
                     staddinfo = staddinfo + ",region_code:";
-                    staddinfo = staddinfo + "RETAIL";
+                    staddinfo = staddinfo + barcode.getREGION_CODE();
                     staddinfo = staddinfo + ",";
                     CreateTLVFields(47,staddinfo);
                     break;
@@ -333,7 +434,7 @@ public class TransactionType extends AppCompatActivity {
         byte[] tpdu = new byte[10];
         // Copy the respective TPDU Value
         Log.i(TAG,"AddLength_Tpdu_2");
-        if(globalVar.getGTransactionType() != Constants.TransType.ALIPAY_SALE)
+        if(TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE)
             tpdu = new BigInteger(globalVar.tmsParam.getTMS_TPDU(), 16).toByteArray();
         else
             tpdu = new BigInteger("6002540000", 16).toByteArray();
@@ -371,9 +472,23 @@ public class TransactionType extends AppCompatActivity {
     }
     private int inProcessPacket() {
         try {
-            isoMsg.unpack(FinalData);
-            // print the DE list
-            logISOMsg(isoMsg);
+            Log.i(TAG,"\ninProcessPacket_1:");
+            if(globalVar.getGTransactionType() != Constants.TransType.ALIPAY_SALE) {
+                isoMsg.unpack(FinalData);
+                // print the DE list
+                logISOMsg(isoMsg);
+            }else{
+                Log.i(TAG,"\ninProcessPacket_2:");
+                inParceAlipyResponse(FinalData,inFinalLength);
+
+                Log.i(TAG,"\ninProcessPacket_3:");
+                Log.i(TAG,"\nTerminal-ID:"+trDetails.getResTerminalId());
+
+                if(!trDetails.getResTerminalId().equals("10000008")){
+                    Log.i(TAG,"\ninProcessPacket_4:");
+                    return 0;
+                }
+            }
         } catch (ISOException ex) {
             Log.i(TAG, "ISO EXCEPTION");
             Log.i(TAG, ex.getMessage());
@@ -459,6 +574,12 @@ public class TransactionType extends AppCompatActivity {
                     inFinalLength = is.read(FinalData);
                 } while (inFinalLength <= 0 && (System.currentTimeMillis() - timeNow <= 60000));
 
+                result = "";
+                for (int k = 0; k < inFinalLength; k++) {
+                    result = result + String.format("%02x", FinalData[k]);
+                }
+                Log.i(TAG,"\nRECEIVED:");
+                Log.i(TAG,result);
             }
             if (os != null)
                 os.close();
@@ -508,5 +629,260 @@ public class TransactionType extends AppCompatActivity {
         inFinalLength = inFinalLength + inposition;
         Log.i(TAG,"CreateTLVFields_12 : ");
         return inposition;
+    }
+
+    int inParceAlipyResponse(byte[] input,int inLen){
+
+        int incurrentposition = 0;
+        String stTag;
+        String stLen;
+        int inTag = 0;
+        int inLength = 0;
+        //byte[] chtemp = new byte[1024];
+        //for (int i = 0; i < 5; i++) {
+            //chtemp[i] = input[i];
+        //}
+        //tpdu = new String(chtemp);
+        //incurrentposition = 5;
+
+        while (true) {
+            inTag = (input[incurrentposition] * 256) + ((input[incurrentposition + 1]));
+            incurrentposition = incurrentposition + 2;
+            inLength = (input[incurrentposition] * 256) + ((input[incurrentposition + 1]));
+            incurrentposition = incurrentposition + 2;
+            byte[] chtemp = new byte[inLength];
+            Log.i(TAG,"inTag actual Len Initially :: "+chtemp.length);
+            for (int lp = 0; lp < inLength; lp++) {
+                chtemp[lp] = input[incurrentposition + lp];
+            }
+            incurrentposition = incurrentposition + inLength;
+
+            Log.i(TAG,"inTag :: "+inTag);
+            Log.i(TAG,"inTag_inLength :: "+inLength);
+            Log.i(TAG,"inTag actual Len :: "+chtemp.length);
+            Log.i(TAG,"inTag actual Value :: "+chtemp);
+
+            switch (inTag) {
+                case 1:// Message type
+                    trDetails.setMessageType( new String(chtemp));
+                    break;
+                case 3:// Processing code
+                    trDetails.setProcessingCode( new String(chtemp));
+                    break;
+                case 4:// partner id
+                    trDetails.setPartnerId( new String(chtemp));
+                    break;
+                case 5:// sellerid
+                    trDetails.setSellerId( new String(chtemp));
+                    break;
+                case 8:// partnertransid
+                    trDetails.setPartnerTransId( new String(chtemp));
+                    break;
+                case 9:// currency
+                    trDetails.setCurrency( new String(chtemp));
+                    break;
+                case 0x0a:// paymentamount
+                    //trDetails.settrxAmount( new String(chtemp));
+                    break;
+                case 0x0b:// buyerid
+                    //trDetails.setBuyerId( new String(chtemp));
+                    break;
+                case 0x0c:// refundid
+                    trDetails.setRefundId( new String(chtemp));
+                    break;
+                case 0x0d:// refundreason
+                    trDetails.setRefundReason( new String(chtemp));
+                    break;
+                case 0x26:// alipaytransid
+                    trDetails.setAlipayTransId( new String(chtemp));
+                    break;
+                case 0x27:// responsecode
+                    trDetails.setResponseCode( new String(chtemp));
+                    break;
+                case 0x28:// responsemesage
+                    trDetails.setRefundReason( new String(chtemp));
+                    break;
+                case 0x29:// terminalid
+                    trDetails.setResTerminalId( new String(chtemp));
+                    break;
+
+            }
+            if (incurrentposition >= inLen)
+                break;
+
+        }
+        return 0;
+    }
+
+    void vdSaveRecord(){
+
+    }
+    private void inPrintReceipt(){
+        Log.i(TAG,"\nPRINTING-BUILDING:");
+        // 1: Get BluetoothAdapter
+        BluetoothAdapter btAdapter = BluetoothUtil.getBTAdapter();
+        if (btAdapter == null) {
+            Toast.makeText(getBaseContext(), "Please Open Bluetooth!", Toast.LENGTH_LONG).show();
+            Log.i(TAG,"\nPRINTING-BUILDING_ERR!:");
+            return;
+        }
+        Log.i(TAG,"\nPRINTING-BUILDING_2:");
+        // 2: Get Sunmi's InnerPrinter BluetoothDevice
+        BluetoothDevice device = BluetoothUtil.getDevice(btAdapter);
+        if (device == null) {
+            Toast.makeText(getBaseContext(), "Please Make Sure Bluetooth have InnterPrinter!",
+                    Toast.LENGTH_LONG).show();
+            Log.i(TAG,"\nPRINTING-BUILDING:_ERR@");
+            return;
+        }
+        Log.i(TAG,"\nPRINTING-BUILDING_2:");
+
+        Log.i(TAG,"\nPRINTING-BUILDING_STRING STRING:");
+        // 3: Generate a order data
+        byte[] data = generateMockData1();
+        // 4: Using InnerPrinter print data
+        BluetoothSocket socket = null;
+        try {
+            socket = BluetoothUtil.getSocket(device);
+            Log.i(TAG,"\nPRINTING-BUILDING_23:");
+            BluetoothUtil.sendData(data, socket);
+            Log.i(TAG,"\nPRINTING-BUILDING_3:");
+        } catch (IOException e) {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e1) {
+                    Log.i(TAG,"\nPRINTING-BUILDING:___ERRR#");
+                    e1.printStackTrace();
+                }
+            }
+        }
+        return;
+    }
+
+    private byte[] generateMockData1() {
+        String inPrintBuffer="";
+        barcode = databaseObj.getBarcodeData(0);
+        currModel = databaseObj.getCurrencyData(TransactionDetails.inGCURR);
+        hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        commData = databaseObj.getCommsData(TransactionDetails.inGCOM);
+        merchantData = databaseObj.getMerchantData(0);
+
+        Log.i(TAG,"generateMockData1 getHDT_TERMINAL_ID::"+hostData.getHDT_TERMINAL_ID());
+        Log.i(TAG,"generateMockData1 getMERCHANT_NAME::"+merchantData.getMERCHANT_NAME());
+
+
+        try {
+            byte[] next2Line = ESCUtil.nextLine(2);
+            byte[] title = "The menu（launch）**wanda plaza".getBytes("gb2312");
+
+            byte[] boldOn = ESCUtil.boldOn();
+            byte[] fontSize2Big = ESCUtil.fontSizeSetBig(3);
+            byte[] center = ESCUtil.alignCenter();
+            byte[] Focus = "Web 507".getBytes("gb2312");
+            byte[] boldOff = ESCUtil.boldOff();
+            byte[] fontSize2Small = ESCUtil.fontSizeSetSmall(3);
+
+            byte[] left = ESCUtil.alignLeft();
+            byte[] orderSerinum = "Order No.11234".getBytes("gb2312");
+            boldOn = ESCUtil.boldOn();
+            byte[] fontSize1Big = ESCUtil.fontSizeSetBig(2);
+            byte[] FocusOrderContent = "Big hamburger(single)".getBytes("gb2312");
+            boldOff = ESCUtil.boldOff();
+            byte[] fontSize1Small = ESCUtil.fontSizeSetSmall(2);
+
+            next2Line = ESCUtil.nextLine(2);
+
+            byte[] priceInfo = "Receivable:$22  Discount：$2.5 ".getBytes("gb2312");
+            byte[] nextLine = ESCUtil.nextLine(1);
+
+            byte[] priceShouldPay = "Actual collection:$19.5".getBytes("gb2312");
+            nextLine = ESCUtil.nextLine(1);
+
+            byte[] takeTime = "Pickup time:2015-02-13 12:51:59".getBytes("gb2312");
+            nextLine = ESCUtil.nextLine(1);
+            byte[] setOrderTime = "Order time：2015-02-13 12:35:15".getBytes("gb2312");
+
+            byte[] tips_1 = "Follow twitter\"**\"order for $1 discount".getBytes("gb2312");
+            nextLine = ESCUtil.nextLine(1);
+            byte[] tips_2 = "Commentary reward 50 cents".getBytes("gb2312");
+            byte[] next4Line = ESCUtil.nextLine(4);
+
+            byte[] breakPartial = ESCUtil.feedPaperCutPartial();
+
+            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(center, "UTF-8")+new String(boldOn, "UTF-8")+new String(fontSize1Big, "UTF-8");
+            inPrintBuffer = inPrintBuffer + merchantData.getMERCHANT_NAME()+new String(boldOff, "UTF-8");
+
+            if(merchantData.getMERCHANT_HEADER1().length() !=0) {
+                inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
+                inPrintBuffer = inPrintBuffer + merchantData.getMERCHANT_HEADER1();
+            }
+            if(merchantData.getMERCHANT_HEADER2().length() !=0){
+                inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
+                inPrintBuffer = inPrintBuffer + merchantData.getMERCHANT_HEADER2();
+            }
+            if(merchantData.getADDRESS_LINE1().length() !=0){
+                inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
+                inPrintBuffer = inPrintBuffer + merchantData.getADDRESS_LINE1();
+            }if(merchantData.getADDRESS_LINE2().length() !=0){
+                inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
+                inPrintBuffer = inPrintBuffer + merchantData.getADDRESS_LINE2();
+            }
+            if(merchantData.getADDRESS_LINE3().length() !=0){
+                inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
+                inPrintBuffer = inPrintBuffer + merchantData.getADDRESS_LINE3();
+            }
+            if(merchantData.getADDRESS_LINE4().length() !=0){
+                inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
+                inPrintBuffer = inPrintBuffer + merchantData.getADDRESS_LINE4();
+            }
+            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(center, "UTF-8")+new String(boldOn, "UTF-8")+new String(fontSize1Big, "UTF-8");
+            inPrintBuffer = inPrintBuffer + "ALIPAY SALE" + new String(boldOff, "UTF-8");
+            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            String dateTime = "DATE/TIME : " + TransactionDetails.trxDateTime;
+            inPrintBuffer = inPrintBuffer + dateTime;
+            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            inPrintBuffer = inPrintBuffer + "MID:" + hostData.getHDT_MERCHANT_ID()+" "+"TID:"+hostData.getHDT_TERMINAL_ID();
+            //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+" ";
+            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            inPrintBuffer = inPrintBuffer + "BUYER IDENTITY CODE\n";
+            //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            inPrintBuffer = inPrintBuffer + trDetails.getPAN();
+            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            inPrintBuffer = inPrintBuffer + "PTNR TRANS ID:"+TransactionDetails.trxDateTime + "00";
+            //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ TransactionDetails.trxDateTime + "00";
+            //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            inPrintBuffer = inPrintBuffer + "PARTNER ID   :"+ trDetails.getPartnerId()+"\n";
+           // inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ trDetails.getPartnerId();
+           // inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            inPrintBuffer = inPrintBuffer +"SELLER ID    :"+ trDetails.getSellerId()+"\n";
+            //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ trDetails.getSellerId();
+            //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            inPrintBuffer = inPrintBuffer +"ALIPAY ID    :"+ trDetails.getAlipayTransId()+"\n";
+            //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ trDetails.getAlipayTransId();
+            //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+" ";
+            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(boldOn, "UTF-8")+new String(fontSize1Big, "UTF-8");
+            int inAmount = Integer.parseInt(TransactionDetails.trxAmount);
+
+            Log.i(TAG,"inAmount:"+inAmount);
+
+            String stAmount = String.format("%01d.%02d", (inAmount/100),(inAmount%100));
+            Log.i(TAG,"stAmount:"+stAmount);
+
+            inPrintBuffer = inPrintBuffer + "TOTAL SGD " + stAmount + new String(boldOff, "UTF-8");
+            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            inPrintBuffer = inPrintBuffer + "MERCHANT COPY"+new String(next4Line, "UTF-8")+new String(breakPartial, "UTF-8");
+
+            return inPrintBuffer.getBytes();
+            //return ESCUtil.byteMerger(cmdBytes);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

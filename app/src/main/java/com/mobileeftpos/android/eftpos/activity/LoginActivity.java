@@ -3,14 +3,15 @@ package com.mobileeftpos.android.eftpos.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
+ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.mobileeftpos.android.eftpos.R;
-import com.mobileeftpos.android.eftpos.SplashScreen.SplashActivity;
+import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(btn_create_an_account)
     TextView signup;
     private boolean isValid = false;
+    private final String TAG = "my_custom_msg";
 
 
     @Override
@@ -48,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
         submitBtn.setOnClickListener(new ClickLIstener());
         txtForgotPassword.setOnClickListener(new ClickLIstener());
         signup.setOnClickListener(new ClickLIstener());
+
 
     }
 
@@ -84,6 +87,10 @@ public class LoginActivity extends AppCompatActivity {
             Intent i = new Intent(LoginActivity.this, HomeActivity.class);
             startActivity(i);
             overridePendingTransition(R.anim.right_enter, R.anim.left_out);
+            SharedPreferenceStore
+                    .setEncryptedSharedPref(
+                            SharedPreferenceStore.KEY_LOGIN_STATUS,
+                            true + "");
         }
 
     }

@@ -1,6 +1,7 @@
 package com.mobileeftpos.android.eftpos.activity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -18,6 +19,7 @@ import android.view.ViewGroup;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.mobileeftpos.android.eftpos.R;
+import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -174,10 +176,21 @@ public class FullScannerActivity extends BaseScannerActivity implements MessageD
             Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
             r.play();
         } catch (Exception e) {}
+<<<<<<< HEAD
         TransactionType.barCodeValue=rawResult.getText();
         if(TransactionType.barCodeValue!=null && TransactionType.barCodeValue.length()>0){
             finish();
         }
+=======
+        String barCodeValue=rawResult.getText();
+
+        if(barCodeValue!=null && barCodeValue.length()>0){
+            Intent i = new Intent(this, AlipayActivity.class);
+            i.putExtra(Constants.QRCODE.BARCODE_INTENT_RESULT_KEY, barCodeValue);
+            setResult(111, i);
+            finish();
+         }
+>>>>>>> venkat
        // showMessageDialog("Contents = " + rawResult.getText() + ", Format = " + rawResult.getBarcodeFormat().toString());
     }
 

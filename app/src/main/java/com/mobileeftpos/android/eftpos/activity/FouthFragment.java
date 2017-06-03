@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.mobileeftpos.android.eftpos.R;
+import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
 
 
 /**
@@ -20,7 +21,7 @@ import com.mobileeftpos.android.eftpos.R;
  */
 public class FouthFragment extends Fragment {
 
-    private Button merchantInfo;
+    private Button merchantInfo,logoutBtn;
     private static final int REQUEST_INTERNET = 200;
 
     public FouthFragment() {
@@ -49,6 +50,21 @@ public class FouthFragment extends Fragment {
                 }else {
                     startActivity(new Intent(getActivity(), AdminActivity.class));
                 }
+            }
+        });
+
+        logoutBtn=(Button)view.findViewById(R.id.settings_logout);
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferenceStore
+                        .setEncryptedSharedPref(
+                                SharedPreferenceStore.KEY_LOGIN_STATUS,
+                                false + "");
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                getActivity().finish();
             }
         });
 

@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import com.mobileeftpos.android.eftpos.R;
 
@@ -29,7 +30,7 @@ public class HomeActivity extends AppCompatActivity {
             R.drawable.home_icon,
             R.drawable.receipt,
             R.drawable.historyicon,
-            R.drawable.user
+            R.drawable.user_settings
     };
     public static Context context;
 

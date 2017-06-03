@@ -9,13 +9,28 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.mobileeftpos.android.eftpos.R;
+import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
+import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 
+<<<<<<< HEAD
 import butterknife.OnClick;
 
 
 public class OneFragment extends Fragment implements View.OnClickListener {
 
     private LinearLayout saleBtn, settelmentBtn, voidBtn, preauthBtn, adjustBtn, offlineBtn, cashAdvBtn, ezlinkBtn, cepasBtn;
+=======
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import butterknife.OnClick;
+
+
+public class OneFragment extends Fragment implements View.OnClickListener {
+
+    private LinearLayout saleBtn, settelmentBtn, voidBtn, preauthBtn, adjustBtn, offlineBtn, cashAdvBtn, ezlinkBtn, cepasBtn,alipayBtn;
+>>>>>>> venkat
 
     public OneFragment() {
         // Required empty public constructor
@@ -41,6 +56,10 @@ public class OneFragment extends Fragment implements View.OnClickListener {
         cashAdvBtn = (LinearLayout) view.findViewById(R.id.cashadvItem);
         ezlinkBtn = (LinearLayout) view.findViewById(R.id.topupItem);
         cepasBtn = (LinearLayout) view.findViewById(R.id.cepasItem);
+<<<<<<< HEAD
+=======
+        alipayBtn = (LinearLayout) view.findViewById(R.id.alipayItem);
+>>>>>>> venkat
         saleBtn.setOnClickListener(this);
         settelmentBtn.setOnClickListener(this);
         voidBtn.setOnClickListener(this);
@@ -50,6 +69,10 @@ public class OneFragment extends Fragment implements View.OnClickListener {
         cashAdvBtn.setOnClickListener(this);
         ezlinkBtn.setOnClickListener(this);
         cepasBtn.setOnClickListener(this);
+<<<<<<< HEAD
+=======
+        alipayBtn.setOnClickListener(this);
+>>>>>>> venkat
 
         return view;
     }
@@ -57,6 +80,16 @@ public class OneFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
+<<<<<<< HEAD
+=======
+
+        //Read the transaction date and time and send the ame to host
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSS");
+        Date date = new Date();
+        String stDate = dateFormat.format(date);
+        TransactionDetails.trxDateTime=stDate;
+
+>>>>>>> venkat
         switch (view.getId()) {
             case R.id.saleItem:
                 startActivity(new Intent(HomeActivity.context, SaleActivity.class));
@@ -85,6 +118,13 @@ public class OneFragment extends Fragment implements View.OnClickListener {
 
             case R.id.cepasItem:
                 break;
+<<<<<<< HEAD
+=======
+            case R.id.alipayItem:
+                TransactionDetails.trxType = Constants.TransType.ALIPAY_SALE;
+                startActivity(new Intent(HomeActivity.context, SaleActivity.class));
+                break;
+>>>>>>> venkat
 
 
         }

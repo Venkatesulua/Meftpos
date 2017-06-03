@@ -37,7 +37,11 @@
     </RelativeLayout>
 
 
-
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_below="@+id/relativr_layout"
+        android:background="@drawable/line_bg"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -61,9 +65,10 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:gravity="left"
+                    android:textColor="#000"
 
                     android:text="CURRENT PASSWORD : "
-                    android:textColor="@color/cremywhite" />
+                   />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -88,8 +93,10 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:gravity="left"
+                    android:textColor="#000"
+
                     android:text="NEW PASSWORD :"
-                    android:textColor="@color/cremywhite" />
+                    />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -115,8 +122,9 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:gravity="left"
+                    android:textColor="#000"
                     android:text="CONFIRM PASSWORD : "
-                    android:textColor="@color/cremywhite" />
+                    />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -145,6 +153,7 @@
                     android:background="@drawable/all_corner_button_red_bg"
                     android:gravity="center"
                     android:text="CANCEL"
+                    android:visibility="gone"
                     android:textColor="@color/cremywhite" />
 
                 <Button

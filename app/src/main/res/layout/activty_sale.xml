@@ -2,10 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-     android:orientation="vertical">
+     android:orientation="vertical"
+    android:background="@drawable/splash_bg">
 
 
     <RelativeLayout
+        android:id="@+id/relativr_layout"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:background="@color/colorPrimary">
@@ -37,12 +39,17 @@
 
 
     </RelativeLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_below="@+id/relativr_layout"
+        android:background="@drawable/line_bg"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:orientation="vertical"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:layout_marginTop="80dp"
         android:layout_height="wrap_content">
 
     <LinearLayout
@@ -54,17 +61,18 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
+            android:layout_weight="0.6"
+            android:gravity="left"
             android:text="Amount $:"
+            android:layout_marginLeft="7dp"
             android:textColor="@color/colorAccent"
-            android:textSize="18dp" />
+            android:textSize="20dp" />
 
         <EditText
             android:id="@+id/payAmount"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_height="40dp"
+            android:layout_weight="0.4"
             android:singleLine="true"
             android:inputType="numberDecimal"
             android:background="@drawable/all_corner_saleedittext_bg"

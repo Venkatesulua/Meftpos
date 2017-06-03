@@ -23,7 +23,7 @@
     <!-- view border color and width -->
     <stroke
         android:width="0.5dp"
-        android:color="#FFFFFF" >
+        android:color="@color/sky_blue" >
     </stroke>
 
     <!-- If you want to add some padding -->

@@ -12,7 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
-import com.mobileeftpos.android.eftpos.model.TransactionDetails;
+import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
+import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 
 /**
  * Created by Prathap on 4/23/17.
@@ -42,7 +43,9 @@ private Button submitBtn;
             public void onClick(View v) {
                 if(payet.getText().toString().length()>0) {
                     amount = payet.getText().toString();
-                    startActivity(new Intent(SaleActivity.this, TransactionType.class));
+                    TransactionDetails.trxAmount = amount;
+                    if(TransactionDetails.trxType == Constants.TransType.ALIPAY_SALE)
+                        startActivity(new Intent(SaleActivity.this, AlipayActivity.class));
                     //startActivity(new Intent(SaleActivity.this, ScannerActivity.class));
                     //startActivity(new Intent(SaleActivity.this,FullScannerActivity.class));
                 }else{
