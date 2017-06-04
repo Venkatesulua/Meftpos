@@ -94,7 +94,7 @@ public class AlipayActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
-        if(requestCode==111){
+        if(requestCode==111 && intent!=null){
             String contents = intent.getStringExtra(Constants.QRCODE.BARCODE_INTENT_RESULT_KEY);
             processBarcode(contents);
 
