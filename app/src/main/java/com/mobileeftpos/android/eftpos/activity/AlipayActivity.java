@@ -81,7 +81,6 @@ public class AlipayActivity extends AppCompatActivity {
         isFromBarcodeScanner=true;
 
         Log.i(TAG,"Alipay_onCreate_1");
-        //startActivity(new Intent(AlipayActivity.this,FullScannerActivity.class));
         Intent i = new Intent(AlipayActivity.this, FullScannerActivity.class);
         i.putExtra("FromAlipayActivity", true);
         startActivityForResult(i, 111);
