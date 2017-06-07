@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
@@ -24,47 +26,51 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PacketCreation;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.async.WebServiceCall;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.model.BarcodeModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
 import com.mobileeftpos.android.eftpos.model.CurrencyModel;
 import com.mobileeftpos.android.eftpos.model.HostModel;
 import com.mobileeftpos.android.eftpos.model.MerchantModel;
+import com.mobileeftpos.android.eftpos.utils.AppUtil;
 
 import org.jpos.iso.ISOMsg;
+import org.jpos.security.Util;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class AlipayActivity extends AppCompatActivity {
 
-    //public GlobalVar globalVar = new GlobalVar();
-    //public PaymentProcessing paymentProcess = new PaymentProcessing();
+
     public TransactionDetails trDetails = new TransactionDetails();
     public PacketCreation isoPacket = new PacketCreation();
     public RemoteHost remoteHost = new RemoteHost();
     public PrintReceipt printReceipt = new PrintReceipt();
     AsyncTaskRunner mAsyncTask;
-    TextView backBtn;
-    public static String barCodeValue=null;
+     public static String barCodeValue=null;
     public byte[] FinalData = new byte[1512];
     public int inFinalLength = 0;
-    //public Socket smtpSocket = null;
-    //ISOPackager1 packager = new ISOPackager1();
-    //ISOMsg isoMsg = new ISOMsg();
     public static boolean isFromBarcodeScanner;
     private final String TAG = "my_custom_msg";
     private static DBHelper databaseObj;
     public static Context context;
     private static final int TIME_OUT = 5000;
+    private static String BASE_URL="https://devapi.prayapay.com/v2?";
+    private String requestTypeValue,brandValue,storeIdValue,deviceIdValue,
+    reqIdValue,reqDTValue,custCodeValue,amountValue,currValue,signTypeValue,
+    signValue;
 
-   /* private BarcodeModel barcode = new BarcodeModel();
-    private CurrencyModel currModel = new CurrencyModel();
-    private HostModel hostData = new HostModel();
-    private CommsModel commData = new CommsModel();
-    private MerchantModel merchantData = new MerchantModel();*/
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -312,6 +318,62 @@ public class AlipayActivity extends AppCompatActivity {
         }
         return inError;
     }
+
+
+
+    private void processWebServiceCall() {
+
+        WebServiceCall serv = new WebServiceCall(AlipayActivity.this) {
+            @Override
+            public void onResp(JSONObject response) {
+                Log.d("Response:::", response.toString());
+                try {
+                    String status = response.getJSONObject("response").getString("status");
+                    Log.i("status : ", status);
+                    if (status.equalsIgnoreCase("Success")) {
+
+
+                    } else {
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+
+                Toast.makeText(AlipayActivity.this, error.toString(),Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        if (AppUtil.isNetworkAvailable(AlipayActivity.this)) {
+            serv.makeJsonGetRequestObject(buildJsonreqObject());
+        }   else {
+            serv.hideProgressDialog();
+        }
+
+    }
+
+
+    private String buildJsonreqObject(){
+        String urlString = BASE_URL+
+                "reqtype="+requestTypeValue+
+                "&brand="+brandValue+
+                "&storeid="+storeIdValue+
+                "&deviceid="+deviceIdValue+
+                "&reqid="+reqIdValue+
+                "&reqdt="+reqDTValue+
+                "&custcode="+custCodeValue+
+                "&amt="+amountValue+
+                "&curr="+currValue+
+                "&signtype="+signTypeValue+
+                "&sign="+signValue;
+
+        return urlString;
+    }
+
 
 
 }
