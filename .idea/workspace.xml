@@ -18,25 +18,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0fcf4d93-4b57-46fe-aeb3-97cbaed73de9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/jackson_core_lgpl_1_9_13.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/jackson_mapper_lgpl_1_9_13.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/model/AlipayResponceModel.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/utils/JSONUtil.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/acra_4_5_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/acra_4_5_0.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/butterknife_annotations_8_1_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/butterknife_annotations_8_1_0.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/core_3_3_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/core_3_3_0.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/gson_2_8_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/gson_2_8_0.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/hamcrest_core_1_3.xml" afterPath="$PROJECT_DIR$/.idea/libraries/hamcrest_core_1_3.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/httpcore_4_4_1.xml" afterPath="$PROJECT_DIR$/.idea/libraries/httpcore_4_4_1.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/httpmime_4_3.xml" afterPath="$PROJECT_DIR$/.idea/libraries/httpmime_4_3.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/javax_inject_1.xml" afterPath="$PROJECT_DIR$/.idea/libraries/javax_inject_1.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/junit_4_12.xml" afterPath="$PROJECT_DIR$/.idea/libraries/junit_4_12.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/okhttp_3_6_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/okhttp_3_6_0.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/okio_1_11_0.xml" afterPath="$PROJECT_DIR$/.idea/libraries/okio_1_11_0.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/support_annotations_25_3_1.xml" afterPath="$PROJECT_DIR$/.idea/libraries/support_annotations_25_3_1.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/build.gradle" afterPath="$PROJECT_DIR$/app/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/activity/AlipayActivity.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/activity/AlipayActivity.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/utils/JSONUtil.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/utils/JSONUtil.java" />
     </list>
     <ignored path="eftpos-android.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -99,11 +82,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AlipayActivity.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="AlipayActivity.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/activity/AlipayActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="282">
-              <caret line="337" column="49" selection-start-line="337" selection-start-column="49" selection-end-line="337" selection-end-column="49" />
+            <state relative-caret-position="5634">
+              <caret line="367" column="0" selection-start-line="367" selection-start-column="0" selection-end-line="367" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -156,11 +139,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="JSONUtil.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="JSONUtil.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/utils/JSONUtil.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="40" column="38" selection-start-line="40" selection-start-column="38" selection-end-line="40" selection-end-column="38" />
+            <state relative-caret-position="126">
+              <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -2335,8 +2318,8 @@
         <option value="$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/utils/AppUtil.java" />
         <option value="$PROJECT_DIR$/app/build.gradle" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/model/AlipayResponceModel.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/utils/JSONUtil.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/activity/AlipayActivity.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/utils/JSONUtil.java" />
       </list>
     </option>
   </component>
@@ -2413,28 +2396,6 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="java" />
               <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidSourceTypeNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="eftpos-android" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidSourceTypeNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="eftpos" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="utils" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -2888,7 +2849,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.83711046" sideWeight="0.49485862" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32838285" sideWeight="0.5154242" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24959612" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24959612" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Fabric" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -3437,18 +3398,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/utils/JSONUtil.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/activity/AlipayActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="40" column="38" selection-start-line="40" selection-start-column="38" selection-end-line="40" selection-end-column="38" />
+        <state relative-caret-position="5634">
+          <caret line="367" column="0" selection-start-line="367" selection-start-column="0" selection-end-line="367" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/activity/AlipayActivity.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/mobileeftpos/android/eftpos/utils/JSONUtil.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="282">
-          <caret line="337" column="49" selection-start-line="337" selection-start-column="49" selection-end-line="337" selection-end-column="49" />
+        <state relative-caret-position="126">
+          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
           <folding />
         </state>
       </provider>
