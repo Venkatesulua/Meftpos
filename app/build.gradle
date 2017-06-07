@@ -75,6 +75,7 @@ dependencies {
     compile 'com.android.volley:volley:1.0.0'
     compile 'com.squareup.okhttp3:okhttp:3.6.0'
     compile 'me.dm7.barcodescanner:zxing:1.9.1'
+    compile 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:support-vector-drawable:25.3.1'
     testCompile 'junit:junit:4.12'

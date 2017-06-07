@@ -34,6 +34,7 @@ import com.mobileeftpos.android.eftpos.model.CurrencyModel;
 import com.mobileeftpos.android.eftpos.model.HostModel;
 import com.mobileeftpos.android.eftpos.model.MerchantModel;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
+import com.mobileeftpos.android.eftpos.utils.JSONUtil;
 
 import org.jpos.iso.ISOMsg;
 import org.jpos.security.Util;
@@ -328,11 +329,15 @@ public class AlipayActivity extends AppCompatActivity {
             public void onResp(JSONObject response) {
                 Log.d("Response:::", response.toString());
                 try {
-                    String status = response.getJSONObject("response").getString("status");
+                    String status = response.getString("respcode");
                     Log.i("status : ", status);
-                    if (status.equalsIgnoreCase("Success")) {
+                    if (status.equalsIgnoreCase("0")) {
 
-
+                        try {
+                            JSONUtil.parseTransactionResponce(response);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     } else {
 
                     }
@@ -358,6 +363,9 @@ public class AlipayActivity extends AppCompatActivity {
 
 
     private String buildJsonreqObject(){
+
+        // Need to Assign Values here
+
         String urlString = BASE_URL+
                 "reqtype="+requestTypeValue+
                 "&brand="+brandValue+
