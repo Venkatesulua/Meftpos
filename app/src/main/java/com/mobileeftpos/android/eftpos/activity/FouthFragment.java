@@ -21,7 +21,7 @@ import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
  */
 public class FouthFragment extends Fragment {
 
-    private Button merchantInfo,logoutBtn;
+    private Button changePwd,logoutBtn;
     private static final int REQUEST_INTERNET = 200;
 
     public FouthFragment() {
@@ -40,18 +40,6 @@ public class FouthFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_four, container, false);
 
 
-        merchantInfo = (Button) view.findViewById(R.id.merchant_info);
-        merchantInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.INTERNET}, REQUEST_INTERNET);
-                }else {
-                    startActivity(new Intent(getActivity(), AdminActivity.class));
-                }
-            }
-        });
 
         logoutBtn=(Button)view.findViewById(R.id.settings_logout);
         logoutBtn.setOnClickListener(new View.OnClickListener() {
@@ -67,6 +55,15 @@ public class FouthFragment extends Fragment {
                 getActivity().finish();
             }
         });
+
+        changePwd=(Button)view.findViewById(R.id.settings_changepassword);
+        changePwd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               startActivity(new Intent(getActivity(),ChangePasswordActivity.class));
+            }
+        });
+
 
         return view;
         // Inflate the layout for this fragment

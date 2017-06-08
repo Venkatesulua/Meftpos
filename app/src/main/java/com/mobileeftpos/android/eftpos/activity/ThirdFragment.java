@@ -1,22 +1,31 @@
 package com.mobileeftpos.android.eftpos.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
+import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 
 
 /**
  * Created by Prathap on 4/26/17.
  */
-public class ThirdFragment extends Fragment implements View.OnClickListener{
+public class ThirdFragment extends Fragment {
 
-    private LinearLayout reversalBtn, batchBtn, printConfigBtn, mmsBtn, secureBtn, KeyManagementBtn;
+    EditText alertinputField;
+     ImageView closeBtn;
 
     public ThirdFragment() {
         // Required empty public constructor
@@ -31,47 +40,37 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_three, container, false);
+        View view = inflater.inflate(R.layout.password_custom_layout, container, false);
+        alertinputField = (EditText) view.findViewById(R.id.pwdalert_et);
+        Button alertButton = (Button) view.findViewById(R.id.pwdalert_btn);
+        alertButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(alertinputField.getText().toString()!=null && alertinputField.getText().toString().length()>0){
 
-        reversalBtn = (LinearLayout) view.findViewById(R.id.clrreverseItem);
-        batchBtn = (LinearLayout) view.findViewById(R.id.clrbatchItem);
-        printConfigBtn = (LinearLayout) view.findViewById(R.id.printconfigitem);
-        mmsBtn = (LinearLayout) view.findViewById(R.id.mmsdownloaditem);
-        secureBtn = (LinearLayout) view.findViewById(R.id.secureeditoritem);
-        KeyManagementBtn = (LinearLayout) view.findViewById(R.id.keyManagmentitem);
-        reversalBtn.setOnClickListener(this);
-        batchBtn.setOnClickListener(this);
-        printConfigBtn.setOnClickListener(this);
-        mmsBtn.setOnClickListener(this);
-        secureBtn.setOnClickListener(this);
-        KeyManagementBtn.setOnClickListener(this);
+                    if(alertinputField.getText().toString().equals("745231")){
+
+                        startActivity(new Intent(getActivity(),TecnicianMenuActivity.class));
+                    }else{
+                        Toast.makeText(getActivity(),"Please enter valid password",Toast.LENGTH_SHORT).show();
+                     }
+
+                }else{
+                    alertinputField.setError("Field cannot be empty!");
+                }
+            }
+        });
+
+
+
         return view;
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.clrreverseItem:
-
-                break;
-
-            case R.id.clrbatchItem:
-                break;
-
-            case R.id.printconfigitem:
-                break;
-
-            case R.id.mmsdownloaditem:
-                break;
-
-            case R.id.secureeditoritem:
-                break;
-
-            case R.id.keyManagmentitem:
-                break;
 
 
 
-        }
-    }
+
+
+
+
 }

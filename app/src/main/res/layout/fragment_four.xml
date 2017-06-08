@@ -53,21 +53,7 @@
 
 
 
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="48sp"
-            android:layout_margin="10sp">
 
-            <Button
-                android:id="@+id/merchant_info"
-                android:layout_width="fill_parent"
-                android:layout_height="45sp"
-                android:background="@drawable/all_corner_edittext_bg"
-                android:text="Merchant Information"
-                android:textColor="@color/colorPrimary" />
-
-
-        </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="fill_parent"

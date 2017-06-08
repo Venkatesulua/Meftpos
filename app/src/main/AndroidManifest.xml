@@ -35,6 +35,9 @@
         <activity android:name=".activity.PaymentSuccess"/>
         <activity android:name=".activity.ReportActivity"/>
         <activity android:name=".activity.ReprintMenuActivity"/>
+        <activity android:name=".activity.TecnicianMenuActivity"/>
+        <activity android:name=".activity.ChangePasswordActivity"/>
+
 
 
         <activity

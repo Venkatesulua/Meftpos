@@ -295,13 +295,13 @@
                     <ImageView
                         android:layout_width="180dp"
                         android:layout_height="90dp"
-                        android:src="@drawable/topup_icon"/>
+                        android:src="@drawable/exlinktopup"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="EZLINK TOPUP"
+                        android:text="EZ-LINK TOPUP"
                         android:textSize="16dp"
                         
                         android:layout_marginTop="10dp"

@@ -1,5 +1,7 @@
 package com.mobileeftpos.android.eftpos.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +10,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
@@ -84,13 +87,29 @@ public class LoginActivity extends AppCompatActivity {
             String userNameStr=edtUserName.getText().toString();
             String passWordStr=edtPassword.getText().toString();
 
-            Intent i = new Intent(LoginActivity.this, HomeActivity.class);
-            startActivity(i);
-            overridePendingTransition(R.anim.right_enter, R.anim.left_out);
-            SharedPreferenceStore
-                    .setEncryptedSharedPref(
-                            SharedPreferenceStore.KEY_LOGIN_STATUS,
-                            true + "");
+            if(userNameStr.equalsIgnoreCase("admin") && passWordStr.equals("admin")) {
+
+                Intent i = new Intent(LoginActivity.this, HomeActivity.class);
+                startActivity(i);
+                overridePendingTransition(R.anim.right_enter, R.anim.left_out);
+                SharedPreferenceStore
+                        .setEncryptedSharedPref(
+                                SharedPreferenceStore.KEY_LOGIN_STATUS,
+                                true + "");
+            }else {
+                final AlertDialog alertDialog = new AlertDialog.Builder(
+                        LoginActivity.this).create();
+                alertDialog.setTitle("Login Failed");
+                alertDialog.setMessage("Please enter valid credentials");
+                alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Write your code here to execute after dialog closed
+                        alertDialog.dismiss();
+                    }
+                });
+
+                alertDialog.show();
+            }
         }
 
     }
