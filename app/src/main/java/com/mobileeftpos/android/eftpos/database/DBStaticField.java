@@ -18,12 +18,17 @@ public class DBStaticField {
 	public static final String TABLE_MERCHANT="MerchantTable";
 	public static final String TABLE_HTT="TABLE_HTT";
 
+
 	public static final String TABLE_REPORT="TABLE_REPORT";
 	public static final String EZLINK_TABLE="EZLINK_TABLE";
 	public static final String COMMS_TABLE="COMMS_TABLE";
 	public static final String ALIPAY_TABLE="ALIPAY";
 
+	public static final String TABLE_BATCH="Batch";
+	public static final String TABLE_TRACE="Trace";
 
+
+	// Host Table Fields
 	// Host Table Fields
 	public static final String HDT_HOST_ID="HDT_HOST_ID";
 	public static final String HDT_HOST_ENABLED="HDT_HOST_ENABLED";
@@ -205,7 +210,9 @@ public class DBStaticField {
 	public static final String AUTO_PRINT="AUTO_PRINT";
 	public static final String PRINTER_INTENSITY_CFG="PRINTER_INTENSITY_CFG";
 	public static final String PRINTER_CFG="PRINTER_CFG";
-
+//Table
+public static final String TRACE_UNIQUE_ID="TRACE_UNIQUE_ID";
+public static final String SYSTEM_TRACE="SYSTEM_TRACE";
 
 // Utility Table
 
@@ -219,7 +226,7 @@ public class DBStaticField {
 	public static final String AUTO_SETTLE_TIME="AUTO_SETTLE_TIME";
 	public static final String LAST_AUTO_SETTLEMENT_DATETIME="LAST_AUTO_SETTLEMENT_DATETIME";
 	public static final String UTRN_PREFIX="UTRN_PREFIX";
-	public static final String SYSTEM_TRACE="SYSTEM_TRACE";
+
 	public static final String DEFAULT_APPROVAL_CODE="DEFAULT_APPROVAL_CODE";
 
 
@@ -256,6 +263,50 @@ public class DBStaticField {
 	public static final String REGION_CODE="REGION_CODE";
 
 
+	//BATCh FILE
+	public static final String BATCH_ID="BATCH_ID";
+	public static final String HDT_INDEX="hdt_index";
+	public static final String TRANS_TYPE="trans_type";//SALE,REFUND
+	public static final String TRANS_MODE="trans_mode";// ENTRY MODE ie in
+	public static final String VOIDED="voided";
+	public static final String UPLOADED="uploaded";
+	public static final String PROC_CODE="proc_code";
+	public static final String INVOICE_NUMBER="invoice_number";
+	public static final String AMOUNT="amount";
+	public static final String TIP_AMOUNT="tip_amount";
+	public static final String TIME="time";
+	public static final String DATE="date";
+	public static final String YEAR="year"; //YY, TECK ADDED DUE TO REPRINT FAULT REPORTED EVERY BEGINNING OF YEAR.
+	public static final String ORG_MESS_ID="org_mess_id";
+	public static final String SYS_TRACE_NUM="sys_trace_num";
+	public static final String DATE_EXP="date_exp";
+	public static final String RETR_REF_NUM="retr_ref_num";
+	public static final String AUTH_ID_RESP="auth_id_resp";
+	public static final String RESP_CODE="resp_code";
+	public static final String ACCT_NUMBER="acct_number";
+	public static final String PERSON_NAME="person_name";
+	public static final String ORIGINAL_AMOUNT="original_amount";
+	public static final String ADDITIONAL_DATA="additional_data"; // Additional prompt data input
+	public static final String PAYMENT_TERM_INFO="payment_term_info";// For LMS IPP Etc.
+	public static final String PRIMARY_ACC_NUM="pri_acct_num";
+	public static final String POS_ENT_MODE="pos_ent_mode";
+	public static final String NII="NII";
+	public static final String POS_COND_CODE="pos_cond_code";
+	public static final String ADD_AMOUNT="add_amount";//Venkat:new balance amount: Ezlink
+	public static final String CARD_TYPE="card_type";
+	public static final String CARD_EQUENCE="card_sequence";
+	public static final String CHIPDATA="ChipData";
+	public static final String TVRVALUE="TVRValue";
+	public static final String TSIVALUE="TSIValue";
+	public static final String TRANSCRYTO="TransCryto";
+	public static final String TOTALSCRIPT71="TotalScript71";
+	public static final String TOTALSCRIPT72="TotalScript72";
+	public static final String SCRIPTRESULT71="ScriptRslt71";
+	public static final String SCRIPTRESULT72="ScriptRslt72";
+	public static final String CHAID="chAid";  //for EMV Aid selected
+	public static final String APPLICATION_LABEL="application_label";
+	public static final String CLS_SCHEME_ID="ui8ClsSchemeid";
+	public static final String SIGNATURE_REQ="ui8SignReq";
 
 
 

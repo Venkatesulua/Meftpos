@@ -167,7 +167,7 @@ public class PrintReceipt  {
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             inPrintBuffer = inPrintBuffer + TransactionDetails.PAN;
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer + "PTNR TRANS ID:"+TransactionDetails.trxDateTime + "00";
+            inPrintBuffer = inPrintBuffer + "PTNR TRANS ID:"+TransactionDetails.PartnerTransID + "00";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ TransactionDetails.trxDateTime + "00";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
@@ -180,6 +180,7 @@ public class PrintReceipt  {
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ trDetails.getSellerId();
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             inPrintBuffer = inPrintBuffer +"ALIPAY ID    :"+ TransactionDetails.chApprovalCode+"\n";
+            inPrintBuffer = inPrintBuffer + TransactionDetails.responseMessge+"\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ trDetails.getAlipayTransId();
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+" ";

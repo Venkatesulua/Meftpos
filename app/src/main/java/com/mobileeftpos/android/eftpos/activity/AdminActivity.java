@@ -3,8 +3,10 @@ package com.mobileeftpos.android.eftpos.activity;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -38,6 +40,7 @@ import com.mobileeftpos.android.eftpos.model.MerchantModel;
 import com.mobileeftpos.android.eftpos.model.PasswordModel;
 import com.mobileeftpos.android.eftpos.model.ReceiptModel;
 import com.mobileeftpos.android.eftpos.model.ReportsModel;
+import com.mobileeftpos.android.eftpos.model.TraceNumberModel;
 import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
 import com.mobileeftpos.android.eftpos.model.UtilityTable;
 
@@ -147,7 +150,7 @@ public class AdminActivity extends Activity {
     }
 
 
-    private void processRequest() {
+    private String processRequest() {
 
 
         //Validation for null
@@ -155,7 +158,7 @@ public class AdminActivity extends Activity {
                 (connectionType.getSelectedItem().toString().length() > 0) && (connectionTo.getSelectedItem().toString().length() > 0))) {
             //ERROR MISSING TMS PARAMETERS
             Log.i(TAG, "ERROR MISSING TMS PARAMETERS");
-            return;
+            return "FAILED";
         }
         globalVar.tmsParam.setTMS_APPLICATION(appName.getText().toString());
         globalVar.tmsParam.setTMS_FILENAME(terminalId.getText().toString());
@@ -205,13 +208,13 @@ public class AdminActivity extends Activity {
             inCreatePacket();
             // Connection to Host
             if (inConnection() != 0) {
-                return;
+                return "FAILED";
             }
             if (inSendRecvPacket() != 0) {
-                return;
+                return "FAILED";
             }
             if (inProcessPacket() != 0) {
-                return;
+                return "FAILED";
             }
             String stTemp = isoMsg.getString(39);
             if (stTemp.equals("00")) {
@@ -248,12 +251,12 @@ public class AdminActivity extends Activity {
                 }
             }
             if (inDisconnection() != 0) {
-                return;
+                return "FAILED";
             }
         }
 
         if (inDisconnection() != 0) {
-            return;
+            return "FAILED";
         }
 
         if (msg_ok == true) {
@@ -261,8 +264,9 @@ public class AdminActivity extends Activity {
             Log.i(TAG, "FInal Output:\n");
             Log.i(TAG, globalVar.TmsData);
             vdStoreParameters();
+            return "OK";
         }
-
+        return "FAILED";
     }
 
 
@@ -338,9 +342,11 @@ public class AdminActivity extends Activity {
         TransactionControlModel transctrlModel = new TransactionControlModel();
         UtilityTable utilModel = new UtilityTable();
         BarcodeModel barcodeModel = new BarcodeModel();
+        TraceNumberModel traceModel = new TraceNumberModel();
 
 
         Log.i(TAG, "DELETE ALL THE CONTENT FROM  THE FILE");
+
         databaseObj.deleteallvalues(DBStaticField.TABLE_HOST);//="HostTable";
         databaseObj.deleteallvalues(DBStaticField.TABLE_CBT);//="CardBinTable";
         databaseObj.deleteallvalues(DBStaticField.TABLE_CTT);//CardTypeTable";
@@ -498,7 +504,8 @@ public class AdminActivity extends Activity {
             } else if (stParam.equals("UTRN")) {
                 utilModel.setUTRN_PREFIX(stValue);
             } else if (stParam.equals("ST")) {
-                utilModel.setSYSTEM_TRACE(stValue);
+                traceModel.setSYSTEM_TRACE(stValue);
+                databaseObj.InsertTraceNumberData(traceModel);
             } else if (stParam.equals("DAPP")) {
                 utilModel.setDEFAULT_APPROVAL_CODE(stValue);
             } else if (stParam.contains("HDT")) {
@@ -1072,9 +1079,14 @@ public class AdminActivity extends Activity {
         merchantModeldata = databaseObj.getMerchantData(0);
         Log.i(TAG, "Merchant NAme" + merchantModeldata.getMERCHANT_NAME());
 
+
+
+
+
+
         // if (merchantModeldata.equals(null)) {
 
-        Toast.makeText(AdminActivity.this, merchantModeldata.getMERCHANT_NAME().toString(), Toast.LENGTH_LONG).show();
+
 
         // }
 
@@ -1424,14 +1436,14 @@ public class AdminActivity extends Activity {
 
     private class AsyncTaskRunner extends AsyncTask<String, Void, String> {
 
-        private String resp;
+        private String resp="";
         ProgressDialog progressDialog;
 
         @Override
         protected String doInBackground(String... params) {
             try {
 
-                processRequest();
+                resp = processRequest();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -1442,7 +1454,24 @@ public class AdminActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             // execution of result of Long time consuming operation
-            progressDialog.dismiss();
+            if(result.equals("OK")) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(AdminActivity.this, "DOWNLOAD SUCCESSFUL", Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                    }
+                }, 5000);
+            }else{
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(AdminActivity.this, "DOWNLOAD FAILED TRY AGAIN !!!", Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                    }
+                }, 5000);
+            }
+
         }
 
 

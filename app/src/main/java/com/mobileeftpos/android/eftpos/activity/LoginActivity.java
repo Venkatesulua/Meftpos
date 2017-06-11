@@ -1,11 +1,14 @@
 package com.mobileeftpos.android.eftpos.activity;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
- import android.view.View;
+import android.telephony.TelephonyManager;
+import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,8 +16,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
+import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
 
+
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -88,6 +94,22 @@ public class LoginActivity extends AppCompatActivity {
             String passWordStr=edtPassword.getText().toString();
 
             if(userNameStr.equalsIgnoreCase("admin") && passWordStr.equals("admin")) {
+
+                final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+
+
+                Log.i(TAG,"LogOn SCREEN");
+                final String tmDevice, tmSerial, androidId;
+                TransactionDetails.deviceId = "" + tm.getDeviceId();
+                Log.i(TAG,"TransactionDetails.deviceId::"+TransactionDetails.deviceId);
+                /*tmSerial = "" + tm.getSimSerialNumber();
+                Log.i(TAG,"tmSerial::"+tmSerial);
+                androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+                Log.i(TAG,"androidId::"+androidId);
+
+                UUID deviceUuid = new UUID(androidId.hashCode(), ((long)tmDevice.hashCode() << 32) | tmSerial.hashCode());
+                TransactionDetails.deviceId = deviceUuid.toString();
+                Log.i(TAG,"TransactionDetails.deviceId::"+TransactionDetails.deviceId);*/
 
                 Intent i = new Intent(LoginActivity.this, HomeActivity.class);
                 startActivity(i);

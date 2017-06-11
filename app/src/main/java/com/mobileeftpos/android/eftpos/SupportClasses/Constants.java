@@ -6,6 +6,16 @@ package com.mobileeftpos.android.eftpos.SupportClasses;
 public class Constants {
 	public static final String TMS_DEFAULT_MMS_FAMILY = "TELIUM";
 
+	public static final int TRUE = 1;
+	public static final int FALSE = 0;
+	public class TransMode {
+		public static final int SWIPE = 0;
+		public static final int ICC = 1;
+		public static final int NFC = 2;
+		public static final int BARCODE = 3;
+
+	}
+
 	public class TransType {
 		public static final int TMS_INITIAL_PACKET = 0;
 		public static final int TMS_SUBSEQUENT_PACKET = 1;

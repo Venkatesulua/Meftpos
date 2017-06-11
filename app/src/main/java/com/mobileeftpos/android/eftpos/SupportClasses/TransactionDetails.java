@@ -15,9 +15,13 @@ import com.mobileeftpos.android.eftpos.model.MerchantModel;
 //20170523: Venkat added transaction details table
 public class TransactionDetails {
     private final String TAG = "my_custom_msg";
+    public static  String deviceId;
+
     public static String trxAmount;
+    public static String tipAmount;
     public static String trxDateTime;//yyyyMMddHHmmssSS
     public static String PAN;
+    public static String ExpDate;
     public static int trxType;
     public static String chApprovalCode;
     public static String EntryMode;
@@ -26,11 +30,46 @@ public class TransactionDetails {
     public static int inGCTT;
     public static int inGCOM;
     public static int inGCURR;
-   // public static int inGHDT ;
+    public static int inGTrxMode;
+    public static String processingcode;
+    public static String messagetype;
+    public static int InvoiceNumber;
+    public static String RetrievalRefNumber;
+    public static String ResponseCode;
+    public static String PersonName;
+    public static String POSEntryMode;
+    public static String NII;
+    public static String POS_COND_CODE;
+    // public static int inGHDT ;
     int inGNoOfValidHosts;
+
+    private String reqterminalid;
+    private String resterminalid;
+    private String currency;
+
+    //private String messagetype;
+    //private String processingcode;
+
+    private String partnerid;
+    private String sellerid;
+    private String partnertransid;
+    private String buyerid;
+    private String refundid;
+    private String refundreason;
+    private String quantity;
+    private String transactionname;
+    private String userid;
+    private String uiqueappid;
+    private String androidserialid;
+    private String responsecode;
+    private String responsemesage;
+    private String alipaytransid;
     //public static String EntryMode;
     //private DBHelper databaseObj;
     //public Context context;
+    //ALIPAy response
+    public static String responseMessge;
+    public static String PartnerTransID;
 
     public int inSortPAN(DBHelper databaseObj)
     {
@@ -283,6 +322,7 @@ public class TransactionDetails {
 
             Log.i(TAG,"HOST_DESCRIPTION:::"+ hostdata.getHDT_DESCRIPTION());
             Log.i(TAG,"getHDT_HOST_LABEL:::"+ hostdata.getHDT_HOST_LABEL());
+            Log.i(TAG,"getHDT_HOST_ENABLED:::"+ hostdata.getHDT_HOST_ENABLED());
             //Teck: Commented because currency matching is no should no longer be required
             //if(atoi(localHDTStruct.HDT_CURR_INDEX) == ui16CurrencyIndex)
             if(hostdata.getHDT_HOST_ENABLED().substring(0,1).equals("1"))
@@ -335,27 +375,7 @@ public class TransactionDetails {
 
 
 
-    private String reqterminalid;
-    private String resterminalid;
-    private String currency;
 
-    private String messagetype;
-    private String processingcode;
-
-    private String partnerid;
-    private String sellerid;
-    private String partnertransid;
-    private String buyerid;
-    private String refundid;
-    private String refundreason;
-    private String quantity;
-    private String transactionname;
-    private String userid;
-    private String uiqueappid;
-    private String androidserialid;
-    private String responsecode;
-    private String responsemesage;
-    private String alipaytransid;
 
     public void setMessageType(String messagetype) {this.messagetype = messagetype;}
     public String getMessageType() {return messagetype;}

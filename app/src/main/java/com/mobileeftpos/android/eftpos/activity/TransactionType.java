@@ -826,7 +826,8 @@ public class TransactionType extends AppCompatActivity {
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(center, "UTF-8")+new String(boldOn, "UTF-8")+new String(fontSize1Big, "UTF-8");
             inPrintBuffer = inPrintBuffer + "ALIPAY SALE" + new String(boldOff, "UTF-8");
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            String dateTime = "DATE/TIME : " + TransactionDetails.trxDateTime;
+            String dateTime = "DATE/TIME : " + TransactionDetails.trxDateTime.substring(2,4)+"/"+TransactionDetails.trxDateTime.substring(4,6)+"/"+TransactionDetails.trxDateTime.substring(6,8)+" "+
+                    TransactionDetails.trxDateTime.substring(8,10) +":"+TransactionDetails.trxDateTime.substring(10,12)+":"+TransactionDetails.trxDateTime.substring(12,14);
             inPrintBuffer = inPrintBuffer + dateTime;
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             inPrintBuffer = inPrintBuffer + "MID:" + hostData.getHDT_MERCHANT_ID()+" "+"TID:"+hostData.getHDT_TERMINAL_ID();
@@ -834,9 +835,9 @@ public class TransactionType extends AppCompatActivity {
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             inPrintBuffer = inPrintBuffer + "BUYER IDENTITY CODE\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer + trDetails.getPAN();
+            inPrintBuffer = inPrintBuffer + TransactionDetails.PAN;
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer + "PTNR TRANS ID:"+TransactionDetails.trxDateTime + "00";
+            inPrintBuffer = inPrintBuffer + "PTNR TRANS ID:"+TransactionDetails.trxDateTime  + "\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ TransactionDetails.trxDateTime + "00";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");

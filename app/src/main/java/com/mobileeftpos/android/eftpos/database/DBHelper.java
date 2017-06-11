@@ -5,10 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.mobileeftpos.android.eftpos.model.BarcodeModel;
+import com.mobileeftpos.android.eftpos.model.BatchModel;
 import com.mobileeftpos.android.eftpos.model.CardBinModel;
 import com.mobileeftpos.android.eftpos.model.CardTypeModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
@@ -24,6 +26,7 @@ import com.mobileeftpos.android.eftpos.model.MerchantModel;
 import com.mobileeftpos.android.eftpos.model.PasswordModel;
 import com.mobileeftpos.android.eftpos.model.ReceiptModel;
 import com.mobileeftpos.android.eftpos.model.ReportsModel;
+import com.mobileeftpos.android.eftpos.model.TraceNumberModel;
 import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
 import com.mobileeftpos.android.eftpos.model.UtilityTable;
 
@@ -359,6 +362,14 @@ public class DBHelper {
             + DBStaticField.PRINTER_CFG + "] TEXT)";
 
 
+    private static String Table_Trace = "CREATE TABLE IF NOT EXISTS ["
+            + DBStaticField.TABLE_TRACE
+            + "] (["
+            + DBStaticField.TRACE_UNIQUE_ID
+            + "] INTEGER PRIMARY KEY AUTOINCREMENT,["
+            + DBStaticField.SYSTEM_TRACE
+            + "] TEXT)";
+
     private static String Table_Utility = "CREATE TABLE IF NOT EXISTS ["
             + DBStaticField.TABLE_UTILITY
             + "] (["
@@ -381,8 +392,6 @@ public class DBHelper {
             + DBStaticField.LAST_AUTO_SETTLEMENT_DATETIME
             + "] TEXT,["
             + DBStaticField.UTRN_PREFIX
-            + "] TEXT,["
-            + DBStaticField.SYSTEM_TRACE
             + "] TEXT,["
             + DBStaticField.DEFAULT_APPROVAL_CODE + "] TEXT)";
 
@@ -449,6 +458,52 @@ public class DBHelper {
             + "] TEXT,["
             + DBStaticField.REGION_CODE + "] TEXT)";
 
+    private static String Table_Batch = "CREATE TABLE IF NOT EXISTS ["
+            + DBStaticField.TABLE_BATCH
+            + "] (["+ DBStaticField.BATCH_ID + "] INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + "[" +DBStaticField.HDT_INDEX+ "] TEXT,"
+            + "[" + DBStaticField.TRANS_TYPE + "] TEXT,"
+            + "[" + DBStaticField.TRANS_MODE + "] TEXT,"
+            + "[" + DBStaticField.VOIDED + "] TEXT,"
+            + "[" + DBStaticField.UPLOADED + "] TEXT,"
+            + "[" + DBStaticField.PROC_CODE + "] TEXT,"
+            + "[" + DBStaticField.INVOICE_NUMBER + "] TEXT,"
+            + "[" + DBStaticField.AMOUNT + "] TEXT,"
+            + "[" + DBStaticField.TIP_AMOUNT + "] TEXT,"
+            + "[" + DBStaticField.TIME + "] TEXT,"
+            + "[" + DBStaticField.DATE + "] TEXT,"
+            + "[" + DBStaticField.YEAR + "] TEXT,"
+            + "[" + DBStaticField.ORG_MESS_ID + "] TEXT,"
+            + "[" + DBStaticField.SYS_TRACE_NUM + "] TEXT,"
+            + "[" + DBStaticField.DATE_EXP + "] TEXT,"
+            + "[" + DBStaticField.RETR_REF_NUM + "] TEXT,"
+            + "[" + DBStaticField.AUTH_ID_RESP + "] TEXT,"
+            + "[" + DBStaticField.RESP_CODE + "] TEXT,"
+            + "[" + DBStaticField.ACCT_NUMBER + "] TEXT,"
+            + "[" + DBStaticField.PERSON_NAME + "] TEXT,"
+            + "[" + DBStaticField.ORIGINAL_AMOUNT + "] TEXT,"
+            + "[" + DBStaticField.ADDITIONAL_DATA + "] TEXT,"
+            + "[" + DBStaticField.PAYMENT_TERM_INFO + "] TEXT,"
+            + "[" + DBStaticField.PRIMARY_ACC_NUM + "] TEXT,"
+            + "[" + DBStaticField.POS_ENT_MODE + "] TEXT,"
+            + "[" + DBStaticField.NII + "] TEXT,"
+            + "[" + DBStaticField.POS_COND_CODE + "] TEXT,"
+            + "[" + DBStaticField.ADD_AMOUNT + "] TEXT,"
+            + "[" + DBStaticField.CARD_TYPE + "] TEXT,"
+            + "[" + DBStaticField.CARD_EQUENCE + "] TEXT,"
+            + "[" + DBStaticField.CHIPDATA + "] TEXT,"
+            + "[" + DBStaticField.TVRVALUE + "] TEXT,"
+            + "[" + DBStaticField.TSIVALUE + "] TEXT,"
+            + "[" + DBStaticField.TRANSCRYTO + "] TEXT,"
+            + "[" + DBStaticField.TOTALSCRIPT71 + "] TEXT,"
+            + "[" + DBStaticField.TOTALSCRIPT72 + "] TEXT,"
+            + "[" + DBStaticField.SCRIPTRESULT71 + "] TEXT,"
+            + "[" + DBStaticField.SCRIPTRESULT72 + "] TEXT,"
+            + "[" + DBStaticField.CHAID + "] TEXT,"
+            + "[" + DBStaticField.APPLICATION_LABEL + "] TEXT,"
+            + "[" + DBStaticField.CLS_SCHEME_ID + "] TEXT,"
+            + "[" + DBStaticField.SIGNATURE_REQ + "] TEXT)";
+
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -476,6 +531,8 @@ public class DBHelper {
             db.execSQL(Table_Utility);
             db.execSQL(Table_Receipt);
             db.execSQL(Table_Alipay);
+            db.execSQL(Table_Batch);
+            db.execSQL(Table_Trace);
 
         }
 
@@ -504,6 +561,8 @@ public class DBHelper {
             db.execSQL("DROP TABLE IF EXISTS "
                     + DBStaticField.TABLE_UTILITY);
             db.execSQL("DROP TABLE IF EXISTS "
+                    + DBStaticField.TABLE_TRACE);
+            db.execSQL("DROP TABLE IF EXISTS "
                     + DBStaticField.TABLE_MERCHANT);
             db.execSQL("DROP TABLE IF EXISTS "
                     + DBStaticField.TABLE_REPORT);
@@ -515,13 +574,24 @@ public class DBHelper {
                     + DBStaticField.TABLE_HTT);
             db.execSQL("DROP TABLE IF EXISTS "
                     + DBStaticField.ALIPAY_TABLE);
+            db.execSQL("DROP TABLE IF EXISTS "
+                    + DBStaticField.TABLE_BATCH);
             onCreate(db);
         }
-
-
     }
 
     public void deleteallvalues(String TABLE_NAME){
+        SQLiteDatabase db = DBHelper.getWritableDatabase();
+        String sql = "delete from " + TABLE_NAME;
+        try {
+            db.execSQL(sql);
+            Log.i(TAG,"Delete ALL Data Table Executed");
+        } catch (SQLException e) {
+            Log.i(TAG,"Delete ALL Data Exception"+e.getMessage().toString());
+        }
+    }
+
+    public void dropallTable(String TABLE_NAME){
         SQLiteDatabase db = DBHelper.getWritableDatabase();
         String sql = "drop table " + TABLE_NAME;
         try {
@@ -551,6 +621,7 @@ public class DBHelper {
             db.execSQL(Table_Utility);
             db.execSQL(Table_Receipt);
             db.execSQL(Table_Alipay);
+            db.execSQL(Table_Trace);
             Log.i(TAG,"Tables Created Successfully");
         }catch (SQLException e) {
             Log.i(TAG,"Tables Created Exceptions:::"+ e.getMessage().toString());
@@ -903,6 +974,7 @@ public class DBHelper {
         return limitModel;
     }
 
+
     public boolean InsertUtilityTablelData(UtilityTable model) {
 
         SQLiteDatabase db = DBHelper.getWritableDatabase();
@@ -915,7 +987,7 @@ public class DBHelper {
         contentValues.put(DBStaticField.PINBYPASS, model.getPINBYPASS());
         contentValues.put(DBStaticField.AUTO_SETTLE_TIME, model.getAUTO_SETTLE_TIME());
         contentValues.put(DBStaticField.UTRN_PREFIX, model.getUTRN_PREFIX());
-        contentValues.put(DBStaticField.SYSTEM_TRACE, model.getSYSTEM_TRACE());
+       // contentValues.put(DBStaticField.SYSTEM_TRACE, model.getSYSTEM_TRACE());
         contentValues.put(DBStaticField.DEFAULT_APPROVAL_CODE, model.getDEFAULT_APPROVAL_CODE());
 
         db.insert(DBStaticField.TABLE_UTILITY, null, contentValues);
@@ -940,7 +1012,7 @@ public class DBHelper {
                 utilityModel.setPINBYPASS(res.getString(res.getColumnIndex(DBStaticField.PINBYPASS)));
                 utilityModel.setAUTO_SETTLE_TIME(res.getString(res.getColumnIndex(DBStaticField.AUTO_SETTLE_TIME)));
                 utilityModel.setUTRN_PREFIX(res.getString(res.getColumnIndex(DBStaticField.UTRN_PREFIX)));
-                utilityModel.setSYSTEM_TRACE(res.getString(res.getColumnIndex(DBStaticField.SYSTEM_TRACE)));
+                // utilityModel.setSYSTEM_TRACE(res.getString(res.getColumnIndex(DBStaticField.SYSTEM_TRACE)));
                 utilityModel.setDEFAULT_APPROVAL_CODE(res.getString(res.getColumnIndex(DBStaticField.DEFAULT_APPROVAL_CODE)));
                 break;
             }
@@ -950,6 +1022,60 @@ public class DBHelper {
         return utilityModel;
     }
 
+    public boolean InsertTraceNumberData(TraceNumberModel model) {
+
+        SQLiteDatabase db = DBHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBStaticField.SYSTEM_TRACE, model.getSYSTEM_TRACE());
+
+        db.insert(DBStaticField.TABLE_TRACE, null, contentValues);
+        return true;
+    }
+    public boolean UpdateTraceNumberData(TraceNumberModel model) {
+
+        SQLiteDatabase db = DBHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBStaticField.SYSTEM_TRACE, model.getSYSTEM_TRACE());
+        db.update(DBStaticField.TABLE_TRACE,contentValues,"TRACE_UNIQUE_ID="+model.getTRACE_UNIQUE_ID(),null);
+
+        return true;
+    }
+
+
+    public TraceNumberModel getTraceNumberData(int inRecord_Num) {
+        TraceNumberModel traceModel=new TraceNumberModel();
+        SQLiteDatabase db = DBHelper.getReadableDatabase();
+        try {
+
+            Log.i(TAG,"SELECT TRACE NUMBER");
+            Cursor res = db.rawQuery("SELECT * from " + DBStaticField.TABLE_TRACE, null);
+
+            Log.i(TAG,"SELECT TRACE NUMBER_1");
+            res.moveToFirst();
+
+            if (res.isAfterLast() == false) {
+                Log.i(TAG,"SELECT TRACE NUMBER_2");
+                Log.i(TAG,"DBStaticField.SYSTEM_TRACE"+res.getString(res.getColumnIndex(DBStaticField.SYSTEM_TRACE)));
+                //if(Integer.parseInt(res.getString(res.getColumnIndex(DBStaticField.UTILITY_ID))) == inRecord_Num || inRecord_Num == 0)//Read the respective record needed
+                {
+                    traceModel.setSYSTEM_TRACE(res.getString(res.getColumnIndex(DBStaticField.SYSTEM_TRACE)));
+                    //break;
+                }
+                //array_list.add(pwdModel);
+                //res.moveToNext();
+            }
+        }catch(SQLiteException e) {
+            if (e.getMessage().contains("no such table")) {
+                Log.e(TAG, "Creating table " + DBStaticField.TABLE_TRACE + "because it doesn't exist!");
+                SQLiteDatabase db1 = DBHelper.getWritableDatabase();
+                db1.execSQL(Table_Trace);
+                return null;
+                // create table
+                // re-run query, etc.
+            }
+        }
+        return traceModel;
+    }
     public boolean InsertHostTablelData(HostModel model) {
 
         SQLiteDatabase db = DBHelper.getWritableDatabase();
@@ -1361,6 +1487,124 @@ public class DBHelper {
             res.moveToNext();
         }
         return barcodeModel;
+    }
+    public boolean insertBatchData(BatchModel model) {
+
+        SQLiteDatabase db = DBHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBStaticField.BATCH_ID, model.getBATCH_ID());
+        contentValues.put(DBStaticField.HDT_INDEX, model.getHDT_INDEX());
+        contentValues.put(DBStaticField.TRANS_TYPE, model.getTRANS_TYPE());
+        contentValues.put(DBStaticField.TRANS_MODE, model.getTRANS_MODE());
+        contentValues.put(DBStaticField.VOIDED, model.getVOIDED());
+        contentValues.put(DBStaticField.UPLOADED, model.getUPLOADED());
+        contentValues.put(DBStaticField.PROC_CODE, model.getPROC_CODE());
+        contentValues.put(DBStaticField.INVOICE_NUMBER, model.getINVOICE_NUMBER());
+        contentValues.put(DBStaticField.AMOUNT, model.getAMOUNT());
+        contentValues.put(DBStaticField.TIP_AMOUNT, model.getTIP_AMOUNT());
+        contentValues.put(DBStaticField.TIME, model.getTIME());
+        contentValues.put(DBStaticField.DATE, model.getDATE());
+        contentValues.put(DBStaticField.YEAR, model.getYEAR());
+        contentValues.put(DBStaticField.ORG_MESS_ID, model.getORG_MESS_ID());
+        contentValues.put(DBStaticField.SYS_TRACE_NUM, model.getSYS_TRACE_NUM());
+        contentValues.put(DBStaticField.DATE_EXP, model.getDATE_EXP());
+        contentValues.put(DBStaticField.RETR_REF_NUM, model.getRETR_REF_NUM());
+        contentValues.put(DBStaticField.AUTH_ID_RESP, model.getAUTH_ID_RESP());
+        contentValues.put(DBStaticField.RESP_CODE, model.getRESP_CODE());
+        contentValues.put(DBStaticField.ACCT_NUMBER, model.getACCT_NUMBER());
+        contentValues.put(DBStaticField.PERSON_NAME, model.getPERSON_NAME());
+        contentValues.put(DBStaticField.ORIGINAL_AMOUNT, model.getORIGINAL_AMOUNT());
+        contentValues.put(DBStaticField.ADDITIONAL_DATA, model.getADDITIONAL_DATA());
+        contentValues.put(DBStaticField.PAYMENT_TERM_INFO, model.getPAYMENT_TERM_INFO());
+        contentValues.put(DBStaticField.PRIMARY_ACC_NUM, model.getPRIMARY_ACC_NUM());
+        contentValues.put(DBStaticField.POS_ENT_MODE, model.getPOS_ENT_MODE());
+        contentValues.put(DBStaticField.NII, model.getNII());
+        contentValues.put(DBStaticField.POS_COND_CODE, model.getPOS_COND_CODE());
+        contentValues.put(DBStaticField.ADD_AMOUNT, model.getADD_AMOUNT());
+        contentValues.put(DBStaticField.CARD_TYPE, model.getCARD_TYPE());
+        contentValues.put(DBStaticField.CARD_EQUENCE, model.getCARD_EQUENCE());
+        contentValues.put(DBStaticField.CHIPDATA, model.getCHIPDATA());
+        contentValues.put(DBStaticField.TVRVALUE, model.getTVRVALUE());
+        contentValues.put(DBStaticField.TSIVALUE, model.getTSIVALUE());
+        contentValues.put(DBStaticField.TRANSCRYTO, model.getTRANSCRYTO());
+        contentValues.put(DBStaticField.TOTALSCRIPT71, model.getTOTALSCRIPT71());
+        contentValues.put(DBStaticField.TOTALSCRIPT72, model.getTOTALSCRIPT72());
+        contentValues.put(DBStaticField.SCRIPTRESULT71, model.getSCRIPTRESULT71());
+        contentValues.put(DBStaticField.SCRIPTRESULT72, model.getSCRIPTRESULT72());
+        contentValues.put(DBStaticField.CHAID, model.getCHAID());
+        contentValues.put(DBStaticField.APPLICATION_LABEL, model.getAPPLICATION_LABEL());
+        contentValues.put(DBStaticField.CLS_SCHEME_ID, model.getCLS_SCHEME_ID());
+        contentValues.put(DBStaticField.SIGNATURE_REQ, model.getSIGNATURE_REQ());
+
+
+        db.insert(DBStaticField.TABLE_BATCH, null, contentValues);
+        return true;
+    }
+
+    public ArrayList<BatchModel> getBatchData(String inRecord_Num) {
+        ArrayList<BatchModel> batchModelObjList = new ArrayList<>();
+        BatchModel batchModel=new BatchModel();
+        SQLiteDatabase db = DBHelper.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT * from " + DBStaticField.TABLE_BATCH +" where "+DBStaticField.HDT_INDEX+"= "+inRecord_Num, null);
+        res.moveToFirst();
+
+        while (res.isAfterLast() == false) {
+
+            //if(Integer.parseInt(res.getString(res.getColumnIndex(DBStaticField.HDT_INDEX))) == inRecord_Num )//Read the respective record needed
+            {
+
+                batchModel.setBATCH_ID(res.getString(res.getColumnIndex(DBStaticField.BATCH_ID)));
+                batchModel.setHDT_INDEX(res.getString(res.getColumnIndex(DBStaticField.HDT_INDEX)));
+                batchModel.setTRANS_TYPE(res.getString(res.getColumnIndex(DBStaticField.TRANS_TYPE)));
+                batchModel.setTRANS_MODE(res.getString(res.getColumnIndex(DBStaticField.TRANS_MODE)));
+                batchModel.setVOIDED(res.getString(res.getColumnIndex(DBStaticField.VOIDED)));
+                batchModel.setUPLOADED(res.getString(res.getColumnIndex(DBStaticField.UPLOADED)));
+                batchModel.setPROC_CODE(res.getString(res.getColumnIndex(DBStaticField.PROC_CODE)));
+                batchModel.setINVOICE_NUMBER(res.getString(res.getColumnIndex(DBStaticField.INVOICE_NUMBER)));
+                batchModel.setAMOUNT(res.getString(res.getColumnIndex(DBStaticField.AMOUNT)));
+                batchModel.setTIP_AMOUNT(res.getString(res.getColumnIndex(DBStaticField.TIP_AMOUNT)));
+                batchModel.setTIME(res.getString(res.getColumnIndex(DBStaticField.TIME)));
+                batchModel.setDATE(res.getString(res.getColumnIndex(DBStaticField.DATE)));
+                batchModel.setYEAR(res.getString(res.getColumnIndex(DBStaticField.YEAR)));
+                batchModel.setORG_MESS_ID(res.getString(res.getColumnIndex(DBStaticField.ORG_MESS_ID)));
+                batchModel.setSYS_TRACE_NUM(res.getString(res.getColumnIndex(DBStaticField.SYS_TRACE_NUM)));
+                batchModel.setDATE_EXP(res.getString(res.getColumnIndex(DBStaticField.DATE_EXP)));
+                batchModel.setRETR_REF_NUM(res.getString(res.getColumnIndex(DBStaticField.RETR_REF_NUM)));
+                batchModel.setAUTH_ID_RESP(res.getString(res.getColumnIndex(DBStaticField.AUTH_ID_RESP)));
+                batchModel.setRESP_CODE(res.getString(res.getColumnIndex(DBStaticField.RESP_CODE)));
+                batchModel.setACCT_NUMBER(res.getString(res.getColumnIndex(DBStaticField.ACCT_NUMBER)));
+                batchModel.setPERSON_NAME(res.getString(res.getColumnIndex(DBStaticField.PERSON_NAME)));
+                batchModel.setORIGINAL_AMOUNT(res.getString(res.getColumnIndex(DBStaticField.ORIGINAL_AMOUNT)));
+                batchModel.setADDITIONAL_DATA(res.getString(res.getColumnIndex(DBStaticField.ADDITIONAL_DATA)));
+                batchModel.setPAYMENT_TERM_INFO(res.getString(res.getColumnIndex(DBStaticField.PAYMENT_TERM_INFO)));
+                batchModel.setPRIMARY_ACC_NUM(res.getString(res.getColumnIndex(DBStaticField.PRIMARY_ACC_NUM)));
+                batchModel.setPOS_ENT_MODE(res.getString(res.getColumnIndex(DBStaticField.POS_ENT_MODE)));
+                batchModel.setNII(res.getString(res.getColumnIndex(DBStaticField.NII)));
+                batchModel.setPOS_COND_CODE(res.getString(res.getColumnIndex(DBStaticField.POS_COND_CODE)));
+                batchModel.setADD_AMOUNT(res.getString(res.getColumnIndex(DBStaticField.ADD_AMOUNT)));
+                batchModel.setCARD_TYPE(res.getString(res.getColumnIndex(DBStaticField.CARD_TYPE)));
+                batchModel.setCARD_EQUENCE(res.getString(res.getColumnIndex(DBStaticField.CARD_EQUENCE)));
+                batchModel.setCHIPDATA(res.getString(res.getColumnIndex(DBStaticField.CHIPDATA)));
+                batchModel.setTVRVALUE(res.getString(res.getColumnIndex(DBStaticField.TVRVALUE)));
+                batchModel.setTSIVALUE(res.getString(res.getColumnIndex(DBStaticField.TSIVALUE)));
+                batchModel.setTRANSCRYTO(res.getString(res.getColumnIndex(DBStaticField.TRANSCRYTO)));
+                batchModel.setTOTALSCRIPT71(res.getString(res.getColumnIndex(DBStaticField.TOTALSCRIPT71)));
+                batchModel.setTOTALSCRIPT72(res.getString(res.getColumnIndex(DBStaticField.TOTALSCRIPT72)));
+                batchModel.setSCRIPTRESULT71(res.getString(res.getColumnIndex(DBStaticField.SCRIPTRESULT71)));
+                batchModel.setSCRIPTRESULT72(res.getString(res.getColumnIndex(DBStaticField.SCRIPTRESULT72)));
+                batchModel.setCHAID(res.getString(res.getColumnIndex(DBStaticField.CHAID)));
+                batchModel.setAPPLICATION_LABEL(res.getString(res.getColumnIndex(DBStaticField.APPLICATION_LABEL)));
+                batchModel.setCLS_SCHEME_ID(res.getString(res.getColumnIndex(DBStaticField.CLS_SCHEME_ID)));
+                batchModel.setSIGNATURE_REQ(res.getString(res.getColumnIndex(DBStaticField.SIGNATURE_REQ)));
+
+
+                //break;
+            }
+
+            batchModelObjList.add(batchModel);
+            res.moveToNext();
+        }
+        return batchModelObjList;
     }
 
 

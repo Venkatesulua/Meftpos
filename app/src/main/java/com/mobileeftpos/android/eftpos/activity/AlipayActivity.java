@@ -23,11 +23,13 @@ import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
 import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
 import com.mobileeftpos.android.eftpos.SupportClasses.PacketCreation;
+import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.async.WebServiceCall;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
+import com.mobileeftpos.android.eftpos.model.AlipayResponceModel;
 import com.mobileeftpos.android.eftpos.model.BarcodeModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
 import com.mobileeftpos.android.eftpos.model.CurrencyModel;
@@ -57,6 +59,7 @@ public class AlipayActivity extends AppCompatActivity {
     public PacketCreation isoPacket = new PacketCreation();
     public RemoteHost remoteHost = new RemoteHost();
     public PrintReceipt printReceipt = new PrintReceipt();
+    public PayServices payServices = new PayServices();
     AsyncTaskRunner mAsyncTask;
      public static String barCodeValue=null;
     public byte[] FinalData = new byte[1512];
@@ -128,11 +131,17 @@ public class AlipayActivity extends AppCompatActivity {
     }*/
 
     private void processBarcode(String contents) {
+        //Parameter if ..else
         Log.i(TAG,"Alipay:processBarcode");
-        mAsyncTask = new AsyncTaskRunner();
-        mAsyncTask.execute(new String[] { "52.88.135.124", "10002" });
-        //mAsyncTask.execute(new String[] { "192.168.43.117", "9999" });
-        trDetails.setPAN(contents);
+        TransactionDetails.inGTrxMode=Constants.TransMode.BARCODE;
+        if (AppUtil.isNetworkAvailable(AlipayActivity.this)) {
+            mAsyncTask = new AsyncTaskRunner();
+            mAsyncTask.execute(new String[]{"52.88.135.124", "10002"});
+            //mAsyncTask.execute(new String[] { "192.168.43.117", "9999" });
+            trDetails.setPAN(contents);
+        }else {
+            Toast.makeText(AlipayActivity.this, "BAR:NO INTERNET CONNECTION",Toast.LENGTH_SHORT).show();
+        }
 
     }
 
@@ -162,6 +171,7 @@ public class AlipayActivity extends AppCompatActivity {
             // execution of result of Long time consuming operation
             super.onPostExecute(result);
             Log.i(TAG,"Alipay:onPostExecute");
+            payServices.vdUpdateSystemTrace(databaseObj);
             if(result!=null && result.equals("0"))
             {
                 Log.i(TAG, "Aipay:onPostExecute:SUCCESS");
@@ -218,6 +228,7 @@ public class AlipayActivity extends AppCompatActivity {
         int inPhase=0;
         boolean whLoop=true;
         String result="";
+        CommsModel comModel = new CommsModel();
         //Password Entry
         while(whLoop) {
             switch(inPhase++)
@@ -228,10 +239,31 @@ public class AlipayActivity extends AppCompatActivity {
                         Log.i(TAG,"ERROR in SORTPAN");
                         inError = 1;
                     }
+                    Log.i(TAG,"Alipay::inSORTPAN ___OKOK");
                     break;
                 case 1://
 
+                    Log.i(TAG,"Alipay::COMMUNICATION PARAMS...");
+                    comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
+                    Log.i(TAG,"Alipay::COMMUNICATION PARAMS2...");
+                    String IP_Port = comModel.getCOM_PRIMARY_IP_PORT();
+                    Log.i(TAG,"Alipay::IP_Port::"+IP_Port);
+                    int indexOffset = IP_Port.indexOf("|");
+                    Log.i(TAG,"Alipay::indexOffset::"+indexOffset);
+                    ServerIP = IP_Port.substring(0,indexOffset);
+
+                    Log.i(TAG,"Alipay::ServerIP::"+ServerIP);
+
+                    Port = IP_Port.substring(indexOffset+1);
                     Log.i(TAG, "Aipay:inCreatePacket:");
+                    Log.i(TAG, "Aipay:ServerIP ::: "+ServerIP);
+                    Log.i(TAG, "Aipay:Server PORT ::: "+Port);
+
+                    String stTrace = payServices.pGetSystemTrace(databaseObj);
+
+                    Log.i(TAG, "Aipay:inCreatePacket:stTrace::"+stTrace);
+                    Log.i(TAG, "Aipay:inCreatePacket:stTrace::"+stTrace);
+
                     inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.ALIPAY_SALE);
                     if(inFinalLength == 0)
                         inError = 1;
@@ -283,7 +315,7 @@ public class AlipayActivity extends AppCompatActivity {
                 case 5:
                     Log.i(TAG, "\nSave Record:");
                     //save Record
-                    //vdSaveRecord();
+                    isoPacket.vdSaveRecord(databaseObj);
                     break;
                 case 6://
                     //Print receipt
@@ -333,7 +365,7 @@ public class AlipayActivity extends AppCompatActivity {
                     if (status.equalsIgnoreCase("0")) {
 
                         try {
-                            JSONUtil.parseTransactionResponce(response);
+                            AlipayResponceModel modelObject = JSONUtil.parseTransactionResponce(response);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -356,6 +388,7 @@ public class AlipayActivity extends AppCompatActivity {
             serv.makeJsonGetRequestObject(buildJsonreqObject());
         }   else {
             serv.hideProgressDialog();
+            Toast.makeText(AlipayActivity.this, "NO INTERNET CONNECTION",Toast.LENGTH_SHORT).show();
         }
 
     }

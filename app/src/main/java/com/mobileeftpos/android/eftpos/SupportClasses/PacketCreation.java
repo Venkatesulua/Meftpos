@@ -1,9 +1,13 @@
 package com.mobileeftpos.android.eftpos.SupportClasses;
 
+import android.content.Context;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.mobileeftpos.android.eftpos.database.DBHelper;
+import com.mobileeftpos.android.eftpos.database.DBStaticField;
 import com.mobileeftpos.android.eftpos.model.BarcodeModel;
+import com.mobileeftpos.android.eftpos.model.BatchModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
 import com.mobileeftpos.android.eftpos.model.CurrencyModel;
 import com.mobileeftpos.android.eftpos.model.HostModel;
@@ -30,6 +34,61 @@ public class PacketCreation {
     private final String TAG = "my_custom_msg";
     private int inFinalLength=0;
     private TransactionDetails trDetails = new TransactionDetails();
+
+    public int vdSaveRecord(DBHelper databaseObj){
+        barcode = databaseObj.getBarcodeData(0);
+        currModel = databaseObj.getCurrencyData(TransactionDetails.inGCURR);
+        hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        commData = databaseObj.getCommsData(TransactionDetails.inGCOM);
+        merchantData = databaseObj.getMerchantData(0);
+        BatchModel batchModel = new BatchModel();
+        //Save transaction
+        batchModel.setHDT_INDEX(Integer.toString(TransactionDetails.inGHDT));
+        batchModel.setTRANS_TYPE(Integer.toString(TransactionDetails.trxType));
+        batchModel.setTRANS_MODE(Integer.toString(TransactionDetails.inGTrxMode));
+        batchModel.setVOIDED(Integer.toString(Constants.FALSE));
+        batchModel.setUPLOADED(Integer.toString(Constants.FALSE));
+        batchModel.setPROC_CODE(TransactionDetails.processingcode);
+        batchModel.setINVOICE_NUMBER(Integer.toString(TransactionDetails.InvoiceNumber));
+        batchModel.setAMOUNT(TransactionDetails.trxAmount);
+        batchModel.setTIP_AMOUNT(TransactionDetails.tipAmount);
+        batchModel.setTIME(TransactionDetails.trxDateTime.substring(8,14));
+        batchModel.setDATE(TransactionDetails.trxDateTime.substring(4,8));
+        batchModel.setYEAR(TransactionDetails.chApprovalCode.substring(0,4));
+        batchModel.setORG_MESS_ID(TransactionDetails.messagetype);
+        batchModel.setSYS_TRACE_NUM(Integer.toString(TransactionDetails.InvoiceNumber));
+        batchModel.setDATE_EXP(TransactionDetails.ExpDate);
+        batchModel.setRETR_REF_NUM(TransactionDetails.RetrievalRefNumber);
+        batchModel.setAUTH_ID_RESP(TransactionDetails.chApprovalCode);
+        batchModel.setRESP_CODE(TransactionDetails.ResponseCode);
+        batchModel.setACCT_NUMBER(TransactionDetails.PAN);
+        batchModel.setPERSON_NAME(TransactionDetails.PersonName);
+        batchModel.setORIGINAL_AMOUNT(TransactionDetails.trxAmount);
+        batchModel.setADDITIONAL_DATA(TransactionDetails.responseMessge);
+        //batchModel.setPAYMENT_TERM_INFO(res.getString(res.getColumnIndex(DBStaticField.PAYMENT_TERM_INFO)));
+        batchModel.setPRIMARY_ACC_NUM(TransactionDetails.PAN);
+        batchModel.setPOS_ENT_MODE(TransactionDetails.POSEntryMode);
+        batchModel.setNII(TransactionDetails.NII);
+        batchModel.setPOS_COND_CODE(TransactionDetails.POS_COND_CODE);
+        /*batchModel.setADD_AMOUNT(res.getString(res.getColumnIndex(DBStaticField.ADD_AMOUNT)));
+        batchModel.setCARD_TYPE(res.getString(res.getColumnIndex(DBStaticField.CARD_TYPE)));
+        batchModel.setCARD_EQUENCE(res.getString(res.getColumnIndex(DBStaticField.CARD_EQUENCE)));
+        batchModel.setCHIPDATA(res.getString(res.getColumnIndex(DBStaticField.CHIPDATA)));
+        batchModel.setTVRVALUE(res.getString(res.getColumnIndex(DBStaticField.TVRVALUE)));
+        batchModel.setTSIVALUE(res.getString(res.getColumnIndex(DBStaticField.TSIVALUE)));
+        batchModel.setTRANSCRYTO(res.getString(res.getColumnIndex(DBStaticField.TRANSCRYTO)));
+        batchModel.setTOTALSCRIPT71(res.getString(res.getColumnIndex(DBStaticField.TOTALSCRIPT71)));
+        batchModel.setTOTALSCRIPT72(res.getString(res.getColumnIndex(DBStaticField.TOTALSCRIPT72)));
+        batchModel.setSCRIPTRESULT71(res.getString(res.getColumnIndex(DBStaticField.SCRIPTRESULT71)));
+        batchModel.setSCRIPTRESULT72(res.getString(res.getColumnIndex(DBStaticField.SCRIPTRESULT72)));
+        batchModel.setCHAID(res.getString(res.getColumnIndex(DBStaticField.CHAID)));
+        batchModel.setAPPLICATION_LABEL(res.getString(res.getColumnIndex(DBStaticField.APPLICATION_LABEL)));
+        batchModel.setCLS_SCHEME_ID(res.getString(res.getColumnIndex(DBStaticField.CLS_SCHEME_ID)));
+        batchModel.setSIGNATURE_REQ(res.getString(res.getColumnIndex(DBStaticField.SIGNATURE_REQ)));*/
+        databaseObj.insertBatchData(batchModel);
+
+        return 0;
+    }
 
     public int inCreatePacket(DBHelper databaseObj,byte[] FinalData,int inTrxType) {
         String stde27 = "";
@@ -89,6 +148,8 @@ public class PacketCreation {
                     Log.i(TAG,"getHDT_TERMINAL_ID::"+hostData.getHDT_TERMINAL_ID());
                     Log.i(TAG,"getMERCHANT_NAME::"+merchantData.getMERCHANT_NAME());
 
+                    TransactionDetails.processingcode = Constants.PROCESSINGCODE.pcFinancialRequest;
+                    TransactionDetails.messagetype = Constants.MTI.Financial;
 
                     CreateTLVFields(1, Constants.MTI.Financial,FinalData);
                     CreateTLVFields(3, Constants.PROCESSINGCODE.pcFinancialRequest,FinalData);
@@ -96,11 +157,12 @@ public class PacketCreation {
                     CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
 
 
-                    CreateTLVFields(8,(TransactionDetails.trxDateTime+"00"),FinalData);
+                    //CreateTLVFields(8,(TransactionDetails.trxDateTime+"00"),FinalData);
                     CreateTLVFields(9,currModel.getCURR_LABEL(),FinalData);
                     CreateTLVFields(10,TransactionDetails.trxAmount,FinalData);
                     CreateTLVFields(11,TransactionDetails.PAN,FinalData);
                     CreateTLVFields(41,hostData.getHDT_TERMINAL_ID(),FinalData);
+
 
                     String staddinfo ="merchant_name:";
                     staddinfo = staddinfo + merchantData.getMERCHANT_NAME();
@@ -114,7 +176,19 @@ public class PacketCreation {
                     staddinfo = staddinfo + "0";
                     staddinfo = staddinfo + ",region_code:";
                     staddinfo = staddinfo + barcode.getREGION_CODE();
+                    staddinfo = staddinfo + ",term_sn:";
+                    staddinfo = staddinfo + TransactionDetails.deviceId;
+
+                    staddinfo = staddinfo + ",trans_create_time:";
+                    staddinfo = staddinfo + TransactionDetails.trxDateTime.substring(2,14);
+
+                    staddinfo = staddinfo + ",ver:";
+                    staddinfo = staddinfo + "V1.0";
+
+                    staddinfo = staddinfo + ",sw:";
+                    staddinfo = staddinfo + "V1.0";
                     staddinfo = staddinfo + ",";
+
                     CreateTLVFields(47,staddinfo,FinalData);
                     break;
                 case Constants.TransType.ALIPAY_REFUND:
@@ -349,7 +423,7 @@ public class PacketCreation {
             Log.i(TAG,"inTag :: "+inTag);
             Log.i(TAG,"inTag_inLength :: "+inLength);
             Log.i(TAG,"inTag actual Len :: "+chtemp.length);
-            Log.i(TAG,"inTag actual Value :: "+chtemp);
+            Log.i(TAG,"inTag actual Value :: "+new String(chtemp));
 
             switch (inTag) {
                 case 1:// Message type
@@ -366,6 +440,7 @@ public class PacketCreation {
                     break;
                 case 8:// partnertransid
                     trDetails.setPartnerTransId( new String(chtemp));
+                    TransactionDetails.PartnerTransID=new String(chtemp);
                     break;
                 case 9:// currency
                     trDetails.setCurrency( new String(chtemp));
@@ -391,9 +466,13 @@ public class PacketCreation {
                     break;
                 case 0x28:// responsemesage
                     trDetails.setRefundReason( new String(chtemp));
+                    TransactionDetails.ResponseCode=new String(chtemp);
                     break;
                 case 0x29:// terminalid
                     trDetails.setResTerminalId( new String(chtemp));
+                    break;
+                case 63:// Host Message
+                    TransactionDetails.responseMessge=new String(chtemp);
                     break;
 
             }
