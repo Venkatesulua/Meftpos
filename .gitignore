@@ -14,6 +14,6 @@ buildNumber.properties
 */.idea
 *.iml
 /.idea/workspace.xml
-/.idea/libraries
+**/.idea/libraries
 **/.idea/workspace.xml 
 **/.idea/tasks.xml
