@@ -26,6 +26,7 @@ import com.mobileeftpos.android.eftpos.model.MerchantModel;
 import com.mobileeftpos.android.eftpos.model.PasswordModel;
 import com.mobileeftpos.android.eftpos.model.ReceiptModel;
 import com.mobileeftpos.android.eftpos.model.ReportsModel;
+import com.mobileeftpos.android.eftpos.model.TraceNumberModel;
 import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
 import com.mobileeftpos.android.eftpos.model.UtilityTable;
 
@@ -121,6 +122,9 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 TransactionControlModel transctrlModel = new TransactionControlModel();
                 UtilityTable utilModel = new UtilityTable();
                 BarcodeModel barcodeModel = new BarcodeModel();
+                TraceNumberModel traceNumber = new TraceNumberModel();
+                //Trace number
+                traceNumber.setSYSTEM_TRACE("000001");
                 //Password Values
                 pwdModel.setVOID_PASSWORD("0000");
                 //Card BIN
@@ -222,6 +226,7 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 databaseObj.insertPasswordData(pwdModel);
                 databaseObj.insertBarocdeData(barcodeModel);
                 databaseObj.insertMerchantData(merchantModel);
+                databaseObj.InsertTraceNumberData(traceNumber);
                 break;
         }
     }

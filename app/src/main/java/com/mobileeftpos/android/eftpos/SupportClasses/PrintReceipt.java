@@ -12,6 +12,7 @@ import com.mobileeftpos.android.eftpos.model.CommsModel;
 import com.mobileeftpos.android.eftpos.model.CurrencyModel;
 import com.mobileeftpos.android.eftpos.model.HostModel;
 import com.mobileeftpos.android.eftpos.model.MerchantModel;
+import com.mobileeftpos.android.eftpos.model.TraceNumberModel;
 
 import org.jpos.iso.ISOMsg;
 
@@ -29,6 +30,7 @@ public class PrintReceipt  {
     private HostModel hostData = new HostModel();
     private CommsModel commData = new CommsModel();
     private MerchantModel merchantData = new MerchantModel();
+    private TraceNumberModel traceNumber = new TraceNumberModel();
     //private ISOPackager1 packager = new ISOPackager1();
     //private ISOMsg isoMsg = new ISOMsg();
     private final String TAG = "my_custom_msg";
@@ -36,41 +38,41 @@ public class PrintReceipt  {
     //private TransactionDetails trDetails = new TransactionDetails();
 
     public int inPrintReceipt(DBHelper databaseObj){
-        Log.i(TAG,"\nPRINTING-BUILDING:");
+        Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING:");
         // 1: Get BluetoothAdapter
         BluetoothAdapter btAdapter = BluetoothUtil.getBTAdapter();
         if (btAdapter == null) {
             //Toast.makeText(getBaseContext(), "Please Open Bluetooth!", Toast.LENGTH_LONG).show();
-            Log.i(TAG,"\nPRINTING-BUILDING_ERR!:");
+            Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING_ERR!:");
             return 1;
         }
-        Log.i(TAG,"\nPRINTING-BUILDING_2:");
+        Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING_2:");
         // 2: Get Sunmi's InnerPrinter BluetoothDevice
         BluetoothDevice device = BluetoothUtil.getDevice(btAdapter);
         if (device == null) {
             //Toast.makeText(getBaseContext(), "Please Make Sure Bluetooth have InnterPrinter!",
                     //Toast.LENGTH_LONG).show();
-            Log.i(TAG,"\nPRINTING-BUILDING:_ERR@");
+            Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING:_ERR@");
             return 1;
         }
-        Log.i(TAG,"\nPRINTING-BUILDING_2:");
+        Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING_2:");
 
-        Log.i(TAG,"\nPRINTING-BUILDING_STRING STRING:");
+        Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING_STRING STRING:");
         // 3: Generate a order data
         byte[] data = generateMockData1(databaseObj);
         // 4: Using InnerPrinter print data
         BluetoothSocket socket = null;
         try {
             socket = BluetoothUtil.getSocket(device);
-            Log.i(TAG,"\nPRINTING-BUILDING_23:");
+            Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING_23:");
             BluetoothUtil.sendData(data, socket);
-            Log.i(TAG,"\nPRINTING-BUILDING_3:");
+            Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING_3:");
         } catch (IOException e) {
             if (socket != null) {
                 try {
                     socket.close();
                 } catch (IOException e1) {
-                    Log.i(TAG,"\nPRINTING-BUILDING:___ERRR#");
+                    Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING:___ERRR#");
                     e1.printStackTrace();
                 }
             }
@@ -85,6 +87,7 @@ public class PrintReceipt  {
         hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
         commData = databaseObj.getCommsData(TransactionDetails.inGCOM);
         merchantData = databaseObj.getMerchantData(0);
+        traceNumber = databaseObj.getTraceNumberData(0);
 
         Log.i(TAG,"generateMockData1 getHDT_TERMINAL_ID::"+hostData.getHDT_TERMINAL_ID());
         Log.i(TAG,"generateMockData1 getMERCHANT_NAME::"+merchantData.getMERCHANT_NAME());
@@ -157,17 +160,20 @@ public class PrintReceipt  {
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(center, "UTF-8")+new String(boldOn, "UTF-8")+new String(fontSize1Big, "UTF-8");
             inPrintBuffer = inPrintBuffer + "ALIPAY SALE" + new String(boldOff, "UTF-8");
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            String dateTime = "DATE/TIME : " + TransactionDetails.trxDateTime;
+            String dateTime = "DATE/TIME : " + TransactionDetails.trxDateTime.substring(2,4)+"/"+TransactionDetails.trxDateTime.substring(4,6)+"/"+TransactionDetails.trxDateTime.substring(6,8)+" "+
+                    TransactionDetails.trxDateTime.substring(8,10) +":"+TransactionDetails.trxDateTime.substring(10,12)+":"+TransactionDetails.trxDateTime.substring(12,14);
             inPrintBuffer = inPrintBuffer + dateTime;
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer + "MID:" + hostData.getHDT_MERCHANT_ID()+" "+"TID:"+hostData.getHDT_TERMINAL_ID();
+            inPrintBuffer = inPrintBuffer + "MID:" + hostData.getHDT_MERCHANT_ID()+" "+"TID:"+hostData.getHDT_TERMINAL_ID()+"\n";
+
+            inPrintBuffer = inPrintBuffer + "INVOICE:" + traceNumber.getSYSTEM_TRACE()+" "+"BATCH:"+hostData.getHDT_BATCH_NUMBER();
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+" ";
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             inPrintBuffer = inPrintBuffer + "BUYER IDENTITY CODE\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             inPrintBuffer = inPrintBuffer + TransactionDetails.PAN;
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer + "PTNR TRANS ID:"+TransactionDetails.PartnerTransID + "00";
+            inPrintBuffer = inPrintBuffer + "PTNR TRANS ID:"+TransactionDetails.PartnerTransID + "\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ TransactionDetails.trxDateTime + "00";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");

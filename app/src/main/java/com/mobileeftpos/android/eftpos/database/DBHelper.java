@@ -585,9 +585,9 @@ public class DBHelper {
         String sql = "delete from " + TABLE_NAME;
         try {
             db.execSQL(sql);
-            Log.i(TAG,"Delete ALL Data Table Executed");
+            Log.i(TAG,"DBHELPER::Delete ALL Data Table Executed");
         } catch (SQLException e) {
-            Log.i(TAG,"Delete ALL Data Exception"+e.getMessage().toString());
+            Log.i(TAG,"DBHELPER::Delete ALL Data Exception"+e.getMessage().toString());
         }
     }
 
@@ -596,9 +596,9 @@ public class DBHelper {
         String sql = "drop table " + TABLE_NAME;
         try {
             db.execSQL(sql);
-            Log.i(TAG,"Drop Table Executed");
+            Log.i(TAG,"DBHELPER::Drop Table Executed");
         } catch (SQLException e) {
-            Log.i(TAG,"Drop Table Exception"+e.getMessage().toString());
+            Log.i(TAG,"DBHELPER::Drop Table Exception"+e.getMessage().toString());
         }
     }
     public void CreateTables(){
@@ -622,9 +622,9 @@ public class DBHelper {
             db.execSQL(Table_Receipt);
             db.execSQL(Table_Alipay);
             db.execSQL(Table_Trace);
-            Log.i(TAG,"Tables Created Successfully");
+            Log.i(TAG,"DBHELPER::Tables Created Successfully");
         }catch (SQLException e) {
-            Log.i(TAG,"Tables Created Exceptions:::"+ e.getMessage().toString());
+            Log.i(TAG,"DBHELPER::Tables Created Exceptions:::"+ e.getMessage().toString());
         }
 
     }
@@ -1026,9 +1026,14 @@ public class DBHelper {
 
         SQLiteDatabase db = DBHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
+
+        Log.i(TAG,"DBHELPER::InsertTraceNumberData_1");
         contentValues.put(DBStaticField.SYSTEM_TRACE, model.getSYSTEM_TRACE());
+        Log.i(TAG,"DBHELPER::INSERT::"+model.getSYSTEM_TRACE());
+        Log.i(TAG,"DBHELPER::getTRACE_UNIQUE_ID::"+model.getTRACE_UNIQUE_ID());
 
         db.insert(DBStaticField.TABLE_TRACE, null, contentValues);
+        Log.i(TAG,"DBHELPER::Inserted Successful");
         return true;
     }
     public boolean UpdateTraceNumberData(TraceNumberModel model) {
@@ -1036,6 +1041,8 @@ public class DBHelper {
         SQLiteDatabase db = DBHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBStaticField.SYSTEM_TRACE, model.getSYSTEM_TRACE());
+        Log.i(TAG,"DBHELPER::UpdateTraceNumberData::"+model.getSYSTEM_TRACE());
+        Log.i(TAG,"DBHELPER::UpdateTraceNumberData:getTRACE_UNIQUE_ID::"+model.getTRACE_UNIQUE_ID());
         db.update(DBStaticField.TABLE_TRACE,contentValues,"TRACE_UNIQUE_ID="+model.getTRACE_UNIQUE_ID(),null);
 
         return true;
@@ -1047,18 +1054,20 @@ public class DBHelper {
         SQLiteDatabase db = DBHelper.getReadableDatabase();
         try {
 
-            Log.i(TAG,"SELECT TRACE NUMBER");
+            Log.i(TAG,"DBHELPER::SELECT TRACE NUMBER");
             Cursor res = db.rawQuery("SELECT * from " + DBStaticField.TABLE_TRACE, null);
 
-            Log.i(TAG,"SELECT TRACE NUMBER_1");
+            Log.i(TAG,"DBHELPER::SELECT TRACE NUMBER_1");
             res.moveToFirst();
 
             if (res.isAfterLast() == false) {
-                Log.i(TAG,"SELECT TRACE NUMBER_2");
-                Log.i(TAG,"DBStaticField.SYSTEM_TRACE"+res.getString(res.getColumnIndex(DBStaticField.SYSTEM_TRACE)));
+                Log.i(TAG,"DBHELPER::SELECT TRACE NUMBER_2");
+                Log.i(TAG,"DBHELPER::DBStaticField.SYSTEM_TRACE"+res.getString(res.getColumnIndex(DBStaticField.SYSTEM_TRACE)));
+                Log.i(TAG,"DBHELPER::DBStaticField.TRACE_UNIQUE_ID"+res.getString(res.getColumnIndex(DBStaticField.TRACE_UNIQUE_ID)));
                 //if(Integer.parseInt(res.getString(res.getColumnIndex(DBStaticField.UTILITY_ID))) == inRecord_Num || inRecord_Num == 0)//Read the respective record needed
                 {
                     traceModel.setSYSTEM_TRACE(res.getString(res.getColumnIndex(DBStaticField.SYSTEM_TRACE)));
+                    traceModel.setTRACE_UNIQUE_ID(res.getString(res.getColumnIndex(DBStaticField.TRACE_UNIQUE_ID)));
                     //break;
                 }
                 //array_list.add(pwdModel);

@@ -89,7 +89,7 @@ public class AlipayActivity extends AppCompatActivity {
         isFromBarcodeScanner=false;
         isFromBarcodeScanner=true;
 
-        Log.i(TAG,"Alipay_onCreate_1");
+        Log.i(TAG,"AlipayActivity::Alipay_onCreate_1");
         Intent i = new Intent(AlipayActivity.this, FullScannerActivity.class);
         i.putExtra("FromAlipayActivity", true);
         startActivityForResult(i, 111);
@@ -107,7 +107,7 @@ public class AlipayActivity extends AppCompatActivity {
             processBarcode(contents);
 
         } else {
-            Log.i(TAG,"onActivityResult_3");
+            Log.i(TAG,"AlipayActivity::onActivityResult_3");
             Toast.makeText(getApplicationContext(), "QRCODE READ FAILED", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -118,12 +118,12 @@ public class AlipayActivity extends AppCompatActivity {
    /* @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG,"Alipay:onResume");
+        Log.i(TAG,"AlipayActivity::Alipay:onResume");
         if(isFromBarcodeScanner){
-            Log.i(TAG,"Alipay:barCodeValue::"+barCodeValue);
-            Log.i(TAG,"Alipay:barCodeValue.length"+barCodeValue.length());
+            Log.i(TAG,"AlipayActivity::Alipay:barCodeValue::"+barCodeValue);
+            Log.i(TAG,"AlipayActivity::Alipay:barCodeValue.length"+barCodeValue.length());
             if(barCodeValue!=null && barCodeValue.length()>0) {
-                Log.i(TAG,"Alipay:CallprocessBarcode");
+                Log.i(TAG,"AlipayActivity::Alipay:CallprocessBarcode");
                 processBarcode(barCodeValue);
             }
 
@@ -132,7 +132,7 @@ public class AlipayActivity extends AppCompatActivity {
 
     private void processBarcode(String contents) {
         //Parameter if ..else
-        Log.i(TAG,"Alipay:processBarcode");
+        Log.i(TAG,"AlipayActivity::Alipay:processBarcode");
         TransactionDetails.inGTrxMode=Constants.TransMode.BARCODE;
         if (AppUtil.isNetworkAvailable(AlipayActivity.this)) {
             mAsyncTask = new AsyncTaskRunner();
@@ -156,7 +156,7 @@ public class AlipayActivity extends AppCompatActivity {
             int inRet=-1;
             try {
 
-                Log.i(TAG,"Alipay:AsyncTaskRunner");
+                Log.i(TAG,"AlipayActivity::Alipay:AsyncTaskRunner");
                 inRet = processRequest(params[0],params[1]);
                 return Integer.toString(inRet);
             } catch (Exception e) {
@@ -170,7 +170,7 @@ public class AlipayActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             // execution of result of Long time consuming operation
             super.onPostExecute(result);
-            Log.i(TAG,"Alipay:onPostExecute");
+            Log.i(TAG,"AlipayActivity::Alipay:onPostExecute");
             payServices.vdUpdateSystemTrace(databaseObj);
             if(result!=null && result.equals("0"))
             {
@@ -211,7 +211,7 @@ public class AlipayActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            Log.i(TAG,"Alipay:onPreExecute");
+            Log.i(TAG,"AlipayActivity::Alipay:onPreExecute");
             progressDialog = ProgressDialog.show(AlipayActivity.this,
                     "Payment Processing",
                     "Please wait...");
@@ -222,7 +222,7 @@ public class AlipayActivity extends AppCompatActivity {
 
     private int processRequest(String ServerIP,String Port) {
 
-        Log.i(TAG,"processRequest_1");
+        Log.i(TAG,"AlipayActivity::processRequest_1");
 
         int inError=0;
         int inPhase=0;
@@ -234,25 +234,25 @@ public class AlipayActivity extends AppCompatActivity {
             switch(inPhase++)
             {
                 case 0://Validation; in force settlement;
-                    Log.i(TAG,"processRequest_2");
+                    Log.i(TAG,"AlipayActivity::processRequest_2");
                     if (trDetails.inSortPAN(databaseObj) == 1) {
-                        Log.i(TAG,"ERROR in SORTPAN");
+                        Log.i(TAG,"AlipayActivity::ERROR in SORTPAN");
                         inError = 1;
                     }
-                    Log.i(TAG,"Alipay::inSORTPAN ___OKOK");
+                    Log.i(TAG,"AlipayActivity::Alipay::inSORTPAN ___OKOK");
                     break;
                 case 1://
 
-                    Log.i(TAG,"Alipay::COMMUNICATION PARAMS...");
+                    Log.i(TAG,"AlipayActivity::Alipay::COMMUNICATION PARAMS...");
                     comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
-                    Log.i(TAG,"Alipay::COMMUNICATION PARAMS2...");
+                    Log.i(TAG,"AlipayActivity::Alipay::COMMUNICATION PARAMS2...");
                     String IP_Port = comModel.getCOM_PRIMARY_IP_PORT();
-                    Log.i(TAG,"Alipay::IP_Port::"+IP_Port);
+                    Log.i(TAG,"AlipayActivity::Alipay::IP_Port::"+IP_Port);
                     int indexOffset = IP_Port.indexOf("|");
-                    Log.i(TAG,"Alipay::indexOffset::"+indexOffset);
+                    Log.i(TAG,"AlipayActivity::Alipay::indexOffset::"+indexOffset);
                     ServerIP = IP_Port.substring(0,indexOffset);
 
-                    Log.i(TAG,"Alipay::ServerIP::"+ServerIP);
+                    Log.i(TAG,"AlipayActivity::Alipay::ServerIP::"+ServerIP);
 
                     Port = IP_Port.substring(indexOffset+1);
                     Log.i(TAG, "Aipay:inCreatePacket:");
@@ -286,7 +286,7 @@ public class AlipayActivity extends AppCompatActivity {
                     for (int k = 0; k < inFinalLength; k++) {
                         result = result + String.format("%02x", FinalData[k]);
                     }
-                    Log.i(TAG,"\nAlipay_inSendRecvPacket_Received:");
+                    Log.i(TAG,"AlipayActivity::\nAlipay_inSendRecvPacket_Received:");
                     Log.i(TAG,result);
 
                     break;
@@ -296,7 +296,7 @@ public class AlipayActivity extends AppCompatActivity {
                     for (int k = 0; k < inFinalLength; k++) {
                         result = result + String.format("%02x", FinalData[k]);
                     }
-                    Log.i(TAG,"\nAlipay_inProcessPacket_Received:");
+                    Log.i(TAG,"AlipayActivity::\nAlipay_inProcessPacket_Received:");
                     Log.i(TAG,result);
 
                     Log.i(TAG, "Aipay:inProcessPacket:");

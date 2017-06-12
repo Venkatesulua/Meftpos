@@ -105,7 +105,7 @@ public class PacketCreation {
         isoMsg.setPackager(packager);
         try {
 
-            Log.i(TAG,"inCreatePacket : ");
+            Log.i(TAG,"PacketCreation:::inCreatePacket : ");
             Log.i(TAG,Integer.toString(TransactionDetails.trxType));
 
             switch (inTrxType) {
@@ -139,14 +139,14 @@ public class PacketCreation {
                     isoMsg.set(41, globalVar.tmsParam.getTMS_TERMINAL_ID());
                     break;
                 case Constants.TransType.ALIPAY_SALE:
-                    Log.i(TAG,"ALIPAY_SALE : ");
-                    Log.i(TAG,"PARTNER_ID::"+barcode.getPARTNER_ID());
-                    Log.i(TAG,"SELLER_ID::"+barcode.getSELLER_ID());
-                    Log.i(TAG,"REGION_CODE::"+barcode.getREGION_CODE());
+                    Log.i(TAG,"PacketCreation:::ALIPAY_SALE : ");
+                    Log.i(TAG,"PacketCreation:::PARTNER_ID::"+barcode.getPARTNER_ID());
+                    Log.i(TAG,"PacketCreation:::SELLER_ID::"+barcode.getSELLER_ID());
+                    Log.i(TAG,"PacketCreation:::REGION_CODE::"+barcode.getREGION_CODE());
 
-                    Log.i(TAG,"TransactionDetails.trxAmount::"+TransactionDetails.trxAmount);
-                    Log.i(TAG,"getHDT_TERMINAL_ID::"+hostData.getHDT_TERMINAL_ID());
-                    Log.i(TAG,"getMERCHANT_NAME::"+merchantData.getMERCHANT_NAME());
+                    Log.i(TAG,"PacketCreation:::TransactionDetails.trxAmount::"+TransactionDetails.trxAmount);
+                    Log.i(TAG,"PacketCreation:::getHDT_TERMINAL_ID::"+hostData.getHDT_TERMINAL_ID());
+                    Log.i(TAG,"PacketCreation:::getMERCHANT_NAME::"+merchantData.getMERCHANT_NAME());
 
                     TransactionDetails.processingcode = Constants.PROCESSINGCODE.pcFinancialRequest;
                     TransactionDetails.messagetype = Constants.MTI.Financial;
@@ -210,22 +210,22 @@ public class PacketCreation {
             for (int k = 0; k < inFinalLength; k++) {
                 result = result + String.format("%02x", FinalData[k]);
             }
-            Log.i(TAG,"\nCreate Message:");
+            Log.i(TAG,"PacketCreation:::\nCreate Message:");
             Log.i(TAG,result);
 
-            //  Log.i(TAG,"PACK:");
+            //  Log.i(TAG,"PacketCreation:::PACK:");
             // Get and print the output result
             try {
                 if(TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE) {
-                    Log.i(TAG,"NOT ALIPAY SALES ");
-                    Log.i(TAG,"NOT ALIPAY SALES ");
+                    Log.i(TAG,"PacketCreation:::NOT ALIPAY SALES ");
+                    Log.i(TAG,"PacketCreation:::NOT ALIPAY SALES ");
                     logISOMsg(isoMsg);
                     byte[] data = isoMsg.pack();
                     inFinalLength = AddLength_Tpdu(data, FinalData);
                 }else
                 {
-                    Log.i(TAG," ALIPAY SALES ");
-                    Log.i(TAG," ALIPAY SALES ");
+                    Log.i(TAG,"PacketCreation::: ALIPAY SALES ");
+                    Log.i(TAG,"PacketCreation::: ALIPAY SALES ");
                     byte[] data = new byte[inFinalLength];
                     for(int ij=0;ij<inFinalLength;ij++){
                         data[ij] = FinalData[ij];
@@ -234,15 +234,15 @@ public class PacketCreation {
                 }
 
 
-                //  Log.i(TAG,"data" + new String(data));
-                //  Log.i(TAG,"FINAL DATA" + new String(FinalData));
+                //  Log.i(TAG,"PacketCreation:::data" + new String(data));
+                //  Log.i(TAG,"PacketCreation:::FINAL DATA" + new String(FinalData));
             } catch (Exception ex) {
-                Log.i(TAG, "IOException EXCEPTION");
+                Log.i(TAG, "PacketCreation:::IOException EXCEPTION");
                 Log.i(TAG, ex.getMessage());
             }
 
         } catch (ISOException ex) {
-            Log.i(TAG, "ISO EXCEPTION");
+            Log.i(TAG, "PacketCreation:::ISO EXCEPTION");
             Log.i(TAG, ex.getMessage());
         }
         return inFinalLength;
@@ -252,51 +252,51 @@ public class PacketCreation {
         byte[] byValue = new byte[2000];
         int inposition = 0;
 
-        Log.i(TAG,"CreateTLVFields_1 : ");
+        Log.i(TAG,"PacketCreation:::CreateTLVFields_1 : ");
         byValue[0] = (byte) (inTag / 256);// 0x00;
-        Log.i(TAG,"CreateTLVFields_2 : ");
+        //Log.i(TAG,"PacketCreation:::CreateTLVFields_2 : ");
         byValue[1] = (byte) (inTag % 256);
-        Log.i(TAG,"CreateTLVFields_3: ");
+        //Log.i(TAG,"PacketCreation:::CreateTLVFields_3: ");
         inposition = inposition + 2;
-        Log.i(TAG,"CreateTLVFields_4 : ");
+       // Log.i(TAG,"PacketCreation:::CreateTLVFields_4 : ");
         byValue[2] = (byte) (stValue.length() / 256);
-        Log.i(TAG,"CreateTLVFields_5 : ");
+       // Log.i(TAG,"PacketCreation:::CreateTLVFields_5 : ");
         byValue[3] = (byte) (stValue.length() % 256);
-        Log.i(TAG,"CreateTLVFields_6 : ");
+        //Log.i(TAG,"PacketCreation:::CreateTLVFields_6 : ");
         inposition = inposition + 2;
-        Log.i(TAG,"CreateTLVFields_7 : ");
+        Log.i(TAG,"PacketCreation:::CreateTLVFields_7 : ");
 
         byte[] bytemp1 = stValue.getBytes();
-        Log.i(TAG,"CreateTLVFields_8 : ");
+        //Log.i(TAG,"PacketCreation:::CreateTLVFields_8 : ");
         for (int i = 0; i < stValue.length(); i++) {
             byValue[i + 4] = bytemp1[i];
         }
-        Log.i(TAG,"CreateTLVFields_9 : ");
+        //Log.i(TAG,"PacketCreation:::CreateTLVFields_9 : ");
         inposition = inposition + stValue.length();
-        Log.i(TAG,"CreateTLVFields_10 : ");
+        //Log.i(TAG,"PacketCreation:::CreateTLVFields_10 : ");
 
         for (int i = 0; i < inposition; i++) {
             FinalData[inFinalLength + i] = byValue[i];
         }
-        Log.i(TAG,"CreateTLVFields_11 : ");
+        //Log.i(TAG,"PacketCreation:::CreateTLVFields_11 : ");
         inFinalLength = inFinalLength + inposition;
-        Log.i(TAG,"CreateTLVFields_12 : ");
+        //Log.i(TAG,"PacketCreation:::CreateTLVFields_12 : ");
         return inposition;
     }
 
     private void logISOMsg(ISOMsg msg) {
-        Log.i(TAG, "----ISO MESSAGE-----");
+        Log.i(TAG, "PacketCreation:::----ISO MESSAGE-----");
         try {
-            Log.i(TAG, "  MTI : " + msg.getMTI());
+            Log.i(TAG, "PacketCreation:::  MTI : " + msg.getMTI());
             for (int i = 1; i <= msg.getMaxField(); i++) {
                 if (msg.hasField(i)) {
-                    Log.i(TAG, "    Field-" + i + " : " + msg.getString(i));
+                    Log.i(TAG, "PacketCreation:::    Field-" + i + " : " + msg.getString(i));
                 }
             }
         } catch (ISOException e) {
             e.printStackTrace();
         } finally {
-            Log.i(TAG, "--------------------");
+            Log.i(TAG, "PacketCreation:::--------------------");
         }
 
     }
@@ -306,21 +306,21 @@ public class PacketCreation {
         // byte[] FinalData = new byte[data.length + 7];
         int inPacLen = (data.length);
 
-        Log.i(TAG,"AddLength_Tpdu_1");
+        Log.i(TAG,"PacketCreation:::AddLength_Tpdu_1");
         inOffset = inOffset + 2;
         byte[] tpdu = new byte[10];
         // Copy the respective TPDU Value
-        Log.i(TAG,"AddLength_Tpdu_2");
+        Log.i(TAG,"PacketCreation:::AddLength_Tpdu_2");
         if(TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE)
             tpdu = new BigInteger(globalVar.tmsParam.getTMS_TPDU(), 16).toByteArray();
         else
             tpdu = new BigInteger("6002540000", 16).toByteArray();
 
-        Log.i(TAG,"AddLength_Tpdu_3");
+        Log.i(TAG,"PacketCreation:::AddLength_Tpdu_3");
         for (int i = 0; i < tpdu.length; i++) {
             FinalData[inOffset++] = tpdu[i];
         }
-        Log.i(TAG,"AddLength_Tpdu_4");
+        Log.i(TAG,"PacketCreation:::AddLength_Tpdu_4");
 		/*
 		 * byte[] byLen = new BigInteger(Integer.toString(inPacLen +
 		 * tpdu.length), 16).toByteArray(); if (byLen.length == 1) {
@@ -331,19 +331,19 @@ public class PacketCreation {
         FinalData[0] = (byte) ((inPacLen + tpdu.length) / 256);
         FinalData[1] = (byte) ((inPacLen + tpdu.length) % 256);
 
-        Log.i(TAG,"AddLength_Tpdu_5");
+        Log.i(TAG,"PacketCreation:::AddLength_Tpdu_5");
         for (int i = 0; i < inPacLen; i++) {
             FinalData[inOffset++] = data[i];
         }
 
-        Log.i(TAG,"AddLength_Tpdu_6");
+        Log.i(TAG,"PacketCreation:::AddLength_Tpdu_6");
 
         String result;
         result = "";
         for (int k = 0; k < inOffset; k++) {
             result = result + String.format("%02x", FinalData[k]);
         }
-        Log.i(TAG,"\nResults:");
+        Log.i(TAG,"PacketCreation:::\nResults:");
         Log.i(TAG,result);
         return inOffset;
     }
@@ -351,34 +351,34 @@ public class PacketCreation {
     public int inProcessPacket(byte[] FinalData,int inFinalLength) {
         String result="";
         try {
-            Log.i(TAG,"\ninProcessPacket_1:");
+            Log.i(TAG,"PacketCreation:::\ninProcessPacket_1:");
             if(TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE ) {
                 isoMsg.unpack(FinalData);
                 // print the DE list
                 logISOMsg(isoMsg);
             }else{
-                Log.i(TAG,"\ninProcessPacket_2:");
+                Log.i(TAG,"PacketCreation:::\ninProcessPacket_2:");
 
                 result = "";
                 for (int k = 0; k < inFinalLength; k++) {
                     result = result + String.format("%02x", FinalData[k]);
                 }
-                Log.i(TAG,"\nAlipay_inProcessPacket_Received_2:");
+                Log.i(TAG,"PacketCreation:::\nAlipay_inProcessPacket_Received_2:");
                 Log.i(TAG,result);
 
                 inParceAlipyResponse(FinalData,inFinalLength);
 
-                Log.i(TAG,"\ninProcessPacket_3:");
-                Log.i(TAG,"\nTerminal-ID:"+trDetails.getResTerminalId());
+                Log.i(TAG,"PacketCreation:::\ninProcessPacket_3:");
+                Log.i(TAG,"PacketCreation:::\nTerminal-ID:"+trDetails.getResTerminalId());
 
                 if(!trDetails.getResponseCode().equals("00")){
-                    Log.i(TAG,"\ninProcessPacket_4:");
+                    Log.i(TAG,"PacketCreation:::\ninProcessPacket_4:");
                     return 1;//ERROR
                 }
 
             }
         } catch (ISOException ex) {
-            Log.i(TAG, "ISO EXCEPTION");
+            Log.i(TAG, "PacketCreation:::ISO EXCEPTION");
             Log.i(TAG, ex.getMessage());
         }
 
@@ -403,7 +403,7 @@ public class PacketCreation {
         for (int k = 0; k < inLen; k++) {
             result = result + String.format("%02x", input[k]);
         }
-        Log.i(TAG,"\nAlipay_inParceAlipyResponse:");
+        Log.i(TAG,"PacketCreation:::\nAlipay_inParceAlipyResponse:");
         Log.i(TAG,result);
 
         while (true) {
@@ -412,18 +412,18 @@ public class PacketCreation {
             inLength = (input[incurrentposition] * 256) + ((input[incurrentposition + 1]));
             incurrentposition = incurrentposition + 2;
             byte[] chtemp = new byte[inLength];
-            Log.i(TAG,"inTag inTag :: "+chtemp.length);
-            Log.i(TAG,"inTag inLength :: "+inLength);
-            Log.i(TAG,"inTag actual Len Initially :: "+chtemp.length);
+            Log.i(TAG,"PacketCreation:::inTag inTag :: "+chtemp.length);
+            Log.i(TAG,"PacketCreation:::inTag inLength :: "+inLength);
+            Log.i(TAG,"PacketCreation:::inTag actual Len Initially :: "+chtemp.length);
             for (int lp = 0; lp < inLength; lp++) {
                 chtemp[lp] = input[incurrentposition + lp];
             }
             incurrentposition = incurrentposition + inLength;
 
-            Log.i(TAG,"inTag :: "+inTag);
-            Log.i(TAG,"inTag_inLength :: "+inLength);
-            Log.i(TAG,"inTag actual Len :: "+chtemp.length);
-            Log.i(TAG,"inTag actual Value :: "+new String(chtemp));
+            Log.i(TAG,"PacketCreation:::inTag :: "+inTag);
+            Log.i(TAG,"PacketCreation:::inTag_inLength :: "+inLength);
+            Log.i(TAG,"PacketCreation:::inTag actual Len :: "+chtemp.length);
+            Log.i(TAG,"PacketCreation:::inTag actual Value :: "+new String(chtemp));
 
             switch (inTag) {
                 case 1:// Message type

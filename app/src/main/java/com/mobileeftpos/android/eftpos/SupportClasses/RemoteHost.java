@@ -87,8 +87,15 @@ public class RemoteHost {
 
     public int inDisconnection() {
         try {
-            if (smtpSocket != null)
+            Log.i(TAG,"\nRemoveHost::inDisconnection:");
+            if (smtpSocket != null) {
+                Log.i(TAG,"\nRemoveHost::inDisconnection_1:");
+                if(smtpSocket.isClosed())
+                    Log.i(TAG,"\nRemoveHost::inDisconnection_Closed:");
                 smtpSocket.close();
+                if(smtpSocket.isClosed())
+                    Log.i(TAG,"\nRemoveHost::inDisconnection_Closed_2:");
+            }
         } catch (UnknownHostException e) {
             Log.i(TAG, "Don't know about host: hostname");
             return 1;
