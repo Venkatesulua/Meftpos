@@ -109,16 +109,16 @@ public class TransactionType extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 /*Log.i(TAG,"ALIPAY CLICK");
-                globalVar.setGTransactionType(Constants.TransType.ALIPAY_SALE);
+                globalVar.setGTransactionType(MenuConstants.TransType.ALIPAY_SALE);
                 Log.i(TAG,"ALIPAY CLICK_1");
                 //startActivity(new Intent(TransactionType.this,ScannerActivity.class));
                 Intent intentScan = new Intent(TransactionType.this, CaptureActivity.class);
                 Log.i(TAG,"ALIPAY CLICK_2");
-                intentScan.setAction(Constants.QRCODE.BARCODE_INTENT_ACTION);
+                intentScan.setAction(MenuConstants.QRCODE.BARCODE_INTENT_ACTION);
                 Log.i(TAG,"ALIPAY CLICK_3");
-                intentScan.putExtra(Constants.QRCODE.BARCODE_DISABLE_HISTORY, false);
+                intentScan.putExtra(MenuConstants.QRCODE.BARCODE_DISABLE_HISTORY, false);
                 Log.i(TAG,"ALIPAY CLICK_4");
-                startActivityForResult(intentScan, Constants.QRCODE.BARCODE_RESULT_CODE);
+                startActivityForResult(intentScan, MenuConstants.QRCODE.BARCODE_RESULT_CODE);
                 Log.i(TAG,"ALIPAY CLICK_5");*/
                 isFromBarcodeScanner=true;
                 startActivity(new Intent(TransactionType.this,FullScannerActivity.class));
@@ -138,9 +138,9 @@ public class TransactionType extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, intent);
 
         Log.i(TAG,"onActivityResult");
-        if (requestCode == Constants.QRCODE.BARCODE_RESULT_CODE && resultCode == Activity.RESULT_OK) {
+        if (requestCode == MenuConstants.QRCODE.BARCODE_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             Log.i(TAG,"onActivityResult_2");
-            String contents = intent.getStringExtra(Constants.QRCODE.BARCODE_INTENT_RESULT_KEY);
+            String contents = intent.getStringExtra(MenuConstants.QRCODE.BARCODE_INTENT_RESULT_KEY);
             processBarcode(contents);
         } else {
             Log.i(TAG,"onActivityResult_3");
