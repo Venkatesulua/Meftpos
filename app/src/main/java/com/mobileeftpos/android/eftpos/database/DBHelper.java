@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.model.BarcodeModel;
 import com.mobileeftpos.android.eftpos.model.BatchModel;
 import com.mobileeftpos.android.eftpos.model.CardBinModel;
@@ -1372,7 +1373,10 @@ public class DBHelper {
                 currenyModel.setCURR_LABEL(res.getString(res.getColumnIndex(DBStaticField.CURR_LABEL)));
                 currenyModel.setCURR_EXPONENT(res.getString(res.getColumnIndex(DBStaticField.CURR_EXPONENT)));
                 currenyModel.setCURR_CODE(res.getString(res.getColumnIndex(DBStaticField.CURR_CODE)));
-                break;
+                if(inRecord_Num ==0 && res.getString(res.getColumnIndex(DBStaticField.CURR_LABEL)).equals(Constants.DEFAULT_CURRENCY))
+                    break;
+                else
+                    break;
             }
             //array_list.add(pwdModel);
             res.moveToNext();
@@ -1614,6 +1618,72 @@ public class DBHelper {
             res.moveToNext();
         }
         return batchModelObjList;
+    }
+
+    public BatchModel getBatchDataUsngInvoice(String inRecord_Num) {
+        //BatchModel batchModelObjList = new BatchModel();
+        BatchModel batchModel=new BatchModel();
+        SQLiteDatabase db = DBHelper.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT * from " + DBStaticField.TABLE_BATCH +" where "+DBStaticField.INVOICE_NUMBER+"= '"+ inRecord_Num +"'", null);
+        res.moveToFirst();
+
+        while (res.isAfterLast() == false) {
+
+            //if(Integer.parseInt(res.getString(res.getColumnIndex(DBStaticField.HDT_INDEX))) == inRecord_Num )//Read the respective record needed
+            {
+
+                batchModel.setBATCH_ID(res.getString(res.getColumnIndex(DBStaticField.BATCH_ID)));
+                batchModel.setHDT_INDEX(res.getString(res.getColumnIndex(DBStaticField.HDT_INDEX)));
+                batchModel.setTRANS_TYPE(res.getString(res.getColumnIndex(DBStaticField.TRANS_TYPE)));
+                batchModel.setTRANS_MODE(res.getString(res.getColumnIndex(DBStaticField.TRANS_MODE)));
+                batchModel.setVOIDED(res.getString(res.getColumnIndex(DBStaticField.VOIDED)));
+                batchModel.setUPLOADED(res.getString(res.getColumnIndex(DBStaticField.UPLOADED)));
+                batchModel.setPROC_CODE(res.getString(res.getColumnIndex(DBStaticField.PROC_CODE)));
+                batchModel.setINVOICE_NUMBER(res.getString(res.getColumnIndex(DBStaticField.INVOICE_NUMBER)));
+                batchModel.setAMOUNT(res.getString(res.getColumnIndex(DBStaticField.AMOUNT)));
+                batchModel.setTIP_AMOUNT(res.getString(res.getColumnIndex(DBStaticField.TIP_AMOUNT)));
+                batchModel.setTIME(res.getString(res.getColumnIndex(DBStaticField.TIME)));
+                batchModel.setDATE(res.getString(res.getColumnIndex(DBStaticField.DATE)));
+                batchModel.setYEAR(res.getString(res.getColumnIndex(DBStaticField.YEAR)));
+                batchModel.setORG_MESS_ID(res.getString(res.getColumnIndex(DBStaticField.ORG_MESS_ID)));
+                batchModel.setSYS_TRACE_NUM(res.getString(res.getColumnIndex(DBStaticField.SYS_TRACE_NUM)));
+                batchModel.setDATE_EXP(res.getString(res.getColumnIndex(DBStaticField.DATE_EXP)));
+                batchModel.setRETR_REF_NUM(res.getString(res.getColumnIndex(DBStaticField.RETR_REF_NUM)));
+                batchModel.setAUTH_ID_RESP(res.getString(res.getColumnIndex(DBStaticField.AUTH_ID_RESP)));
+                batchModel.setRESP_CODE(res.getString(res.getColumnIndex(DBStaticField.RESP_CODE)));
+                batchModel.setACCT_NUMBER(res.getString(res.getColumnIndex(DBStaticField.ACCT_NUMBER)));
+                batchModel.setPERSON_NAME(res.getString(res.getColumnIndex(DBStaticField.PERSON_NAME)));
+                batchModel.setORIGINAL_AMOUNT(res.getString(res.getColumnIndex(DBStaticField.ORIGINAL_AMOUNT)));
+                batchModel.setADDITIONAL_DATA(res.getString(res.getColumnIndex(DBStaticField.ADDITIONAL_DATA)));
+                batchModel.setPAYMENT_TERM_INFO(res.getString(res.getColumnIndex(DBStaticField.PAYMENT_TERM_INFO)));
+                batchModel.setPRIMARY_ACC_NUM(res.getString(res.getColumnIndex(DBStaticField.PRIMARY_ACC_NUM)));
+                batchModel.setPOS_ENT_MODE(res.getString(res.getColumnIndex(DBStaticField.POS_ENT_MODE)));
+                batchModel.setNII(res.getString(res.getColumnIndex(DBStaticField.NII)));
+                batchModel.setPOS_COND_CODE(res.getString(res.getColumnIndex(DBStaticField.POS_COND_CODE)));
+                batchModel.setADD_AMOUNT(res.getString(res.getColumnIndex(DBStaticField.ADD_AMOUNT)));
+                batchModel.setCARD_TYPE(res.getString(res.getColumnIndex(DBStaticField.CARD_TYPE)));
+                batchModel.setCARD_EQUENCE(res.getString(res.getColumnIndex(DBStaticField.CARD_EQUENCE)));
+                batchModel.setCHIPDATA(res.getString(res.getColumnIndex(DBStaticField.CHIPDATA)));
+                batchModel.setTVRVALUE(res.getString(res.getColumnIndex(DBStaticField.TVRVALUE)));
+                batchModel.setTSIVALUE(res.getString(res.getColumnIndex(DBStaticField.TSIVALUE)));
+                batchModel.setTRANSCRYTO(res.getString(res.getColumnIndex(DBStaticField.TRANSCRYTO)));
+                batchModel.setTOTALSCRIPT71(res.getString(res.getColumnIndex(DBStaticField.TOTALSCRIPT71)));
+                batchModel.setTOTALSCRIPT72(res.getString(res.getColumnIndex(DBStaticField.TOTALSCRIPT72)));
+                batchModel.setSCRIPTRESULT71(res.getString(res.getColumnIndex(DBStaticField.SCRIPTRESULT71)));
+                batchModel.setSCRIPTRESULT72(res.getString(res.getColumnIndex(DBStaticField.SCRIPTRESULT72)));
+                batchModel.setCHAID(res.getString(res.getColumnIndex(DBStaticField.CHAID)));
+                batchModel.setAPPLICATION_LABEL(res.getString(res.getColumnIndex(DBStaticField.APPLICATION_LABEL)));
+                batchModel.setCLS_SCHEME_ID(res.getString(res.getColumnIndex(DBStaticField.CLS_SCHEME_ID)));
+                batchModel.setSIGNATURE_REQ(res.getString(res.getColumnIndex(DBStaticField.SIGNATURE_REQ)));
+
+
+                //break;
+            }
+
+           // batchModelObjList.add(batchModel);
+            res.moveToNext();
+        }
+        return batchModel;
     }
 
 

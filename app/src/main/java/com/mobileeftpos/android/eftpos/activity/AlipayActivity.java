@@ -171,7 +171,7 @@ public class AlipayActivity extends AppCompatActivity {
             // execution of result of Long time consuming operation
             super.onPostExecute(result);
             Log.i(TAG,"AlipayActivity::Alipay:onPostExecute");
-            payServices.vdUpdateSystemTrace(databaseObj);
+
             if(result!=null && result.equals("0"))
             {
                 Log.i(TAG, "Aipay:onPostExecute:SUCCESS");
@@ -203,6 +203,7 @@ public class AlipayActivity extends AppCompatActivity {
                     }
                 }, TIME_OUT);
             }
+            payServices.vdUpdateSystemTrace(databaseObj);
             //progressDialog.dismiss();
 
 

@@ -15,6 +15,8 @@ import com.mobileeftpos.android.eftpos.model.MerchantModel;
 //20170523: Venkat added transaction details table
 public class TransactionDetails {
     private final String TAG = "my_custom_msg";
+
+
     public static  String deviceId;
 
     public static String trxAmount;
@@ -40,6 +42,7 @@ public class TransactionDetails {
     public static String POSEntryMode;
     public static String NII;
     public static String POS_COND_CODE;
+
     // public static int inGHDT ;
     int inGNoOfValidHosts;
 
@@ -70,6 +73,34 @@ public class TransactionDetails {
     //ALIPAy response
     public static String responseMessge;
     public static String PartnerTransID;
+
+    public void vdCleanFields(){
+        trxAmount="";
+        tipAmount="";
+        trxDateTime="";//yyyyMMddHHmmssSS
+        PAN="";
+        ExpDate="";
+        trxType=0;
+        chApprovalCode="";
+        EntryMode="";
+        inGHDT=0;
+        inGCDT=0;
+        inGCTT=0;
+        inGCOM=0;
+        inGCURR=0;
+        inGTrxMode=0;
+        processingcode="";
+        messagetype="";
+        InvoiceNumber=0;
+        RetrievalRefNumber="";
+        ResponseCode="";
+        PersonName="";
+        POSEntryMode="";
+        NII="";
+        POS_COND_CODE="";
+        inGNoOfValidHosts=0;
+        
+    }
 
     public int inSortPAN(DBHelper databaseObj)
     {

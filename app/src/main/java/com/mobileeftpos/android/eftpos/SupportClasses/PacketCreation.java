@@ -41,6 +41,7 @@ public class PacketCreation {
         hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
         commData = databaseObj.getCommsData(TransactionDetails.inGCOM);
         merchantData = databaseObj.getMerchantData(0);
+        PayServices payServices= new PayServices();
         BatchModel batchModel = new BatchModel();
         //Save transaction
         batchModel.setHDT_INDEX(Integer.toString(TransactionDetails.inGHDT));
@@ -49,14 +50,16 @@ public class PacketCreation {
         batchModel.setVOIDED(Integer.toString(Constants.FALSE));
         batchModel.setUPLOADED(Integer.toString(Constants.FALSE));
         batchModel.setPROC_CODE(TransactionDetails.processingcode);
-        batchModel.setINVOICE_NUMBER(Integer.toString(TransactionDetails.InvoiceNumber));
+
+        String aa = payServices.pGetSystemTrace(databaseObj);
+        batchModel.setINVOICE_NUMBER(payServices.pGetSystemTrace(databaseObj));
         batchModel.setAMOUNT(TransactionDetails.trxAmount);
         batchModel.setTIP_AMOUNT(TransactionDetails.tipAmount);
         batchModel.setTIME(TransactionDetails.trxDateTime.substring(8,14));
         batchModel.setDATE(TransactionDetails.trxDateTime.substring(4,8));
-        batchModel.setYEAR(TransactionDetails.chApprovalCode.substring(0,4));
+        batchModel.setYEAR(TransactionDetails.trxDateTime.substring(0,4));
         batchModel.setORG_MESS_ID(TransactionDetails.messagetype);
-        batchModel.setSYS_TRACE_NUM(Integer.toString(TransactionDetails.InvoiceNumber));
+        batchModel.setSYS_TRACE_NUM(payServices.pGetSystemTrace(databaseObj));
         batchModel.setDATE_EXP(TransactionDetails.ExpDate);
         batchModel.setRETR_REF_NUM(TransactionDetails.RetrievalRefNumber);
         batchModel.setAUTH_ID_RESP(TransactionDetails.chApprovalCode);
@@ -185,6 +188,12 @@ public class PacketCreation {
                     staddinfo = staddinfo + ",ver:";
                     staddinfo = staddinfo + "V1.0";
 
+                    staddinfo = staddinfo + ",scan:";
+                    staddinfo = staddinfo + "y";
+
+                    staddinfo = staddinfo + ",proto:";
+                    staddinfo = staddinfo + "1";
+
                     staddinfo = staddinfo + ",sw:";
                     staddinfo = staddinfo + "V1.0";
                     staddinfo = staddinfo + ",";
@@ -196,6 +205,7 @@ public class PacketCreation {
                 case Constants.TransType.PAYMENT_SALE:
                     break;
                 case Constants.TransType.VOID:
+                    CreateTLVFields(1, Constants.MTI.Financial,FinalData);
                     break;
                 case Constants.TransType.REVERSAL:
                     break;
@@ -463,10 +473,11 @@ public class PacketCreation {
                     break;
                 case 0x27:// responsecode
                     trDetails.setResponseCode( new String(chtemp));
+                    TransactionDetails.ResponseCode=new String(chtemp);
                     break;
                 case 0x28:// responsemesage
-                    trDetails.setRefundReason( new String(chtemp));
-                    TransactionDetails.ResponseCode=new String(chtemp);
+                    trDetails.setResponseMesage( new String(chtemp));
+                    TransactionDetails.responseMessge=new String(chtemp);
                     break;
                 case 0x29:// terminalid
                     trDetails.setResTerminalId( new String(chtemp));

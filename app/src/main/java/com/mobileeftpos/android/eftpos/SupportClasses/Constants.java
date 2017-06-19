@@ -8,6 +8,14 @@ public class Constants {
 
 	public static final int TRUE = 1;
 	public static final int FALSE = 0;
+
+	//transcations display
+	public static String VOID="VOID";
+	public static String DEFAULT_CURRENCY = "SGD";
+
+	//ERROR
+	public static String TRANSCATION_NOT_SUPPORTED = "TRANSCATION_NOT_SUPPORTED";
+	public static String ALREADY_VOIDED = "ALREADY_VOIDED";
 	public class TransMode {
 		public static final int SWIPE = 0;
 		public static final int ICC = 1;
@@ -63,13 +71,14 @@ public class Constants {
 		public static final String pcTmsSubsequent = "930110";
 		public static final String pcFinancialRequest = "000000";
 	}
+
+	public class PaymentStatus{
+		public static final int PAYMENT_OK = 0;
+	}
 	public class QRCODE {
 		public static final String BARCODE_INTENT_ACTION = "com.google.zxing.client.android.SCAN";
 		public static final String BARCODE_DISABLE_HISTORY = "SAVE_HISTORY";
 		public static final int BARCODE_RESULT_CODE = 999;
 		public static final String BARCODE_INTENT_RESULT_KEY = "SCAN_RESULT";
-	}
-	public class PaymentStatus{
-		public static final int PAYMENT_OK = 0;
 	}
 }

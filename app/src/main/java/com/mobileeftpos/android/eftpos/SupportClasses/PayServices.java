@@ -38,26 +38,18 @@ public class PayServices {
 
     public void vdUpdateSystemTrace(DBHelper databaseObj)
     {
-        Log.i(TAG,"PayServices::vdUpdateSystemTrace_1");
         TraceNumberModel traceno=new TraceNumberModel();
-        Log.i(TAG,"PayServices::vdUpdateSystemTrace_2");
         traceno= databaseObj.getTraceNumberData(0);
-        Log.i(TAG,"PayServices::vdUpdateSystemTrace_3");
         long ulSystemTraceL=0L;
-
-        ulSystemTraceL=Integer.parseInt(traceno.getSYSTEM_TRACE());
-        Log.i(TAG,"PayServices::ulSystemTraceL"+ulSystemTraceL);
-
+        if(traceno.getSYSTEM_TRACE()!=null && !traceno.getSYSTEM_TRACE().equalsIgnoreCase("null")) {
+            ulSystemTraceL = Integer.parseInt(traceno.getSYSTEM_TRACE());
+        }
         if (++ulSystemTraceL>=900000L)
             ulSystemTraceL=1L;
 
-        Log.i(TAG,"PayServices::vdUpdateSystemTrace_4");
         String newno = String.format("%06d", ulSystemTraceL);
-        Log.i(TAG,"PayServices::newno"+newno);
         traceno.setSYSTEM_TRACE(newno);
-        Log.i(TAG,"PayServices::vdUpdateSystemTrace_6");
         databaseObj.UpdateTraceNumberData(traceno);
-        Log.i(TAG,"PayServices::vdUpdateSystemTrace_7");
     }
 
 }

@@ -67,10 +67,15 @@ public class OneFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
 
         //Read the transaction date and time and send the ame to host
+        TransactionDetails transDetails = new TransactionDetails();
+
+        transDetails.vdCleanFields();
+
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSS");
         Date date = new Date();
         String stDate = dateFormat.format(date);
         TransactionDetails.trxDateTime=stDate;
+
 
         switch (view.getId()) {
             case R.id.saleItem:
@@ -81,6 +86,8 @@ public class OneFragment extends Fragment implements View.OnClickListener {
                 break;
 
             case R.id.voidItem:
+                TransactionDetails.trxType = Constants.TransType.VOID;
+                startActivity(new Intent(HomeActivity.context, VoidFlow.class));
                 break;
 
             case R.id.preauthItem:

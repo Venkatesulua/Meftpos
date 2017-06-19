@@ -8,8 +8,10 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.TextView;
 
 import com.mobileeftpos.android.eftpos.R;
+import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 
 public class PaymentFailure extends AppCompatActivity {
 
@@ -21,8 +23,15 @@ public class PaymentFailure extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        TextView txTextView;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment_failure);
+        txTextView = (TextView) findViewById(R.id.FailurStatus);
+      if(TransactionDetails.responseMessge.isEmpty()){
+
+      }else{
+          txTextView.setText(TransactionDetails.responseMessge);
+      }
 
         mHandler = new Handler();
         mRunnable = new Runnable() {

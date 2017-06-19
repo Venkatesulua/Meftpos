@@ -74,7 +74,7 @@
             android:textSize="22dp"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
-            />
+            android:id="@+id/FailurStatus" />
 
         <TextView
             android:layout_width="wrap_content"

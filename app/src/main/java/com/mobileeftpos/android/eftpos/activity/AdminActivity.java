@@ -978,12 +978,24 @@ public class AdminActivity extends Activity {
                 currModel.setCURR_LABEL(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
-                inindex = stValue.indexOf(' ');
-                currModel.setCURR_EXPONENT(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    //currModel.setCURR_CODE(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        currModel.setCURR_EXPONENT(stValue);
+                    else
+                        currModel.setCURR_EXPONENT(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
 
-                inindex = stValue.indexOf(' ');
-                currModel.setCURR_CODE(stValue.substring(0, inindex));
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    //currModel.setCURR_CODE(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        currModel.setCURR_CODE(stValue);
+                    else
+                        currModel.setCURR_CODE(stValue.substring(0, inindex));
+                }
                 //stValue = stValue.substring(inindex + 1);
                 databaseObj.InsertCurrencyData(currModel);
 
