@@ -17,15 +17,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
-
-
-import java.util.UUID;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -53,6 +47,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView signup;
     private boolean isValid = false;
     private final String TAG = "my_custom_msg";
+
 
 
     @Override
@@ -219,9 +214,6 @@ public class LoginActivity extends AppCompatActivity {
             // permissions this app might request
         }
     }
-
-
-
 
 
 

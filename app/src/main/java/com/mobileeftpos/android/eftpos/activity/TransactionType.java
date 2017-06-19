@@ -116,18 +116,20 @@ public class TransactionType extends AppCompatActivity {
         btnAlipayPayment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*Log.i(TAG,"TransType::ALIPAY CLICK");
-                globalVar.setGTransactionType(Constants.TransType.ALIPAY_SALE);
-                Log.i(TAG,"TransType::ALIPAY CLICK_1");
+
+                /*Log.i(TAG,"ALIPAY CLICK");
+                globalVar.setGTransactionType(MenuConstants.TransType.ALIPAY_SALE);
+                Log.i(TAG,"ALIPAY CLICK_1");
                 //startActivity(new Intent(TransactionType.this,ScannerActivity.class));
                 Intent intentScan = new Intent(TransactionType.this, CaptureActivity.class);
-                Log.i(TAG,"TransType::ALIPAY CLICK_2");
-                intentScan.setAction(Constants.QRCODE.BARCODE_INTENT_ACTION);
-                Log.i(TAG,"TransType::ALIPAY CLICK_3");
-                intentScan.putExtra(Constants.QRCODE.BARCODE_DISABLE_HISTORY, false);
-                Log.i(TAG,"TransType::ALIPAY CLICK_4");
-                startActivityForResult(intentScan, Constants.QRCODE.BARCODE_RESULT_CODE);
-                Log.i(TAG,"TransType::ALIPAY CLICK_5");*/
+                Log.i(TAG,"ALIPAY CLICK_2");
+                intentScan.setAction(MenuConstants.QRCODE.BARCODE_INTENT_ACTION);
+                Log.i(TAG,"ALIPAY CLICK_3");
+                intentScan.putExtra(MenuConstants.QRCODE.BARCODE_DISABLE_HISTORY, false);
+                Log.i(TAG,"ALIPAY CLICK_4");
+                startActivityForResult(intentScan, MenuConstants.QRCODE.BARCODE_RESULT_CODE);
+                Log.i(TAG,"ALIPAY CLICK_5");*/
+
                 isFromBarcodeScanner=true;
                 startActivity(new Intent(TransactionType.this,FullScannerActivity.class));
             }
@@ -145,10 +147,17 @@ public class TransactionType extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
+<<<<<<< HEAD
         Log.i(TAG,"TransType::onActivityResult");
         if (requestCode == Constants.QRCODE.BARCODE_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             Log.i(TAG,"TransType::onActivityResult_2");
             String contents = intent.getStringExtra(Constants.QRCODE.BARCODE_INTENT_RESULT_KEY);
+=======
+        Log.i(TAG,"onActivityResult");
+        if (requestCode == MenuConstants.QRCODE.BARCODE_RESULT_CODE && resultCode == Activity.RESULT_OK) {
+            Log.i(TAG,"onActivityResult_2");
+            String contents = intent.getStringExtra(MenuConstants.QRCODE.BARCODE_INTENT_RESULT_KEY);
+>>>>>>> a7f5da5d14fb4f212b68ca15386c43018395b51c
             processBarcode(contents);
         } else {
             Log.i(TAG,"TransType::onActivityResult_3");

@@ -235,7 +235,7 @@ public class AdminActivity extends Activity {
 
                         // goto lblNoChanges;
                     } else if (inret == Constants.TMSReturnValues.TMS_RESPONSE_DL_REQUIRED) {
-                        //globalVar.setGTransactionType(Constants.TransType.TMS_SUBSEQUENT_PACKET);
+                        //globalVar.setGTransactionType(MenuConstants.TransType.TMS_SUBSEQUENT_PACKET);
                         TransactionDetails.trxType = Constants.TransType.TMS_SUBSEQUENT_PACKET;
 
                     } else {

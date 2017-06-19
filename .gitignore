@@ -13,3 +13,9 @@ buildNumber.properties
 **/build
 */.idea
 *.iml
+/.idea/workspace.xml
+**/.idea/libraries
+**/.idea/workspace.xml 
+**/.idea/tasks.xml
+.idea/encodings.xml
+.idea/gradle.xml
