@@ -1,4 +1,19 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 apply plugin: 'android-apt'
 
 android {
@@ -18,12 +33,28 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
-    buildTypes {
-        release {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    signingConfigs {
+        myconfig {
+            keyAlias 'eftpos'
+            keyPassword 'abc123!#'
+            storeFile file("keystore.jks")
+            storePassword 'abc123!#'
         }
+    }
+
+    buildTypes {
+
+        debug {
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            debuggable false
+             minifyEnabled false
+             signingConfig signingConfigs.myconfig
+        }
+        release {
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            debuggable false
+            minifyEnabled false
+          }
     }
 
     packagingOptions {
@@ -40,6 +71,7 @@ android {
     }
 
 
+    buildToolsVersion '25.0.0'
 }
 
 
@@ -79,6 +111,9 @@ dependencies {
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:support-vector-drawable:25.3.1'
     testCompile 'junit:junit:4.12'
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+        transitive = true;
+    }
 
 
 }

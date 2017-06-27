@@ -41,8 +41,9 @@ public class PayServices {
         TraceNumberModel traceno=new TraceNumberModel();
         traceno= databaseObj.getTraceNumberData(0);
         long ulSystemTraceL=0L;
-
-        ulSystemTraceL=Integer.parseInt(traceno.getSYSTEM_TRACE());
+        if(traceno.getSYSTEM_TRACE()!=null && !traceno.getSYSTEM_TRACE().equalsIgnoreCase("null")) {
+            ulSystemTraceL = Integer.parseInt(traceno.getSYSTEM_TRACE());
+        }
         if (++ulSystemTraceL>=900000L)
             ulSystemTraceL=1L;
 
