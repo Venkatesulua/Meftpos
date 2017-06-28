@@ -21,7 +21,7 @@ public class Review_Transaction {
     private TransactionControlModel transCtrlModelData = new TransactionControlModel();
     private final String TAG = "my_custom_msg";
 
-    public String lgReviewAllTrans(DBHelper databaseObj, String STDisplayTranstype,BatchModel batchModeldata){
+    public BatchModel lgReviewAllTrans(DBHelper databaseObj, String STDisplayTranstype,BatchModel batchModeldata){
         //BatchModel batchModeldata = new BatchModel();
         HostModel hostModel = new HostModel();
 
@@ -36,11 +36,15 @@ public class Review_Transaction {
             return Constants.TRANSCATION_NOT_SUPPORTED;
         }*/
         batchModeldata = databaseObj.getBatchDataUsngInvoice(STDisplayTranstype);//Read Transaction details
+        if(batchModeldata == null)
+            return null;
         String StHDT = batchModeldata.getHDT_INDEX();
         hostModel =databaseObj.getHostTableData(Integer.parseInt(StHDT));
        if(batchModeldata.getVOIDED().equals(Integer.toString(Constants.TRUE))){
-           return Constants.ALREADY_VOIDED;
+
+           return null;
        }
+        TransactionDetails.inOritrxType = Integer.parseInt(batchModeldata.getTRANS_TYPE());
         TransactionDetails.inGTrxMode = Integer.parseInt(batchModeldata.getTRANS_MODE());
         TransactionDetails.processingcode = batchModeldata.getPROC_CODE();
         TransactionDetails.trxAmount = batchModeldata.getAMOUNT();
@@ -71,6 +75,6 @@ public class Review_Transaction {
 
 
 
-        return null;
+        return batchModeldata;
     }
 }

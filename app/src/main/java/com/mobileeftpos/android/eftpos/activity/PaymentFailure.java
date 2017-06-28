@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -27,12 +28,17 @@ public class PaymentFailure extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment_failure);
         txTextView = (TextView) findViewById(R.id.FailurStatus);
-      if(TransactionDetails.responseMessge.isEmpty()){
+        try {
+            if (TransactionDetails.responseMessge == null || TransactionDetails.responseMessge.isEmpty()) {
 
-      }else{
-          txTextView.setText(TransactionDetails.responseMessge);
-      }
-
+            } else {
+                txTextView.setText(TransactionDetails.responseMessge);
+            }
+            TransactionDetails.responseMessge = "";
+        }
+        catch(Exception e){
+            Log.i(TAG,"Exception_PaymentFailure "+e.getMessage());
+        }
         mHandler = new Handler();
         mRunnable = new Runnable() {
             @Override

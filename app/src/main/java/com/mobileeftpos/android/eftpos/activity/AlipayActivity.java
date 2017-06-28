@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,19 +19,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
+import com.google.gson.Gson;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
 import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
+import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.PacketCreation;
 import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
+
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.async.WebServiceCall;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.model.AlipayResponceModel;
 import com.mobileeftpos.android.eftpos.model.BarcodeModel;
+import com.mobileeftpos.android.eftpos.model.BatchModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
 import com.mobileeftpos.android.eftpos.model.CurrencyModel;
 import com.mobileeftpos.android.eftpos.model.HostModel;
@@ -44,6 +49,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -63,7 +69,7 @@ public class AlipayActivity extends AppCompatActivity {
     AsyncTaskRunner mAsyncTask;
      public static String barCodeValue=null;
     public byte[] FinalData = new byte[1512];
-    public int inFinalLength = 0;
+    //public int TransactionDetails.inFinalLength = 0;
     public static boolean isFromBarcodeScanner;
     private final String TAG = "my_custom_msg";
     private static DBHelper databaseObj;
@@ -88,11 +94,19 @@ public class AlipayActivity extends AppCompatActivity {
         barCodeValue=null;
         isFromBarcodeScanner=false;
         isFromBarcodeScanner=true;
+        //String ReversalString = KeyValueDB.getReversal(context);
 
         Log.i(TAG,"AlipayActivity::Alipay_onCreate_1");
         Intent i = new Intent(AlipayActivity.this, FullScannerActivity.class);
         i.putExtra("FromAlipayActivity", true);
         startActivityForResult(i, 111);
+
+        /*Intent intentScan = new Intent(AlipayActivity.this, CaptureActivity.class);
+        intentScan.setAction(Constants.QRCODE.BARCODE_INTENT_ACTION);
+        intentScan.putExtra(Constants.QRCODE.BARCODE_DISABLE_HISTORY, false);
+//        intentScan.putExtra(Intents.Scan.FORMATS, String.format("%s,%s"
+//                , BarcodeFormat.CODE_128.toString(), BarcodeFormat.ITF.toString()));
+        startActivityForResult(intentScan, Constants.QRCODE.BARCODE_RESULT_CODE);*/
 
 
 
@@ -161,6 +175,7 @@ public class AlipayActivity extends AppCompatActivity {
                 return Integer.toString(inRet);
             } catch (Exception e) {
                 e.printStackTrace();
+                Log.i(TAG,"AlipayActivity::Alipay:AsyncTaskRunner "+e.getMessage());
             }
             return resp;
         }
@@ -230,6 +245,9 @@ public class AlipayActivity extends AppCompatActivity {
         boolean whLoop=true;
         String result="";
         CommsModel comModel = new CommsModel();
+        BatchModel batchModel = new BatchModel();
+        Gson gson = new Gson();
+       // SharedPreference sharedpref= new SharedPreference();
         //Password Entry
         while(whLoop) {
             switch(inPhase++)
@@ -265,26 +283,165 @@ public class AlipayActivity extends AppCompatActivity {
                     Log.i(TAG, "Aipay:inCreatePacket:stTrace::"+stTrace);
                     Log.i(TAG, "Aipay:inCreatePacket:stTrace::"+stTrace);
 
-                    inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.ALIPAY_SALE);
-                    if(inFinalLength == 0)
-                        inError = 1;
-                    break;
-                case 2://
                     Log.i(TAG, "Aipay:inConnection:");
                     if (remoteHost.inConnection(ServerIP, Port) != 0) {
                         inError = 1;
                         break;
                     }
+
+                    //KeyValueDB.removeUpload(context);
+                    String UploadData = KeyValueDB.getUpload(context);
+                    if(!UploadData.isEmpty())
+                    {
+                        //FinalData = UploadData.getBytes();
+                        byte[] FinalData = new BigInteger(UploadData, 16).toByteArray();
+                        TransactionDetails.inFinalLength = FinalData[0] *256;
+                        TransactionDetails.inFinalLength = TransactionDetails.inFinalLength + (FinalData[1]);
+                        TransactionDetails.inFinalLength = TransactionDetails.inFinalLength +2;
+                        Log.i(TAG, "Aipay:inSendRecvPacket:");
+                        if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
+                            inError = 1;
+                            break;
+                        }
+
+                        result = "";
+                        for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
+                            result = result + String.format("%02x", FinalData[k]);
+                        }
+                        Log.i(TAG,"AlipayActivity::\nAlipay_inSendRecvPacket_Received:");
+                        Log.i(TAG,result);
+                        Log.i(TAG, "Aipay:inProcessPacket:");
+                        if (isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength) != 0) {
+                            inError = 1;
+                            //redirect to error
+                            break;
+                        }
+                        KeyValueDB.removeUpload(context);
+                    }
+
+                    /*String BatchReversalData = KeyValueDB.getReversal(context);
+                    if(!BatchReversalData.isEmpty() )
+                    {
+                        batchModel = gson.fromJson(BatchReversalData,BatchModel.class);
+                        //Take backup of the parameters and then restore it later
+                        String StHDT = batchModel.getHDT_INDEX();
+                        if(TransactionDetails.inGHDT==Integer.parseInt(StHDT)) {
+                            //TransactionDetails trBackupTrans = new TransactionDetails();
+
+                            int inOritrxType =TransactionDetails.inOritrxType;
+                            int inGTrxMode=TransactionDetails.inGTrxMode;
+                            String processingcode=TransactionDetails.processingcode;
+                            String trxAmount=TransactionDetails.trxAmount;
+                            String tipAmount=TransactionDetails.tipAmount;
+                            String trxDateTime=TransactionDetails.trxDateTime;
+                            String messagetype=TransactionDetails.messagetype;
+
+                            String ExpDate=TransactionDetails.ExpDate;
+                            String RetrievalRefNumber=TransactionDetails.RetrievalRefNumber;
+                            String chApprovalCode=TransactionDetails.chApprovalCode;
+                            String ResponseCode=TransactionDetails.ResponseCode;
+                            String PAN=TransactionDetails.PAN;
+                            String PersonName=TransactionDetails.PersonName;
+                            String temptrxAmount=TransactionDetails.trxAmount;
+                            String responseMessge=TransactionDetails.responseMessge;
+                            String POSEntryMode=TransactionDetails.POSEntryMode;
+                            String NII=TransactionDetails.NII;
+                            String POS_COND_CODE = TransactionDetails.POS_COND_CODE;
+
+                            TransactionDetails.inOritrxType = Integer.parseInt(batchModel.getTRANS_TYPE());
+                            TransactionDetails.inGTrxMode = Integer.parseInt(batchModel.getTRANS_MODE());
+                            TransactionDetails.processingcode = batchModel.getPROC_CODE();
+                            TransactionDetails.trxAmount = batchModel.getAMOUNT();
+                            TransactionDetails.tipAmount = batchModel.getTIP_AMOUNT();
+                            TransactionDetails.trxDateTime = batchModel.getYEAR();
+                            TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModel.getDATE();
+                            TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModel.getTIME();
+                            TransactionDetails.messagetype = batchModel.getORG_MESS_ID();
+//        batchModel.getSYS_TRACE_NUM(payServices.pGetSystemTrace(databaseObj));
+                            TransactionDetails.ExpDate = batchModel.getDATE_EXP();
+                            TransactionDetails.RetrievalRefNumber = batchModel.getRETR_REF_NUM();
+                            TransactionDetails.chApprovalCode = batchModel.getAUTH_ID_RESP();
+                            TransactionDetails.ResponseCode = batchModel.getRESP_CODE();
+                            TransactionDetails.PAN = batchModel.getACCT_NUMBER();
+                            TransactionDetails.PersonName = batchModel.getPERSON_NAME();
+                            TransactionDetails.trxAmount = batchModel.getORIGINAL_AMOUNT();
+                            TransactionDetails.responseMessge = batchModel.getADDITIONAL_DATA();
+                            //batchModel.getPAYMENT_TERM_INFO(res.getString(res.getColumnIndex(DBStaticField.PAYMENT_TERM_INFO)));
+                            TransactionDetails.PAN = batchModel.getPRIMARY_ACC_NUM();
+                            TransactionDetails.POSEntryMode = batchModel.getPOS_ENT_MODE();
+                            TransactionDetails.NII = batchModel.getNII();
+                            TransactionDetails.POS_COND_CODE = batchModel.getPOS_COND_CODE();
+
+                            TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.REVERSAL);
+                            if(TransactionDetails.inFinalLength == 0) {
+                                inError = 1;
+                                break;
+                            }
+                            Log.i(TAG, "Aipay:inSendRecvPacket:");
+                            if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
+                                inError = 1;
+                                break;
+                            }
+
+                            result = "";
+                            for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
+                                result = result + String.format("%02x", FinalData[k]);
+                            }
+                            Log.i(TAG,"AlipayActivity::\nAlipay_inSendRecvPacket_Received:");
+                            Log.i(TAG,result);
+                            Log.i(TAG, "Aipay:inProcessPacket:");
+                            if (isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength) != 0) {
+                                inError = 1;
+                                //redirect to error
+                                break;
+                            }
+
+                            TransactionDetails.inOritrxType=inOritrxType;
+                            TransactionDetails.inGTrxMode=inGTrxMode;
+                            TransactionDetails.processingcode=processingcode;
+                            TransactionDetails.trxAmount=trxAmount;
+                            TransactionDetails.tipAmount=tipAmount;
+                            TransactionDetails.trxDateTime=trxDateTime;
+                            TransactionDetails.messagetype=messagetype;
+
+                            TransactionDetails.ExpDate=ExpDate;
+                            TransactionDetails.RetrievalRefNumber=RetrievalRefNumber;
+                            TransactionDetails.chApprovalCode=chApprovalCode;
+                            TransactionDetails.ResponseCode=ResponseCode;
+                            TransactionDetails.PAN=PAN;
+                            TransactionDetails.PersonName=PersonName;
+                            TransactionDetails.trxAmount=temptrxAmount;
+                            TransactionDetails.responseMessge=responseMessge;
+                            TransactionDetails.POSEntryMode=POSEntryMode;
+                            TransactionDetails.NII=NII;
+                            TransactionDetails.POS_COND_CODE=POS_COND_CODE;
+
+                        }
+                        
+                    }*/
+
+                    break;
+                case 2://
+
+                    TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.ALIPAY_SALE);
+                    if(TransactionDetails.inFinalLength == 0) {
+                        inError = 1;
+                        break;
+                    }
+                    //Keep the reversal
+                    batchModel = isoPacket.vdSaveRecord(databaseObj);
+                    String json = gson.toJson(batchModel); // myObject - instance of MyObject
+                    KeyValueDB.setReversal(context, json);
                     break;
                 case 3://
                     Log.i(TAG, "Aipay:inSendRecvPacket:");
-                    if ((FinalData = remoteHost.inSendRecvPacket(FinalData,inFinalLength)) ==null) {
+                    if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
                         inError = 1;
                         break;
                     }
 
                     result = "";
-                    for (int k = 0; k < inFinalLength; k++) {
+                    for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
                         result = result + String.format("%02x", FinalData[k]);
                     }
                     Log.i(TAG,"AlipayActivity::\nAlipay_inSendRecvPacket_Received:");
@@ -294,14 +451,14 @@ public class AlipayActivity extends AppCompatActivity {
                 case 4://
 
                     result = "";
-                    for (int k = 0; k < inFinalLength; k++) {
+                    for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
                         result = result + String.format("%02x", FinalData[k]);
                     }
                     Log.i(TAG,"AlipayActivity::\nAlipay_inProcessPacket_Received:");
                     Log.i(TAG,result);
 
                     Log.i(TAG, "Aipay:inProcessPacket:");
-                    if (isoPacket.inProcessPacket(FinalData,inFinalLength) != 0) {
+                    if (isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength) != 0) {
                         inError = 1;
                         //redirect to error
                         break;

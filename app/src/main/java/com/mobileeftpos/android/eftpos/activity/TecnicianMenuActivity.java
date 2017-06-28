@@ -73,6 +73,8 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 break;
 
             case R.id.clrbatchItem:
+                //delete batch
+                databaseObj.deleteallvalues(DBStaticField.TABLE_BATCH);
                 break;
 
             case R.id.printconfigitem:

@@ -1290,8 +1290,7 @@ public class AdminActivity extends Activity {
                     break;
                 case Constants.TransType.REFUND:
                     break;
-                case Constants.TransType.SETTLEMENT:
-                    break;
+
             }
 
             //  Log.i(TAG,"AdminActivity::PACK:");

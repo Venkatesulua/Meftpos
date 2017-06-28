@@ -269,6 +269,7 @@ public static final String SYSTEM_TRACE="SYSTEM_TRACE";
 	public static final String TRANS_TYPE="trans_type";//SALE,REFUND
 	public static final String TRANS_MODE="trans_mode";// ENTRY MODE ie in
 	public static final String VOIDED="voided";
+	public static final String REVERSED="reversed";
 	public static final String UPLOADED="uploaded";
 	public static final String PROC_CODE="proc_code";
 	public static final String INVOICE_NUMBER="invoice_number";

@@ -17,6 +17,7 @@ public class TransactionDetails {
     private final String TAG = "my_custom_msg";
 
 
+
     public static  String deviceId;
 
     public static String trxAmount;
@@ -25,6 +26,7 @@ public class TransactionDetails {
     public static String PAN;
     public static String ExpDate;
     public static int trxType;
+    public static int inOritrxType;
     public static String chApprovalCode;
     public static String EntryMode;
     public static int inGHDT;
@@ -42,6 +44,7 @@ public class TransactionDetails {
     public static String POSEntryMode;
     public static String NII;
     public static String POS_COND_CODE;
+    public static int inFinalLength;
 
     // public static int inGHDT ;
     int inGNoOfValidHosts;
@@ -73,6 +76,7 @@ public class TransactionDetails {
     //ALIPAy response
     public static String responseMessge;
     public static String PartnerTransID;
+    public static String AlipayTag72;
 
     public void vdCleanFields(){
         trxAmount="";
@@ -99,6 +103,8 @@ public class TransactionDetails {
         NII="";
         POS_COND_CODE="";
         inGNoOfValidHosts=0;
+        AlipayTag72="";
+
         
     }
 

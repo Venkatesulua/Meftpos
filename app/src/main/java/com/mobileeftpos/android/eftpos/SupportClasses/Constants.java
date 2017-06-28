@@ -30,10 +30,13 @@ public class Constants {
 		public static final int PAYMENT_SALE = 2;
 		public static final int REFUND = 3;
 		public static final int VOID = 4;
+
 		public static final int REVERSAL = 5;
 		public static final int ALIPAY_SALE = 6;
 		public static final int ALIPAY_REFUND = 7;
-		public static final int SETTLEMENT = 8;
+		public static final int INIT_SETTLEMENT = 8;
+		public static final int FINAL_SETTLEMENT = 9;
+		public static final int ALIPAY_UPLOAD = 10;
 	}
 
 	public class ResponseCodes {
@@ -70,6 +73,7 @@ public class Constants {
 		public static final String pcTmsInitial = "930100";
 		public static final String pcTmsSubsequent = "930110";
 		public static final String pcFinancialRequest = "000000";
+		public static final String stVoid = "020000";
 	}
 
 	public class PaymentStatus{

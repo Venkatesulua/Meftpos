@@ -505,7 +505,6 @@ public class DBHelper {
             + "[" + DBStaticField.CLS_SCHEME_ID + "] TEXT,"
             + "[" + DBStaticField.SIGNATURE_REQ + "] TEXT)";
 
-
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
         DatabaseHelper(Context context) {
@@ -592,7 +591,7 @@ public class DBHelper {
         }
     }
 
-    public void dropallTable(String TABLE_NAME){
+    public void dropTable(String TABLE_NAME){
         SQLiteDatabase db = DBHelper.getWritableDatabase();
         String sql = "drop table " + TABLE_NAME;
         try {
@@ -602,6 +601,22 @@ public class DBHelper {
             Log.i(TAG,"DBHELPER::Drop Table Exception"+e.getMessage().toString());
         }
     }
+
+    public void CreateTable(String tableName){
+        SQLiteDatabase db = DBHelper.getWritableDatabase();
+        try {
+            //if(tableName.equals("Table_Reversal_Batch"))
+            // db.execSQL(Table_Reversal_Batch);
+            ///else if(tableName.equals("Table_Upload_Batch"))
+                //db.execSQL(Table_Upload_Batch);
+
+            Log.i(TAG,"DBHELPER::Table Created Successfully");
+        }catch (SQLException e) {
+            Log.i(TAG,"DBHELPER::Table Created Exceptions:::"+ e.getMessage().toString());
+        }
+
+    }
+
     public void CreateTables(){
         SQLiteDatabase db = DBHelper.getWritableDatabase();
         try {
@@ -623,6 +638,7 @@ public class DBHelper {
             db.execSQL(Table_Receipt);
             db.execSQL(Table_Alipay);
             db.execSQL(Table_Trace);
+            db.execSQL(Table_Batch);
             Log.i(TAG,"DBHELPER::Tables Created Successfully");
         }catch (SQLException e) {
             Log.i(TAG,"DBHELPER::Tables Created Exceptions:::"+ e.getMessage().toString());
@@ -1551,6 +1567,20 @@ public class DBHelper {
 
 
         db.insert(DBStaticField.TABLE_BATCH, null, contentValues);
+
+        return true;
+    }
+
+    public boolean UpdateBatchData(BatchModel model) {
+
+        SQLiteDatabase db = DBHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBStaticField.VOIDED, model.getVOIDED());
+        contentValues.put(DBStaticField.UPLOADED, model.getUPLOADED());
+        Log.i(TAG,"DBHELPER::UpdateTraceNumberData::"+model.getRETR_REF_NUM());
+        Log.i(TAG,"DBHELPER::UpdateTraceNumberData:getTRACE_UNIQUE_ID::"+model.getRETR_REF_NUM());
+        db.update(DBStaticField.TABLE_BATCH,contentValues,"retr_ref_num="+model.getRETR_REF_NUM(),null);
+
         return true;
     }
 
@@ -1623,6 +1653,8 @@ public class DBHelper {
     public BatchModel getBatchDataUsngInvoice(String inRecord_Num) {
         //BatchModel batchModelObjList = new BatchModel();
         BatchModel batchModel=new BatchModel();
+        int inError =0;
+
         SQLiteDatabase db = DBHelper.getReadableDatabase();
         Cursor res = db.rawQuery("SELECT * from " + DBStaticField.TABLE_BATCH +" where "+DBStaticField.INVOICE_NUMBER+"= '"+ inRecord_Num +"'", null);
         res.moveToFirst();
@@ -1631,6 +1663,7 @@ public class DBHelper {
 
             //if(Integer.parseInt(res.getString(res.getColumnIndex(DBStaticField.HDT_INDEX))) == inRecord_Num )//Read the respective record needed
             {
+                inError=1;
 
                 batchModel.setBATCH_ID(res.getString(res.getColumnIndex(DBStaticField.BATCH_ID)));
                 batchModel.setHDT_INDEX(res.getString(res.getColumnIndex(DBStaticField.HDT_INDEX)));
@@ -1683,6 +1716,8 @@ public class DBHelper {
            // batchModelObjList.add(batchModel);
             res.moveToNext();
         }
+        if(inError == 0)
+            return null;
         return batchModel;
     }
 

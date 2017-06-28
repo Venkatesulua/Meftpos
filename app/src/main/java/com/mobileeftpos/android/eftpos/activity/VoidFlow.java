@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
+import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.PacketCreation;
 import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
@@ -45,13 +46,13 @@ public class VoidFlow extends AppCompatActivity {
     private PacketCreation isoPacket = new PacketCreation();
     private RemoteHost remoteHost = new RemoteHost();
     public byte[] FinalData = new byte[1512];
-    private int inFinalLength = 0;
+    //private int TransactionDetails.inFinalLength = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_invoice);
-        transDetails.vdCleanFields();
+        //transDetails.vdCleanFields();
         editInvoice = (EditText) findViewById(R.id.invoice_et);
         submitButton = (Button) findViewById(R.id.invoice_btn);
         submitButton.setOnClickListener(new ClickLIstener());
@@ -72,8 +73,19 @@ public class VoidFlow extends AppCompatActivity {
 
 
         TransactionDetails.EntryMode=Integer.toString(Constants.TransMode.SWIPE);
-        String stRet = reviewTrans.lgReviewAllTrans(databaseObj,stInvoice,batchModeldata);
+        batchModeldata = reviewTrans.lgReviewAllTrans(databaseObj,stInvoice,batchModeldata);
 
+        if(batchModeldata == null) {
+            TransactionDetails.responseMessge = "ALREADY VOIDED OR TRANS NOT FOUND";
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(VoidFlow.this, PaymentFailure.class);
+                    startActivity(intent);
+                }
+            }, TIME_OUT);
+            return Constants.FALSE;
+        }
         processVoid();
        
         /*if(stRet == null) {
@@ -131,7 +143,7 @@ public class VoidFlow extends AppCompatActivity {
                 Log.i(TAG, "GetInvoice:onPostExecute:SUCCESS");
                 Log.i(TAG, "GetInvoice:onPostExecute:SUCCESS");
                 Log.i(TAG, "GetInvoice:onPostExecute:SUCCESS");
-                printReceipt.inPrintReceipt(databaseObj);
+               // printReceipt.inPrintReceipt(databaseObj);
                 //Redirect to Success Activity
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -142,6 +154,7 @@ public class VoidFlow extends AppCompatActivity {
                         progressDialog.dismiss();
                     }
                 }, TIME_OUT);
+                //finish();
             }else
             {
                 Log.i(TAG, "GetInvoice:onPostExecute:ERROR");
@@ -218,26 +231,58 @@ public class VoidFlow extends AppCompatActivity {
                     Log.i(TAG, "GetInvoice:inCreatePacket:stTrace::"+stTrace);
                     Log.i(TAG, "GetInvoice:inCreatePacket:stTrace::"+stTrace);
 
-                    inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.VOID);
-                    if(inFinalLength == 0)
-                        inError = 1;
-                    break;
-                case 2://
                     Log.i(TAG, "GetInvoice:inConnection:");
                     if (remoteHost.inConnection(ServerIP, Port) != 0) {
                         inError = 1;
                         break;
                     }
+
+                    String UploadData = KeyValueDB.getUpload(VoidFlow.this);
+                    if(!UploadData.isEmpty())
+                    {
+                        TransactionDetails.inFinalLength = UploadData.length();
+                        FinalData = UploadData.getBytes();
+                        TransactionDetails.inFinalLength = FinalData[0] *256;
+                        TransactionDetails.inFinalLength = TransactionDetails.inFinalLength + (FinalData[1]);
+                        TransactionDetails.inFinalLength = TransactionDetails.inFinalLength +2;
+                        Log.i(TAG, "Aipay:inSendRecvPacket:");
+                        if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
+                            inError = 1;
+                            break;
+                        }
+
+                        result = "";
+                        for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
+                            result = result + String.format("%02x", FinalData[k]);
+                        }
+                        Log.i(TAG,"AlipayActivity::\nAlipay_inSendRecvPacket_Received:");
+                        Log.i(TAG,result);
+                        Log.i(TAG, "Aipay:inProcessPacket:");
+                        if (isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength) != 0) {
+                            inError = 1;
+                            //redirect to error
+                            break;
+                        }
+                    }
+
+                    break;
+                case 2://
+
+                    FinalData=null;
+                    FinalData = new byte[1512];
+                    TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.VOID);
+                    if(TransactionDetails.inFinalLength == 0)
+                        inError = 1;
                     break;
                 case 3://
                     Log.i(TAG, "GetInvoice:inSendRecvPacket:");
-                    if ((FinalData = remoteHost.inSendRecvPacket(FinalData,inFinalLength)) ==null) {
+                    if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
                         inError = 1;
                         break;
                     }
 
                     result = "";
-                    for (int k = 0; k < inFinalLength; k++) {
+                    for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
                         result = result + String.format("%02x", FinalData[k]);
                     }
                     Log.i(TAG,"GetInvoice::\nAlipay_inSendRecvPacket_Received:");
@@ -247,14 +292,14 @@ public class VoidFlow extends AppCompatActivity {
                 case 4://
 
                     result = "";
-                    for (int k = 0; k < inFinalLength; k++) {
+                    for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
                         result = result + String.format("%02x", FinalData[k]);
                     }
                     Log.i(TAG,"GetInvoice::\nAlipay_inProcessPacket_Received:");
                     Log.i(TAG,result);
 
                     Log.i(TAG, "GetInvoice:inProcessPacket:");
-                    if (isoPacket.inProcessPacket(FinalData,inFinalLength) != 0) {
+                    if (isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength) != 0) {
                         inError = 1;
                         //redirect to error
                         break;
@@ -269,15 +314,56 @@ public class VoidFlow extends AppCompatActivity {
                 case 5:
                     Log.i(TAG, "\nSave Record:");
                     //save Record
-                    isoPacket.vdSaveRecord(databaseObj);
+                   // isoPacket.vdSaveRecord(databaseObj);
+                    batchModeldata.setVOIDED(Integer.toString(Constants.TRUE));
+                    databaseObj.UpdateBatchData(batchModeldata);
                     break;
                 case 6://
                     //Print receipt
                     Log.i(TAG, "\nPrinting Receipt");
-
+                    printReceipt.inPrintReceipt(databaseObj);
                     break;
                 case 7://Show the receipt in the display and give option to print or email
                     //startActivity(new Intent(GetInvoice.this, HomeActivity.class));
+                    //Upload void transaction
+                    //whLoop=false;
+                    stTrace = payService.pGetSystemTrace(databaseObj);
+                    FinalData=null;
+                    FinalData = new byte[1512];
+
+                    TransactionDetails.trxType=Constants.TransType.ALIPAY_UPLOAD;
+                    TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.ALIPAY_UPLOAD);
+                    //String result;
+                    result = "";
+                    for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
+                        result = result + String.format("%02x", FinalData[k]);
+                    }
+                    Log.i(TAG,"\nSendings:");
+                    Log.i(TAG,result);
+                    KeyValueDB.setUpload(VoidFlow.this,new String(result));
+
+                    if(TransactionDetails.inFinalLength == 0)
+                       break;
+                    if (remoteHost.inConnection(ServerIP, Port) != 0) {
+                        break;
+                    }
+                    if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
+                        break;
+                    }
+                    if (isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength) != 0) {
+                        //redirect to error
+                        break;
+                    }
+
+                    Log.i(TAG, "GetInvoice:inDisconnection:");
+                    if (remoteHost.inDisconnection() != 0) {
+                        break;
+                    }
+                    batchModeldata.setUPLOADED(Integer.toString(Constants.TRUE));
+                    databaseObj.UpdateBatchData(batchModeldata);
+
+                    break;
+                default:
                     whLoop=false;
                     break;
                 //break;

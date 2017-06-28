@@ -36,7 +36,7 @@ public class RemoteHost {
         return 0;
     }
 
-    public byte[] inSendRecvPacket(byte[] FinalData,int inFinalLength) {
+    public byte[] inSendRecvPacket(byte[] FinalData,int nFinalLength) {
         OutputStream os = null;
         InputStream is = null;
         try {
@@ -45,7 +45,7 @@ public class RemoteHost {
 
             String result;
             result = "";
-            for (int k = 0; k < inFinalLength; k++) {
+            for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
                 result = result + String.format("%02x", FinalData[k]);
             }
             Log.i(TAG,"\nSendings:");
@@ -54,18 +54,18 @@ public class RemoteHost {
             if (smtpSocket != null && os != null && is != null) {
 
 
-                os.write(FinalData, 0, inFinalLength);
+                os.write(FinalData, 0, TransactionDetails.inFinalLength);
                 FinalData = new byte[1512];
-                inFinalLength = 0;
+                TransactionDetails.inFinalLength = 0;
                 long timeNow = System.currentTimeMillis();
                 do {
-                    inFinalLength = is.read(FinalData, 0, 2);
-                    inFinalLength = is.read(FinalData, 0, 5);
-                    inFinalLength = is.read(FinalData);
-                } while (inFinalLength <= 0 && (System.currentTimeMillis() - timeNow <= 60000));
+                    TransactionDetails.inFinalLength = is.read(FinalData, 0, 2);
+                    TransactionDetails.inFinalLength = is.read(FinalData, 0, 5);
+                    TransactionDetails.inFinalLength = is.read(FinalData);
+                } while (TransactionDetails.inFinalLength <= 0 && (System.currentTimeMillis() - timeNow <= 60000));
 
                 result = "";
-                for (int k = 0; k < inFinalLength; k++) {
+                for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
                     result = result + String.format("%02x", FinalData[k]);
                 }
                 Log.i(TAG,"\nRECEIVED:");
