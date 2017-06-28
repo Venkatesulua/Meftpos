@@ -38,6 +38,7 @@ import static com.mobileeftpos.android.eftpos.R.id.txt_forgotpassword;
 
 public class LoginActivity extends AppCompatActivity {
 
+
     private static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 111;
     @BindView(edt_username)
     EditText edtUserName;
@@ -50,6 +51,7 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(btn_create_an_account)
     TextView signup;
     private boolean isValid = false;
+
     private final String TAG = "my_custom_msg";
 
 
@@ -59,12 +61,22 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.login_layout);
-        ButterKnife.bind(this);
+        init();
         checkPermission();
         submitBtn.setOnClickListener(new ClickLIstener());
         txtForgotPassword.setOnClickListener(new ClickLIstener());
         signup.setOnClickListener(new ClickLIstener());
 
+
+    }
+
+    private void init(){
+
+        edtUserName=(EditText)findViewById(R.id.edt_username);
+        edtPassword=(EditText)findViewById(R.id.edt_password);
+        txtForgotPassword=(TextView) findViewById(R.id.txt_forgotpassword);
+        signup=(TextView) findViewById(R.id.btn_create_an_account);
+        submitBtn=(Button) findViewById(R.id.btn_submit);
 
     }
 

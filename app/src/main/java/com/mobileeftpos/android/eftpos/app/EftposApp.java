@@ -6,9 +6,11 @@ import android.net.ConnectivityManager;
 import android.provider.Settings;
 import android.support.multidex.MultiDexApplication;
 
+import com.crashlytics.android.Crashlytics;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
 
+import io.fabric.sdk.android.Fabric;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -38,6 +40,7 @@ public class EftposApp extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
         mInstance = this;
         db = new DBHelper(this);
         db.open();
