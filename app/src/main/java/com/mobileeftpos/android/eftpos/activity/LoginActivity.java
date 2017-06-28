@@ -1,12 +1,14 @@
 package com.mobileeftpos.android.eftpos.activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +22,8 @@ import android.widget.TextView;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
+
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -34,12 +38,22 @@ import static com.mobileeftpos.android.eftpos.R.id.txt_forgotpassword;
 
 public class LoginActivity extends AppCompatActivity {
 
-     EditText edtUserName,edtPassword;
-     TextView txtForgotPassword,signup;
-     Button submitBtn;
-     private boolean isValid = false;
+
+    private static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 111;
+    @BindView(edt_username)
+    EditText edtUserName;
+    @BindView(R.id.edt_password)
+    EditText edtPassword;
+    @BindView(txt_forgotpassword)
+    TextView txtForgotPassword;
+    @BindView(btn_submit)
+    Button submitBtn;
+    @BindView(btn_create_an_account)
+    TextView signup;
+    private boolean isValid = false;
+
     private final String TAG = "my_custom_msg";
-    public static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE=111;
+
 
 
     @Override
@@ -162,7 +176,6 @@ public class LoginActivity extends AppCompatActivity {
 
         return isValid;
     }
-
 
     private void checkPermission() {
         // Here, thisActivity is the current activity

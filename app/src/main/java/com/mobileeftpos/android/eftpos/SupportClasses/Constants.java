@@ -8,6 +8,14 @@ public class Constants {
 
 	public static final int TRUE = 1;
 	public static final int FALSE = 0;
+
+	//transcations display
+	public static String VOID="VOID";
+	public static String DEFAULT_CURRENCY = "SGD";
+
+	//ERROR
+	public static String TRANSCATION_NOT_SUPPORTED = "TRANSCATION_NOT_SUPPORTED";
+	public static String ALREADY_VOIDED = "ALREADY_VOIDED";
 	public class TransMode {
 		public static final int SWIPE = 0;
 		public static final int ICC = 1;
@@ -22,10 +30,13 @@ public class Constants {
 		public static final int PAYMENT_SALE = 2;
 		public static final int REFUND = 3;
 		public static final int VOID = 4;
+
 		public static final int REVERSAL = 5;
 		public static final int ALIPAY_SALE = 6;
 		public static final int ALIPAY_REFUND = 7;
-		public static final int SETTLEMENT = 8;
+		public static final int INIT_SETTLEMENT = 8;
+		public static final int FINAL_SETTLEMENT = 9;
+		public static final int ALIPAY_UPLOAD = 10;
 	}
 
 	public class ResponseCodes {
@@ -62,14 +73,16 @@ public class Constants {
 		public static final String pcTmsInitial = "930100";
 		public static final String pcTmsSubsequent = "930110";
 		public static final String pcFinancialRequest = "000000";
+		public static final String stVoid = "020000";
+	}
+
+	public class PaymentStatus{
+		public static final int PAYMENT_OK = 0;
 	}
 	public class QRCODE {
 		public static final String BARCODE_INTENT_ACTION = "com.google.zxing.client.android.SCAN";
 		public static final String BARCODE_DISABLE_HISTORY = "SAVE_HISTORY";
 		public static final int BARCODE_RESULT_CODE = 999;
 		public static final String BARCODE_INTENT_RESULT_KEY = "SCAN_RESULT";
-	}
-	public class PaymentStatus{
-		public static final int PAYMENT_OK = 0;
 	}
 }

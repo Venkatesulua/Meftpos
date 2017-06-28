@@ -978,12 +978,24 @@ public class AdminActivity extends Activity {
                 currModel.setCURR_LABEL(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
-                inindex = stValue.indexOf(' ');
-                currModel.setCURR_EXPONENT(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    //currModel.setCURR_CODE(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        currModel.setCURR_EXPONENT(stValue);
+                    else
+                        currModel.setCURR_EXPONENT(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
 
-                inindex = stValue.indexOf(' ');
-                currModel.setCURR_CODE(stValue.substring(0, inindex));
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    //currModel.setCURR_CODE(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        currModel.setCURR_CODE(stValue);
+                    else
+                        currModel.setCURR_CODE(stValue.substring(0, inindex));
+                }
                 //stValue = stValue.substring(inindex + 1);
                 databaseObj.InsertCurrencyData(currModel);
 
@@ -1095,7 +1107,7 @@ public class AdminActivity extends Activity {
 
     private int inProcessPacket() {
         // keep basic.xml in assets folder
-        //  Log.i(TAG,"inProcessPacket");
+        //  Log.i(TAG,"AdminActivity::inProcessPacket");
         // InputStream inputstream =
         // getApplicationContext().getAssets().open("basic.xml");
         // MihirPackager packager = new MihirPackager(inputstream);
@@ -1103,7 +1115,7 @@ public class AdminActivity extends Activity {
             // GenericPackager packager = new
             // GenericPackager("src/asset/basic.xml");
 
-            //  Log.i(TAG,"Packager");
+            //  Log.i(TAG,"AdminActivity::Packager");
 
             isoMsg.unpack(FinalData);
             // print the DE list
@@ -1203,15 +1215,15 @@ public class AdminActivity extends Activity {
         try {
 
             // keep basic.xml in assets folder
-            //  Log.i(TAG,"inCreatePacket");
+            //  Log.i(TAG,"AdminActivity::inCreatePacket");
             // InputStream inputstream =
             // getApplicationContext().getAssets().open("basic.xml");
-            //  Log.i(TAG,"Input Stream");
+            //  Log.i(TAG,"AdminActivity::Input Stream");
             // MihirPackager packager = new MihirPackager(inputstream);
             // GenericPackager packager = new
             // GenericPackager("src/asset/basic.xml");
             // ISOPackager1 packager = new ISOPackager1();
-            //  Log.i(TAG,"Packager");
+            //  Log.i(TAG,"AdminActivity::Packager");
             // ISOMsg isoMsg = new ISOMsg();
             // isoMsg.setPackager(packager);
             switch (TransactionDetails.trxType) {
@@ -1278,18 +1290,17 @@ public class AdminActivity extends Activity {
                     break;
                 case Constants.TransType.REFUND:
                     break;
-                case Constants.TransType.SETTLEMENT:
-                    break;
+
             }
 
-            //  Log.i(TAG,"PACK:");
+            //  Log.i(TAG,"AdminActivity::PACK:");
             // Get and print the output result
             try {
                 logISOMsg(isoMsg);
                 byte[] data = isoMsg.pack();
                 inFinalLength = AddLength_Tpdu(data, FinalData);
-                //  Log.i(TAG,"data" + new String(data));
-                //  Log.i(TAG,"FINAL DATA" + new String(FinalData));
+                //  Log.i(TAG,"AdminActivity::data" + new String(data));
+                //  Log.i(TAG,"AdminActivity::FINAL DATA" + new String(FinalData));
             } catch (Exception ex) {
                 Log.i(TAG, "IOException EXCEPTION");
                 Log.i(TAG, ex.getMessage());
@@ -1414,7 +1425,7 @@ public class AdminActivity extends Activity {
         } else if (inRequestType == Constants.TransType.TMS_SUBSEQUENT_PACKET) {
             globalVar.TmsData = globalVar.TmsData + isoMsg.getString(31);
 
-            //Log.i(TAG,"globalVar.TmsData:::"+globalVar.TmsData);
+            //Log.i(TAG,"AdminActivity::globalVar.TmsData:::"+globalVar.TmsData);
             Log.i(TAG, "globalVar.TmsData_Len:::" + globalVar.TmsData.length());
 			/*
 			 * memset(temp1, 0, sizeof(temp1)); vdHexToStr(temp1, field_31, 2);

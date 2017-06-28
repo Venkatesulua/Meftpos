@@ -16,6 +16,8 @@ import android.widget.TextView;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.database.DBHelper;
+import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
 import com.mobileeftpos.android.eftpos.utils.MenuConstants;
 
 import java.text.DateFormat;
@@ -28,6 +30,7 @@ public class OneFragment extends Fragment  {
 
      private ArrayList<String>homeListData;
     private GridView gridLayout;
+    private static DBHelper databaseObj;
     public OneFragment() {
         // Required empty public constructor
     }
@@ -35,6 +38,7 @@ public class OneFragment extends Fragment  {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        databaseObj = new DBHelper(getActivity());
     }
 
     @Override
@@ -55,44 +59,46 @@ public class OneFragment extends Fragment  {
 
 //TransactionControlModel transactionControlModel=//get the date from where it's aavailable
 
-        if("1".equalsIgnoreCase("1")){
+        TransactionControlModel controlModel = new TransactionControlModel();
+        controlModel = databaseObj.getTransactionCtrlData(0);
+        if(controlModel.getSALE_CTRL() != null && controlModel.getSALE_CTRL().equalsIgnoreCase("1")){
              homeListData.add(MenuConstants.SALE);
         }
 
-        if("2".equalsIgnoreCase("2")){
+        if(controlModel.getSETTLEMENT_CTRL() != null && controlModel.getSETTLEMENT_CTRL().equalsIgnoreCase("1")){
             homeListData.add(MenuConstants.SETTLEMENT);
         }
 
-        if("3".equalsIgnoreCase("3")){
+        if(controlModel.getVOID_CTRL() != null && controlModel.getVOID_CTRL().equalsIgnoreCase("1")){
             homeListData.add(MenuConstants.VOID);
         }
 
-        if("4".equalsIgnoreCase("4")){
+        if(controlModel.getAUTH_CTRL() != null && controlModel.getAUTH_CTRL().equalsIgnoreCase("1")){
             homeListData.add(MenuConstants.PREAUTH);
         }
 
-        if("5".equalsIgnoreCase("5")){
+        if(controlModel.getADJUSTMENT_CTRL() != null && controlModel.getADJUSTMENT_CTRL().equalsIgnoreCase("1")){
             homeListData.add(MenuConstants.ADJUST);
         }
 
-        if("6".equalsIgnoreCase("6")){
+        if(controlModel.getOFFLINE_CTRL() != null && controlModel.getOFFLINE_CTRL().equalsIgnoreCase("1")){
             homeListData.add(MenuConstants.OFFLINE);
         }
 
-        if("7".equalsIgnoreCase("7")){
+        if(controlModel.getCASH_ADVANCE_CTRL() != null && controlModel.getCASH_ADVANCE_CTRL().equalsIgnoreCase("1")){
             homeListData.add(MenuConstants.CASH_ADV);
         }
 
-        if("8".equalsIgnoreCase("8")){
-            homeListData.add(MenuConstants.EZLINK_TOPUP);
-        }
+        //if(controlModel.get.equalsIgnoreCase("8")){
+            //homeListData.add(MenuConstants.EZLINK_TOPUP);
+        //}
 
-        if("9".equalsIgnoreCase("9")){
+        //if("9".equalsIgnoreCase("9")){
             homeListData.add(MenuConstants.CEPAS_SALE);
-        }
-        if("10".equalsIgnoreCase("10")){
+       // }
+        //if("10".equalsIgnoreCase("10")){
             homeListData.add(MenuConstants.ALIPAY_SALE);
-        }
+        //}
 
 
     }
@@ -101,21 +107,31 @@ public class OneFragment extends Fragment  {
      public void processSelectedItem(String selectedItem) {
 
         //Read the transaction date and time and send the ame to host
+        TransactionDetails transDetails = new TransactionDetails();
+
+        transDetails.vdCleanFields();
+
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSS");
         Date date = new Date();
         String stDate = dateFormat.format(date);
         TransactionDetails.trxDateTime=stDate;
 
+
         switch (selectedItem) {
 
             case MenuConstants.SALE:
+                //byte[] cc = bb.getBytes();
                 startActivity(new Intent(HomeActivity.context, SaleActivity.class));
                 break;
 
             case MenuConstants.SETTLEMENT:
+                TransactionDetails.trxType = Constants.TransType.INIT_SETTLEMENT;
+                startActivity(new Intent(HomeActivity.context, SettlementFlow.class));
                 break;
 
             case MenuConstants.VOID:
+                TransactionDetails.trxType = Constants.TransType.VOID;
+                startActivity(new Intent(HomeActivity.context, VoidFlow.class));
                 break;
 
             case MenuConstants.PREAUTH:

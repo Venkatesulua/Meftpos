@@ -19,7 +19,7 @@ apply plugin: 'android-apt'
 android {
     compileSdkVersion rootProject.compileSDKVersion
     buildToolsVersion rootProject.buildToolsVersion
-   
+
     defaultConfig {
         applicationId "com.mobileeftpos.android.eftpos"
         minSdkVersion rootProject.minSdkVersion
@@ -44,12 +44,13 @@ android {
 
     buildTypes {
 
-        debug {
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            debuggable false
-             minifyEnabled false
-             signingConfig signingConfigs.myconfig
-        }
+
+                    debug {
+                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+                        debuggable false
+                        minifyEnabled false
+                        signingConfig signingConfigs.myconfig
+          }
         release {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             debuggable false
@@ -97,11 +98,13 @@ dependencies {
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
     compile 'com.android.support:appcompat-v7:25.3.1'
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
     compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
     apt "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
+    testCompile 'junit:junit:4.12'
+
+
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:25.3.1'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.android.volley:volley:1.0.0'
@@ -110,12 +113,11 @@ dependencies {
     compile 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:support-vector-drawable:25.3.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
     compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;
     }
-
-
 }
 
 

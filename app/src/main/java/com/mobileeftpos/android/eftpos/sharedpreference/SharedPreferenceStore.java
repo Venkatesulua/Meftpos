@@ -26,6 +26,8 @@ public final class SharedPreferenceStore {
 	private static final String LOG_TAG = SharedPreferenceStore.class.getSimpleName();
 	private static final String SHARED_PREFERENCE_NAME = SharedPreferenceStore.class
 			.getSimpleName();
+	public static final String KEY_REVERSAL = "reversal";
+	public static final String KEY_UPLOAD = "upload";
 
 
 

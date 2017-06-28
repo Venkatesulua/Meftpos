@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.mobileeftpos.android.eftpos.R;
+import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 
 public class PaymentSuccess extends AppCompatActivity {
 
@@ -42,7 +43,7 @@ public class PaymentSuccess extends AppCompatActivity {
          Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
         sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Transaction Details");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Transaction No : 781323 and Transaction Amount =20$ ");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Transaction No :"+ TransactionDetails.chApprovalCode +"and Transaction Amount: $ "+TransactionDetails.trxAmount);
         startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 }

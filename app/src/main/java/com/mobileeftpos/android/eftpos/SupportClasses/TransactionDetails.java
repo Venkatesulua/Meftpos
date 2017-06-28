@@ -15,6 +15,9 @@ import com.mobileeftpos.android.eftpos.model.MerchantModel;
 //20170523: Venkat added transaction details table
 public class TransactionDetails {
     private final String TAG = "my_custom_msg";
+
+
+
     public static  String deviceId;
 
     public static String trxAmount;
@@ -23,6 +26,7 @@ public class TransactionDetails {
     public static String PAN;
     public static String ExpDate;
     public static int trxType;
+    public static int inOritrxType;
     public static String chApprovalCode;
     public static String EntryMode;
     public static int inGHDT;
@@ -40,6 +44,8 @@ public class TransactionDetails {
     public static String POSEntryMode;
     public static String NII;
     public static String POS_COND_CODE;
+    public static int inFinalLength;
+
     // public static int inGHDT ;
     int inGNoOfValidHosts;
 
@@ -70,6 +76,37 @@ public class TransactionDetails {
     //ALIPAy response
     public static String responseMessge;
     public static String PartnerTransID;
+    public static String AlipayTag72;
+
+    public void vdCleanFields(){
+        trxAmount="";
+        tipAmount="";
+        trxDateTime="";//yyyyMMddHHmmssSS
+        PAN="";
+        ExpDate="";
+        trxType=0;
+        chApprovalCode="";
+        EntryMode="";
+        inGHDT=0;
+        inGCDT=0;
+        inGCTT=0;
+        inGCOM=0;
+        inGCURR=0;
+        inGTrxMode=0;
+        processingcode="";
+        messagetype="";
+        InvoiceNumber=0;
+        RetrievalRefNumber="";
+        ResponseCode="";
+        PersonName="";
+        POSEntryMode="";
+        NII="";
+        POS_COND_CODE="";
+        inGNoOfValidHosts=0;
+        AlipayTag72="";
+
+        
+    }
 
     public int inSortPAN(DBHelper databaseObj)
     {
@@ -84,7 +121,7 @@ public class TransactionDetails {
         //memcpy(Pantemp,keystr,strlen(keystr));
 
 
-        Log.i(TAG,"inSortPAN:");
+        Log.i(TAG,"TransDetails::inSortPAN:");
         while (true)
         {
 		/* get the index */
@@ -96,21 +133,21 @@ public class TransactionDetails {
             CardBinModel cardbinModeldata = new CardBinModel();
             CardTypeModel cardTypeModeldata = new CardTypeModel();
             cardbinModeldata = databaseObj.getCardBinData(i);
-            Log.i(TAG,"LLow Value:"+cardbinModeldata.getCDT_LO_RANGE());
-            Log.i(TAG,"High Value:"+cardbinModeldata.getCDT_HI_RANGE());
-            Log.i(TAG,"PAN:"+this.PAN);
+            Log.i(TAG,"TransDetails::LLow Value:"+cardbinModeldata.getCDT_LO_RANGE());
+            Log.i(TAG,"TransDetails::High Value:"+cardbinModeldata.getCDT_HI_RANGE());
+            Log.i(TAG,"TransDetails::PAN:"+this.PAN);
 
             if(cardbinModeldata==null)
                 break;
 
-            Log.i(TAG,"LLow Value_2:"+cardbinModeldata.getCDT_LO_RANGE());
-            Log.i(TAG,"High Value_2:"+cardbinModeldata.getCDT_HI_RANGE());
-            Log.i(TAG,"getCDT_HDT_REFERENCE:"+cardbinModeldata.getCDT_HDT_REFERENCE());
-            Log.i(TAG,"getCDT_CARD_TYPE_ARRAY:"+cardbinModeldata.getCDT_CARD_TYPE_ARRAY());
-            Log.i(TAG,"PAN_2:"+this.PAN);
+            Log.i(TAG,"TransDetails::LLow Value_2:"+cardbinModeldata.getCDT_LO_RANGE());
+            Log.i(TAG,"TransDetails::High Value_2:"+cardbinModeldata.getCDT_HI_RANGE());
+            Log.i(TAG,"TransDetails::getCDT_HDT_REFERENCE:"+cardbinModeldata.getCDT_HDT_REFERENCE());
+            Log.i(TAG,"TransDetails::getCDT_CARD_TYPE_ARRAY:"+cardbinModeldata.getCDT_CARD_TYPE_ARRAY());
+            Log.i(TAG,"TransDetails::PAN_2:"+this.PAN);
 
 
-            Log.i(TAG,"Checking Loop");
+            Log.i(TAG,"TransDetails::Checking Loop");
             if((this.PAN.substring(0,cardbinModeldata.getCDT_LO_RANGE().length()).compareTo(cardbinModeldata.getCDT_LO_RANGE())>=0) &&
                     (this.PAN.substring(0,cardbinModeldata.getCDT_HI_RANGE().length()).compareTo(cardbinModeldata.getCDT_HI_RANGE())<=0))
             //if(Integer.parseInt(this.PAN.substring(0,cardbinModeldata.getCDT_LO_RANGE().length())) >= Integer.parseInt(cardbinModeldata.getCDT_LO_RANGE()) &&
@@ -118,7 +155,7 @@ public class TransactionDetails {
                     //Integer.parseInt(cardbinModeldata.getCDT_LO_RANGE()) != 0 &&
                     //Integer.parseInt(cardbinModeldata.getCDT_HI_RANGE())!=0)
             {
-                Log.i(TAG,"Inside the Loop:");
+                Log.i(TAG,"TransDetails::Inside the Loop:");
                 inGNoOfValidHosts = vecGetValidCurrVsHDTList( 1
                         , cardbinModeldata.getCDT_HDT_REFERENCE()
                         , cardbinModeldata.getCDT_CARD_TYPE_ARRAY()
@@ -127,53 +164,53 @@ public class TransactionDetails {
 
                 chCardTypeIndex = cardbinModeldata.getCDT_CARD_TYPE_ARRAY().substring(0,2);
 
-                Log.i(TAG,"chCardTypeIndex:"+chCardTypeIndex);
+                Log.i(TAG,"TransDetails::chCardTypeIndex:"+chCardTypeIndex);
 
 
                 //TODO TECK: Use Only first 2 bytes of the array for now... need to expand to dynamic later
                 chCardTypeIndex = cardbinModeldata.getCDT_CARD_TYPE_ARRAY().substring(0,2);
-                Log.i(TAG,"chCardTypeIndex:"+chCardTypeIndex);
+                Log.i(TAG,"TransDetails::chCardTypeIndex:"+chCardTypeIndex);
 
                 cardTypeModeldata = databaseObj.getCardTypeData(Integer.parseInt(chCardTypeIndex));
                 inGCDT = Integer.parseInt(cardbinModeldata.getCDT_ID());
 
-                Log.i(TAG,"inGCDT:"+inGCDT);
+                Log.i(TAG,"TransDetails::inGCDT:"+inGCDT);
 
                break;
             }
 
-            Log.i(TAG,"come out of loop");
+            Log.i(TAG,"TransDetails::come out of loop");
             if(cardbinModeldata.getCDT_LO_RANGE().length() == 0 || cardbinModeldata.getCDT_HI_RANGE().length() == 0) {
-                Log.i(TAG,"cardbinModeldata.getCDT_LO_RANGE().length()");
+                Log.i(TAG,"TransDetails::cardbinModeldata.getCDT_LO_RANGE().length()");
                 return 1;
             }
         }
 
-        Log.i(TAG,"Find Valid ");
+        Log.i(TAG,"TransDetails::Find Valid:inGNoOfValidHosts "+inGNoOfValidHosts);
         HostModel hostdata = new HostModel();
         //inGHDT = inSelectHost();
         for (i = 0; i < inGNoOfValidHosts; i++) {
 
             String localHdtIndex=ui8GlistOfValidHosts[i];
-            Log.i(TAG,"localHdtIndex:"+localHdtIndex);
+            Log.i(TAG,"TransDetails::localHdtIndex:"+localHdtIndex);
 
 
             int inlocalHdtIndex = Integer.parseInt(localHdtIndex);
             hostdata = databaseObj.getHostTableData(inlocalHdtIndex);
             if(!hostdata.getHDT_HOST_ENABLED().equals("1"))
             {
-                Log.i(TAG,"Continue...");
+                Log.i(TAG,"TransDetails::Continue...");
                 continue;
             }
             if(hostdata.getHDT_DESCRIPTION().contains("ALI"))
             {
-                Log.i(TAG,"ALIPAY FOUND ...");
+                Log.i(TAG,"TransDetails::ALIPAY FOUND ...");
                 inGHDT = Integer.parseInt(hostdata.getHDT_HOST_ID());
                 inGCOM = Integer.parseInt(hostdata.getHDT_COM_INDEX());
                 inGCURR = Integer.parseInt(hostdata.getHDT_CURR_INDEX());
-                Log.i(TAG,"inGHDT1..."+inGHDT);
-                Log.i(TAG,"inGCOM..."+inGCOM);
-                Log.i(TAG,"inGCURR..."+inGCURR);
+                Log.i(TAG,"TransDetails::inGHDT1..."+inGHDT);
+                Log.i(TAG,"TransDetails::inGCOM..."+inGCOM);
+                Log.i(TAG,"TransDetails::inGCURR..."+inGCURR);
                 inFindGetCTT(inGHDT, databaseObj);
                 return 0;
 
@@ -181,7 +218,7 @@ public class TransactionDetails {
                 Log.i(TAG, "inlocalHdtIndex2..." + inlocalHdtIndex);
                 inGHDT = Integer.parseInt(hostdata.getHDT_HOST_ID());
             }
-            Log.i(TAG,"inGHDT..."+inGHDT);
+            Log.i(TAG,"TransDetails::inGHDT..."+inGHDT);
 
         }
 
@@ -196,25 +233,25 @@ public class TransactionDetails {
         //int inRedirectHDTIndex =0;
         //open CTT file based on HDT & CDT
         int i=0;
-        Log.i(TAG,"inFindGetCTT_1");
-        Log.i(TAG,"inFindGetCTT_1");
-        Log.i(TAG,"inFindGetCTT_1");
+        Log.i(TAG,"TransDetails::inFindGetCTT_1");
+        Log.i(TAG,"TransDetails::inFindGetCTT_1");
+        Log.i(TAG,"TransDetails::inFindGetCTT_1");
         CardBinModel cardBindata = databaseObj.getCardBinData(inGCDT);
         HostModel localHDT = new HostModel();
         CardTypeModel cardTypeData = new CardTypeModel();
 
-        Log.i(TAG,"cardBindata.getCDT_HDT_REFERENCE()"+cardBindata.getCDT_HDT_REFERENCE());
+        Log.i(TAG,"TransDetails::cardBindata.getCDT_HDT_REFERENCE()"+cardBindata.getCDT_HDT_REFERENCE());
 
         for (i=0;i<(cardBindata.getCDT_HDT_REFERENCE().length()/2); i++)
         {
             //memcpy(chHDTIndex,stGCDTStruct.CDT_HDT_REFERENCE+(i*2),2);
 
-            Log.i(TAG,"inside-Loop_1");
+            Log.i(TAG,"TransDetails::inside-Loop_1");
             chHDTIndex = cardBindata.getCDT_HDT_REFERENCE().substring((i*2),((i*2)+2));
             localHDT = databaseObj.getHostTableData(inGHDT);
 
-            Log.i(TAG,"getHDT_HOST_LABEL::"+localHDT.getHDT_HOST_LABEL());
-            Log.i(TAG,"getHDT_HOST_LABEL::"+localHDT.getHDT_DESCRIPTION());
+            Log.i(TAG,"TransDetails::getHDT_HOST_LABEL::"+localHDT.getHDT_HOST_LABEL());
+            Log.i(TAG,"TransDetails::getHDT_HOST_LABEL::"+localHDT.getHDT_DESCRIPTION());
             //memset(&localHDT, 0, sizeof(HDT_STRUCT));
             //inGetHDTConfig(GET, atoi(chHDTIndex), &localHDT);
 
@@ -234,16 +271,16 @@ public class TransactionDetails {
             // compare the HDT indexes
             if (Integer.parseInt(chHDTIndex) == inHDTIndex)
             {
-                Log.i(TAG,"inside-Loop_1 Matched HDT");
+                Log.i(TAG,"TransDetails::inside-Loop_1 Matched HDT");
                 // extract CTT index in CDT_CARD_TYPE_ARRAY from the same position as CDT_HDT_REFERENCE
                 //memcpy(chCTTIndex,stGCDTStruct.CDT_CARD_TYPE_ARRAY+(i*2),2 );
                 chCTTIndex = cardBindata.getCDT_CARD_TYPE_ARRAY().substring((i*2),((i*2)+2));
                 cardTypeData =databaseObj.getCardTypeData(Integer.parseInt(chCTTIndex));
-                Log.i(TAG,"CTT_CARD_LABEL::"+cardTypeData.getCTT_CARD_LABEL());
-                Log.i(TAG,"CTT_CARD_FORMAT::"+cardTypeData.getCTT_CARD_FORMAT());
+                Log.i(TAG,"TransDetails::CTT_CARD_LABEL::"+cardTypeData.getCTT_CARD_LABEL());
+                Log.i(TAG,"TransDetails::CTT_CARD_FORMAT::"+cardTypeData.getCTT_CARD_FORMAT());
                 inGCTT = Integer.parseInt(chCTTIndex);
 
-                Log.i(TAG,"inGCTT::"+inGCTT);
+                Log.i(TAG,"TransDetails::inGCTT::"+inGCTT);
                 //open CTT
                 //if(inGetSetCTTConfig(GET,atoi(chCTTIndex)) == FALSE)
                     //return FALSE;
@@ -271,7 +308,7 @@ public class TransactionDetails {
         int inRedirectHDTIndex = 0;
         HostModel hostdata = new HostModel();
 
-        Log.i(TAG,"vecGetValidCurrVsHDTList_1");
+        Log.i(TAG,"TransDetails::vecGetValidCurrVsHDTList_1");
 
 
 
@@ -285,16 +322,16 @@ public class TransactionDetails {
             HDTRef="";
             CTTRef="";
             HDTRef = CDT_HDT_REFERENCEVal.substring(i,i+2);
-            Log.i(TAG,"HDTRef:"+HDTRef);
+            Log.i(TAG,"TransDetails::HDTRef:"+HDTRef);
             //memcpy(HDTRef, CDT_HDT_REFERENCEVal + i, 2);
             //memset(CTTRef, 0, sizeof(CTTRef));
             CTTRef = CDT_CARD_TYPE_ARRAYVal.substring(i,i+2);
-            Log.i(TAG,"CTTRef:"+CTTRef);
+            Log.i(TAG,"TransDetails::CTTRef:"+CTTRef);
             //memcpy(CTTRef, CDT_CARD_TYPE_ARRAYVal + i, 2);
 
             if (Integer.parseInt(HDTRef) > 0 && Integer.parseInt(HDTRef) < 100) {
                 ui8ListOfValinInvalidHosts[inTotalValidInvalidHosts]= HDTRef;
-                Log.i(TAG,"ui8ListOfValinInvalidHosts:"+(ui8ListOfValinInvalidHosts[inTotalValidInvalidHosts]));
+                Log.i(TAG,"TransDetails::ui8ListOfValinInvalidHosts:"+(ui8ListOfValinInvalidHosts[inTotalValidInvalidHosts]));
                 inTotalValidInvalidHosts++;
             }
         }
@@ -320,14 +357,14 @@ public class TransactionDetails {
                 continue;
 
 
-            Log.i(TAG,"HOST_DESCRIPTION:::"+ hostdata.getHDT_DESCRIPTION());
-            Log.i(TAG,"getHDT_HOST_LABEL:::"+ hostdata.getHDT_HOST_LABEL());
-            Log.i(TAG,"getHDT_HOST_ENABLED:::"+ hostdata.getHDT_HOST_ENABLED());
+            Log.i(TAG,"TransDetails::HOST_DESCRIPTION:::"+ hostdata.getHDT_DESCRIPTION());
+            Log.i(TAG,"TransDetails::getHDT_HOST_LABEL:::"+ hostdata.getHDT_HOST_LABEL());
+            Log.i(TAG,"TransDetails::getHDT_HOST_ENABLED:::"+ hostdata.getHDT_HOST_ENABLED());
             //Teck: Commented because currency matching is no should no longer be required
             //if(atoi(localHDTStruct.HDT_CURR_INDEX) == ui16CurrencyIndex)
             if(hostdata.getHDT_HOST_ENABLED().substring(0,1).equals("1"))
             {
-                Log.i(TAG,"ENABLED HOST:::");
+                Log.i(TAG,"TransDetails::ENABLED HOST:::");
                 //2014030400 Teck: Fix issue where terminal is not validating entrymode if the HDT is redirected.
                 //if(boValidateHDTEntryMode(localHDTStruct) == FALSE)//Implement later
                   //  continue;
@@ -339,7 +376,7 @@ public class TransactionDetails {
 
 
                 listOfValidHosts[inTotalValidHosts] = ui8ListOfValinInvalidHosts[i];
-                Log.i(TAG,"listOfValidHosts:"+ listOfValidHosts[inTotalValidHosts]);
+                Log.i(TAG,"TransDetails::listOfValidHosts:"+ listOfValidHosts[inTotalValidHosts]);
                 inTotalValidHosts++;
 
             }

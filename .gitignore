@@ -19,3 +19,4 @@ buildNumber.properties
 **/.idea/tasks.xml
 .idea/encodings.xml
 .idea/gradle.xml
+gradle-3.5

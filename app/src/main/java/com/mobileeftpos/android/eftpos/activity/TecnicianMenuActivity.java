@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
@@ -26,6 +28,7 @@ import com.mobileeftpos.android.eftpos.model.MerchantModel;
 import com.mobileeftpos.android.eftpos.model.PasswordModel;
 import com.mobileeftpos.android.eftpos.model.ReceiptModel;
 import com.mobileeftpos.android.eftpos.model.ReportsModel;
+import com.mobileeftpos.android.eftpos.model.TraceNumberModel;
 import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
 import com.mobileeftpos.android.eftpos.model.UtilityTable;
 
@@ -70,6 +73,8 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 break;
 
             case R.id.clrbatchItem:
+                //delete batch
+                databaseObj.deleteallvalues(DBStaticField.TABLE_BATCH);
                 break;
 
             case R.id.printconfigitem:
@@ -121,6 +126,9 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 TransactionControlModel transctrlModel = new TransactionControlModel();
                 UtilityTable utilModel = new UtilityTable();
                 BarcodeModel barcodeModel = new BarcodeModel();
+                TraceNumberModel traceNumber = new TraceNumberModel();
+                //Trace number
+                traceNumber.setSYSTEM_TRACE("000001");
                 //Password Values
                 pwdModel.setVOID_PASSWORD("0000");
                 //Card BIN
@@ -151,8 +159,8 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 comModel.setCOM_MODEM_STRING("0");
                 comModel.setCOM_MODEM_DISABLE_LINE_DETECT("0");
                 comModel.setCOM_MODEM_TIMEOUT("30");
-                comModel.setCOM_PRIMARY_IP_PORT("171.99.133.30|7727");
-                comModel.setCOM_SECONDARY_IP_PORT("171.99.133.30|7727");
+                comModel.setCOM_PRIMARY_IP_PORT("171.99.133.30|10975");
+                comModel.setCOM_SECONDARY_IP_PORT("171.99.133.30|10975");
                 comModel.setCOM_IP_TIMEOUT("30");
                 comModel.setCOM_CONNECT_SECONDARY("0");
                 comModel.setCOM_SSL_INDEX("0");
@@ -222,6 +230,10 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 databaseObj.insertPasswordData(pwdModel);
                 databaseObj.insertBarocdeData(barcodeModel);
                 databaseObj.insertMerchantData(merchantModel);
+                databaseObj.InsertTraceNumberData(traceNumber);
+
+                Toast.makeText(TecnicianMenuActivity.this,"LOADED DEFAULT SETTINGS",Toast.LENGTH_SHORT).show();
+                this.finish();
                 break;
         }
     }

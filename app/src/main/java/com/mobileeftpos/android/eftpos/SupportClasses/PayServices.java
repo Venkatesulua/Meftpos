@@ -13,25 +13,25 @@ public class PayServices {
     private final String TAG ="my_custom_msg";
     public String pGetSystemTrace(DBHelper databaseObj)
     {
-        Log.i(TAG,"pGetSystemTrace");
+        Log.i(TAG,"PayServices::pGetSystemTrace");
         TraceNumberModel traceno=new TraceNumberModel();
         traceno= databaseObj.getTraceNumberData(0);
 
-        Log.i(TAG,"pGetSystemTrace_2");
+        Log.i(TAG,"PayServices::pGetSystemTrace_2");
         if(traceno == null)
         {
             TraceNumberModel traceno1=new TraceNumberModel();
-            Log.i(TAG,"pGetSystemTrace_3");
+            Log.i(TAG,"PayServices::pGetSystemTrace_3");
             traceno1.setSYSTEM_TRACE("000001");
             databaseObj.InsertTraceNumberData(traceno1);
         }
-        Log.i(TAG,"pGetSystemTrace_4::"+traceno.getSYSTEM_TRACE());
-        Log.i(TAG,"pGetSystemTrace_4::"+traceno.getSYSTEM_TRACE());
+        Log.i(TAG,"PayServices::pGetSystemTrace_4::"+traceno.getSYSTEM_TRACE());
+        Log.i(TAG,"PayServices::getTRACE_UNIQUE_ID::"+traceno.getTRACE_UNIQUE_ID());
 
         traceno= databaseObj.getTraceNumberData(0);
 
-        Log.i(TAG,"pGetSystemTrace_5::"+traceno.getSYSTEM_TRACE());
-        Log.i(TAG,"pGetSystemTrace_5::"+traceno.getSYSTEM_TRACE());
+        Log.i(TAG,"PayServices::pGetSystemTrace_5::"+traceno.getSYSTEM_TRACE());
+        Log.i(TAG,"PayServices::pGetSystemTrace_5::"+traceno.getSYSTEM_TRACE());
 
         return traceno.getSYSTEM_TRACE();
     }
