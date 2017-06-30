@@ -1195,6 +1195,59 @@ public class DBHelper {
         return hostModel;
     }
 
+    public ArrayList<HostModel> getAllHostTableData() {
+
+        ArrayList<HostModel> hostModelObjList = new ArrayList<>();
+        SQLiteDatabase db = DBHelper.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT * from " + DBStaticField.TABLE_HOST, null);
+        res.moveToFirst();
+
+        while (res.isAfterLast() == false) {
+
+
+            HostModel hostModel=new HostModel();
+            hostModel.setHDT_HOST_ID(res.getString(res.getColumnIndex(DBStaticField.HDT_HOST_ID)));
+            hostModel.setHDT_HOST_ENABLED(res.getString(res.getColumnIndex(DBStaticField.HDT_HOST_ENABLED)));
+            hostModel.setHDT_COM_INDEX(res.getString(res.getColumnIndex(DBStaticField.HDT_COM_INDEX)));
+            hostModel.setHDT_REFERRAL_NUMBER(res.getString(res.getColumnIndex(DBStaticField.HDT_REFERRAL_NUMBER)));
+            hostModel.setHDT_TERMINAL_ID(res.getString(res.getColumnIndex(DBStaticField.HDT_TERMINAL_ID)));
+            hostModel.setHDT_MERCHANT_ID(res.getString(res.getColumnIndex(DBStaticField.HDT_MERCHANT_ID)));
+            hostModel.setHDT_TPDU(res.getString(res.getColumnIndex(DBStaticField.HDT_TPDU)));
+            hostModel.setHDT_BATCH_NUMBER(res.getString(res.getColumnIndex(DBStaticField.HDT_BATCH_NUMBER)));
+            hostModel.setHDT_INVOICE_NUMBER(res.getString(res.getColumnIndex(DBStaticField.HDT_INVOICE_NUMBER)));
+            hostModel.setHDT_PROCESSING_CODE(res.getString(res.getColumnIndex(DBStaticField.HDT_PROCESSING_CODE)));
+            hostModel.setHDT_HOST_TYPE(res.getString(res.getColumnIndex(DBStaticField.HDT_HOST_TYPE)));
+            hostModel.setHDT_HOST_LABEL(res.getString(res.getColumnIndex(DBStaticField.HDT_HOST_LABEL)));
+            hostModel.setHDT_MANUAL_ENTRY_FLAG(res.getString(res.getColumnIndex(DBStaticField.HDT_MANUAL_ENTRY_FLAG)));
+            hostModel.setHDT_REVERSAL_FLAG(res.getString(res.getColumnIndex(DBStaticField.HDT_REVERSAL_FLAG)));
+            hostModel.setHDT_SETTLEMENT_FLAG(res.getString(res.getColumnIndex(DBStaticField.HDT_SETTLEMENT_FLAG)));
+            hostModel.setHDT_BATCH_MAX_TOTAL(res.getString(res.getColumnIndex(DBStaticField.HDT_BATCH_MAX_TOTAL)));
+            hostModel.setHDT_BATCH_STL_LAST(res.getString(res.getColumnIndex(DBStaticField.HDT_BATCH_STL_LAST)));
+            hostModel.setHDT_BATCH_CURR_TOTAL(res.getString(res.getColumnIndex(DBStaticField.HDT_BATCH_CURR_TOTAL)));
+            hostModel.setHDT_BATCH_NO_TRANS(res.getString(res.getColumnIndex(DBStaticField.HDT_BATCH_NO_TRANS)));
+            hostModel.setHDT_DESCRIPTION(res.getString(res.getColumnIndex(DBStaticField.HDT_DESCRIPTION)));
+            hostModel.setHDT_PAY_TERM(res.getString(res.getColumnIndex(DBStaticField.HDT_PAY_TERM)));
+            hostModel.setHDT_PEK(res.getString(res.getColumnIndex(DBStaticField.HDT_PEK)));
+            hostModel.setHDT_MEK(res.getString(res.getColumnIndex(DBStaticField.HDT_MEK)));
+            hostModel.setHDT_MAC_INDEX(res.getString(res.getColumnIndex(DBStaticField.HDT_MAC_INDEX)));
+            hostModel.setHDT_CUSTOM_OPTIONS(res.getString(res.getColumnIndex(DBStaticField.HDT_CUSTOM_OPTIONS)));
+            hostModel.setHDT_CURR_INDEX(res.getString(res.getColumnIndex(DBStaticField.HDT_CURR_INDEX)));
+            hostModel.setHDT_PIGGYBACK_FLAG(res.getString(res.getColumnIndex(DBStaticField.HDT_PIGGYBACK_FLAG)));
+            hostModel.setHDT_MINIMUM_AMT(res.getString(res.getColumnIndex(DBStaticField.HDT_MINIMUM_AMT)));
+            hostModel.setHDT_RATE(res.getString(res.getColumnIndex(DBStaticField.HDT_RATE)));
+            hostModel.setHDT_REDIRECT_IF_DISABLE(res.getString(res.getColumnIndex(DBStaticField.HDT_REDIRECT_IF_DISABLE)));
+            hostModel.setHDT_REVERSAL_COUNT(res.getString(res.getColumnIndex(DBStaticField.HDT_REVERSAL_COUNT)));
+            hostModel.setHDT_SIGCAP_INDEX(res.getString(res.getColumnIndex(DBStaticField.HDT_SIGCAP_INDEX)));
+            hostModel.setHDT_BATCH_GROUP_NUMBER(res.getString(res.getColumnIndex(DBStaticField.HDT_BATCH_GROUP_NUMBER)));
+
+            hostModelObjList.add(hostModel);
+            res.moveToNext();
+        }
+
+
+        return hostModelObjList;
+    }
+
     public boolean InsertCardBinData(CardBinModel model) {
 
         SQLiteDatabase db = DBHelper.getWritableDatabase();

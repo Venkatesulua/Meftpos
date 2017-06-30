@@ -65,9 +65,9 @@ public class OneFragment extends Fragment  {
              homeListData.add(MenuConstants.SALE);
         }
 
-        if(controlModel.getSETTLEMENT_CTRL() != null && controlModel.getSETTLEMENT_CTRL().equalsIgnoreCase("1")){
-            homeListData.add(MenuConstants.SETTLEMENT);
-        }
+//        if(controlModel.getSETTLEMENT_CTRL() != null && controlModel.getSETTLEMENT_CTRL().equalsIgnoreCase("1")){
+//            homeListData.add(MenuConstants.SETTLEMENT);
+//        }
 
         if(controlModel.getVOID_CTRL() != null && controlModel.getVOID_CTRL().equalsIgnoreCase("1")){
             homeListData.add(MenuConstants.VOID);
@@ -92,7 +92,7 @@ public class OneFragment extends Fragment  {
         //if(controlModel.get.equalsIgnoreCase("8")){
             //homeListData.add(MenuConstants.EZLINK_TOPUP);
         //}
-
+        homeListData.add(MenuConstants.SETTLEMENT);
         //if("9".equalsIgnoreCase("9")){
             homeListData.add(MenuConstants.CEPAS_SALE);
        // }
