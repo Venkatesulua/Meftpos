@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.mobileeftpos.android.eftpos">
 
     <uses-permission android:name="android.permission.CAMERA" />
@@ -79,20 +80,25 @@
             android:label="@string/title_activity_transaction_type"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
-        <activity android:name=".activity.VoidFlow" />
-        <activity android:name=".activity.SettlementFlow">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity
+            android:name=".activity.VoidFlow"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SettlementFlow"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AlipayCheckPrompt"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:screenOrientation="portrait"
+            tools:replace="screenOrientation" />
+        
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="9ae83f84f38427891bbb8bedebf7172679eb24f6" />
 
-        <activity android:name=".activity.AlipayCheckPrompt"></activity>
     </application>
 
 </manifest>

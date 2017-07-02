@@ -105,10 +105,7 @@ public class PacketCreation {
         batchModel.setCLS_SCHEME_ID(res.getString(res.getColumnIndex(DBStaticField.CLS_SCHEME_ID)));
         batchModel.setSIGNATURE_REQ(res.getString(res.getColumnIndex(DBStaticField.SIGNATURE_REQ)));*/
         }
-        if(TransactionDetails.trxType == Constants.TransType.REVERSAL)
-        {
-        }
-        else if(TransactionDetails.trxType == Constants.TransType.VOID)
+       if(TransactionDetails.trxType == Constants.TransType.VOID)
         {
             batchModel.setVOIDED(Integer.toString(Constants.TRUE));
             databaseObj.UpdateBatchData(batchModel);

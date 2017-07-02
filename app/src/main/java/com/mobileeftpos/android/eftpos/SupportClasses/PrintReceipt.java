@@ -34,6 +34,7 @@ public class PrintReceipt  {
     //private ISOPackager1 packager = new ISOPackager1();
     //private ISOMsg isoMsg = new ISOMsg();
     private final String TAG = "my_custom_msg";
+    private static int MerchantCopy =0;
     //private int inFinalLength=0;
     //private TransactionDetails trDetails = new TransactionDetails();
 
@@ -171,13 +172,10 @@ public class PrintReceipt  {
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             inPrintBuffer = inPrintBuffer + "MID:" + hostData.getHDT_MERCHANT_ID()+" "+"TID:"+hostData.getHDT_TERMINAL_ID()+"\n";
 
-            if(TransactionDetails.trxType != Constants.TransType.VOID)
-                inPrintBuffer = inPrintBuffer + "INVOICE:" + traceNumber.getSYSTEM_TRACE()+" "+"BATCH:"+hostData.getHDT_BATCH_NUMBER()+"\n";
-            else
-                inPrintBuffer = inPrintBuffer + "INVOICE:" + TransactionDetails.InvoiceNumber+" "+"BATCH:"+hostData.getHDT_BATCH_NUMBER()+"\n";
+            inPrintBuffer = inPrintBuffer + "INVOICE:" + TransactionDetails.InvoiceNumber+" "+"BATCH:"+hostData.getHDT_BATCH_NUMBER()+"\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+" ";
-           // inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-           // inPrintBuffer = inPrintBuffer + "BUYER IDENTITY CODE\n";
+            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            inPrintBuffer = inPrintBuffer + "BUYER IDENTITY CODE\n"+TransactionDetails.PAN+"\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             //inPrintBuffer = inPrintBuffer + TransactionDetails.PAN;
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
@@ -210,7 +208,13 @@ public class PrintReceipt  {
                 inPrintBuffer = inPrintBuffer + "TOTAL SGD " + stAmount + new String(boldOff, "UTF-8");
             }
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer + "MERCHANT COPY"+new String(next4Line, "UTF-8")+new String(breakPartial, "UTF-8");
+            if(MerchantCopy == 0) {
+                inPrintBuffer = inPrintBuffer + "MERCHANT COPY" + new String(next4Line, "UTF-8") + new String(breakPartial, "UTF-8");
+                MerchantCopy++;
+            }else {
+                MerchantCopy=0;
+                inPrintBuffer = inPrintBuffer + "CUSTOMER COPY" + new String(next4Line, "UTF-8") + new String(breakPartial, "UTF-8");
+            }
 
             return inPrintBuffer.getBytes();
             //return ESCUtil.byteMerger(cmdBytes);

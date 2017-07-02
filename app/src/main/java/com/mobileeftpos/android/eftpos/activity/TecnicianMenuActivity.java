@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
+import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
+import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.database.DBStaticField;
@@ -47,6 +49,8 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
 
     private static DBHelper databaseObj;
     public static Context context;
+    private PayServices payService = new PayServices();
+    HostModel hostModel = new HostModel();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +83,24 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
 
             case R.id.clrbatchItem:
                 //delete batch
+
+                List<HostModel> hostModelList = databaseObj.getAllHostTableData();
+                for (int i = 0; i < hostModelList.size(); i++) {
+                    hostModel = hostModelList.get(i);
+                    if (!(hostModel == null || hostModel.equals(""))) {
+                        if (hostModel.getHDT_HOST_ENABLED().equalsIgnoreCase("1")) {
+
+                //Dynamically add buttons now with the name of hostModel.getHDT_HOST_LABEL();
+                //Increment Batch Number
+                TransactionDetails.inGHDT=Integer.parseInt(hostModel.getHDT_HOST_ID());
+                payService.vdUpdateSystemBatch(databaseObj);
+                    }
+                }
+            }
                 databaseObj.deleteallvalues(DBStaticField.TABLE_BATCH);
+                        KeyValueDB.removeReversal(context);
+                        KeyValueDB.removeUpload(context);
+                        //ALL BATCH DELETED
                 break;
 
             case R.id.printconfigitem:
@@ -121,7 +142,7 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 CurrencyModel currModel = new CurrencyModel();
                 EthernetLabel ethernetModel = new EthernetLabel();
                 EzlinkModel ezlinkModel = new EzlinkModel();
-                HostModel hostModel = new HostModel();
+
                 HostTransmissionModel hostTransModel = new HostTransmissionModel();
                 LimitModel limitModel = new LimitModel();
                 MaskingModel maskModel = new MaskingModel();

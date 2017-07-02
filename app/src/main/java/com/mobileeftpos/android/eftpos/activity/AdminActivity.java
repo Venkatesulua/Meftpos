@@ -69,6 +69,8 @@ public class AdminActivity extends Activity {
     Spinner connectionType, connectionTo;
     Button clearBtn, submitBtn;
     TextView backBtn;
+    double progressValue=0;
+    private ProgressDialog progress;
     private final String TAG = "my_custom_msg";
     //public j8583Params j8583param = new j8583Params();
     public GlobalVar globalVar = new GlobalVar();
@@ -80,6 +82,7 @@ public class AdminActivity extends Activity {
     ISOMsg isoMsg = new ISOMsg();
     private static DBHelper databaseObj;
     public static Context context;
+    String connectToStr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,7 +167,7 @@ public class AdminActivity extends Activity {
         globalVar.tmsParam.setTMS_FILENAME(terminalId.getText().toString());
         globalVar.tmsParam.setTMS_TERMINAL_ID(terminalId.getText().toString());
         globalVar.tmsParam.setTMS_CONNECTION_TYPE(connectionType.getSelectedItem().toString());
-        String connectToStr=connectionTo.getSelectedItem().toString();
+        connectToStr=connectionTo.getSelectedItem().toString();
         if (connectToStr.equalsIgnoreCase("M2M PRIVATE")) {
             connectToStr = "202.160.225.218|15525";
 
@@ -198,7 +201,20 @@ public class AdminActivity extends Activity {
                     msg_ok = true;
                     break;
                 } else {
+                    double a=globalVar.getGPartToDownload();
+                    double b=globalVar.getGTotalNumberofTMSparts();
+                    double c=(a/b)*100;
                     // increase counter to download next part
+                    progressValue=progressValue+c;
+                    final int percent=(int)Math.round(c);
+                    AdminActivity.this.runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            progress.setProgress(percent);
+                            progress.incrementProgressBy(percent);
+                        }
+                    });
                     int inGPartToDownload = globalVar.getGPartToDownload();
                     inGPartToDownload++;
                     globalVar.setGPartToDownload(inGPartToDownload);
@@ -206,8 +222,11 @@ public class AdminActivity extends Activity {
             }
 
             inCreatePacket();
+            int indexOffset = connectToStr.indexOf("|");
+            String ServerIP = connectToStr.substring(0,indexOffset);
+             String Port = connectToStr.substring(indexOffset+1);
             // Connection to Host
-            if (inConnection() != 0) {
+            if (inConnection(ServerIP,Integer.parseInt(Port)) != 0) {
                 return "FAILED";
             }
             if (inSendRecvPacket() != 0) {
@@ -1128,12 +1147,15 @@ public class AdminActivity extends Activity {
         return 0;
     }
 
-    private int inConnection() {
+    private int inConnection(String ServerIP,int Port) {
         Log.i(TAG, "Connection");
-        Log.i(TAG, "203.125.11.228");
+        Log.i(TAG, connectToStr);
+        //int indexOffset = connectToStr.indexOf("|");
+        //String ServerIP = connectToStr.substring(0,indexOffset);
+       // String Port = connectToStr.substring(indexOffset+1);
         try {
 
-            smtpSocket = new Socket("203.125.11.228", 8585);
+            smtpSocket = new Socket(ServerIP, Port);
         } catch (UnknownHostException e) {
             Log.i(TAG, "UnknownHostException");
             Log.i(TAG, "Don't know about host: hostname");
@@ -1448,7 +1470,7 @@ public class AdminActivity extends Activity {
     private class AsyncTaskRunner extends AsyncTask<String, Void, String> {
 
         private String resp="";
-        ProgressDialog progressDialog;
+        //ProgressDialog progressDialog;
 
         @Override
         protected String doInBackground(String... params) {
@@ -1466,21 +1488,13 @@ public class AdminActivity extends Activity {
         protected void onPostExecute(String result) {
             // execution of result of Long time consuming operation
             if(result.equals("OK")) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(AdminActivity.this, "DOWNLOAD SUCCESSFUL", Toast.LENGTH_LONG).show();
-                        progressDialog.dismiss();
-                    }
-                }, 5000);
+                Toast.makeText(AdminActivity.this, "DOWNLOAD SUCCESSFUL", Toast.LENGTH_LONG).show();
+                progress.dismiss();
             }else{
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
+
                         Toast.makeText(AdminActivity.this, "DOWNLOAD FAILED TRY AGAIN !!!", Toast.LENGTH_LONG).show();
-                        progressDialog.dismiss();
-                    }
-                }, 5000);
+                        progress.dismiss();
+
             }
 
         }
@@ -1488,10 +1502,21 @@ public class AdminActivity extends Activity {
 
         @Override
         protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(AdminActivity.this,
-                    "EFTPOS",
-                    "Please wait...");
-            progressDialog.show();
+            progress=new ProgressDialog(AdminActivity.this);
+            progress.setTitle("EFTPOS");
+            progress.setMessage("Downloading..");
+            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+             progress.setMax(100);
+            progress.setIndeterminate(true);
+            progress.setProgress(0);
+            progress.setCancelable(false);
+            progress.setIndeterminate(false);
+            progress.show();
+
+           // progressDialog = ProgressDialog.show(AdminActivity.this,
+              //      "EFTPOS",
+              //      "Please wait...");
+            //progressDialog.show();
         }
 
     }

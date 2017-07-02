@@ -1,14 +1,21 @@
 package com.mobileeftpos.android.eftpos.activity;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.EditText;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
@@ -20,6 +27,7 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.Review_Transaction;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+//import com.mobileeftpos.android.eftpos.adapter.SettlementAdapter;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.database.DBStaticField;
 import com.mobileeftpos.android.eftpos.model.BatchModel;
@@ -27,13 +35,16 @@ import com.mobileeftpos.android.eftpos.model.CommsModel;
 import com.mobileeftpos.android.eftpos.model.HostModel;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 
+
 import java.math.BigInteger;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class SettlementFlow extends AppCompatActivity {
 
     private TransactionDetails transDetails = new TransactionDetails();
-    private EditText editInvoice;
-    private Button submitButton;
     private DBHelper databaseObj;
     private Constants constants = new Constants();
     private Review_Transaction reviewTrans = new Review_Transaction();
@@ -45,50 +56,50 @@ public class SettlementFlow extends AppCompatActivity {
     private PrintReceipt printReceipt = new PrintReceipt();
     private static final int TIME_OUT = 5000;
 
-    int[] inHdtList = new int[100];
+
+    //int[] inHdtList = new int[100];
+   // private PacketCreation isoPacket = new PacketCreation();
+    //private RemoteHost remoteHost = new RemoteHost();
+    //public byte[] FinalData = new byte[1512];
+    public HostModel hostModel = new HostModel();
+
+
+    private ListView settelmentListview;
     private PacketCreation isoPacket = new PacketCreation();
     private RemoteHost remoteHost = new RemoteHost();
     public byte[] FinalData = new byte[1512];
-    public HostModel hostModel = new HostModel();
+    private Context mcontext;
+    private List<HostModel>settlementList=new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settlement_flow);
+        mcontext=SettlementFlow.this;
         databaseObj = new DBHelper(SettlementFlow.this);
-        long inLong = 1;
-       String ss = String.format("%06d", inLong);
+
+        settelmentListview=(ListView)findViewById(R.id.settlement_menu);
+
         inSettlement();
     }
 
-    private int inSettlement(){
+    private void inSettlement() {
         //findout number of host available
-
-        for(int i=0;i<100;i++) {
-            hostModel = databaseObj.getHostTableData(i);
-            if( !(hostModel ==null || hostModel.equals(""))){
-                if(hostModel.getHDT_HOST_ENABLED().equals("1")){
+        HostModel hostModel;
+        List<HostModel> hostModelList = databaseObj.getAllHostTableData();
+        for (int i = 0; i < hostModelList.size(); i++) {
+            hostModel = hostModelList.get(i);
+            if (!(hostModel == null || hostModel.equals(""))) {
+                if (hostModel.getHDT_HOST_ENABLED().equalsIgnoreCase("1")) {
                     //Dynamically add buttons now with the name of hostModel.getHDT_HOST_LABEL();
-                    if(hostModel.getHDT_HOST_LABEL().contains("ALI")) {
-                        inHdtList[0]=Integer.parseInt(hostModel.getHDT_HOST_ID());
-                        TransactionDetails.inGHDT = Integer.parseInt(hostModel.getHDT_HOST_ID());
-                        TransactionDetails.inGCOM = Integer.parseInt(hostModel.getHDT_COM_INDEX());
-                        TransactionDetails.inGCURR = Integer.parseInt(hostModel.getHDT_CURR_INDEX());
-                        break;
-                    }
+                    settlementList.add(hostModel);
                 }
-            }else
-                break;
+            }
         }
+        SettlementAdapter adapter=new SettlementAdapter(settlementList, mcontext);
+        settelmentListview.setAdapter(adapter);
 
-        if (AppUtil.isNetworkAvailable(SettlementFlow.this)) {
-            mAsyncTask = new AsyncTaskRunner();
-            mAsyncTask.execute(new String[]{"null", "null"});
-            mAsyncTask.execute(new String[]{"null", "null"});
-        }else {
-            Toast.makeText(SettlementFlow.this, "GetInvoice:BAR:NO INTERNET CONNECTION",Toast.LENGTH_SHORT).show();
-        }
-        return 0;
+
     }
 
     private class AsyncTaskRunner extends AsyncTask<String, Void, String> {
@@ -185,22 +196,13 @@ public class SettlementFlow extends AppCompatActivity {
                 {
                     case 0://Validation; in force settlement;
 
-                    //Log.i(TAG,"GetInvoice::processRequest_2");
-                    //if (trDetails.inSortPAN(databaseObj) == 1) {
-                    //  Log.i(TAG,"GetInvoice::ERROR in SORTPAN");
-                    //inError = 1;
-                    //}
-                    TransactionDetails.inGHDT = Integer.parseInt(hostModel.getHDT_HOST_ID());
-                    TransactionDetails.inGCOM = Integer.parseInt(hostModel.getHDT_COM_INDEX());
-                    TransactionDetails.inGCURR = Integer.parseInt(hostModel.getHDT_CURR_INDEX());
-
-
                     inRet = isoPacket.vdScanRecord(databaseObj);
                     if(inRet == Constants.ReturnValues.NO_TRANSCATION){
                         return Constants.ReturnValues.NO_TRANSCATION;
                     }
                     Log.i(TAG,"GetInvoice::Alipay::inSORTPAN ___OKOK");
                     break;
+
                     case 1://
 
                         Log.i(TAG,"GetInvoice::Alipay::COMMUNICATION PARAMS...");
@@ -328,6 +330,9 @@ public class SettlementFlow extends AppCompatActivity {
                                 if (remoteHost.inDisconnection() != Constants.ReturnValues.RETURN_OK) {
                                     return Constants.ReturnValues.RETURN_ERROR;
                                 }
+                                if(inRet == Constants.ReturnValues.RETURN_OK) {
+                                    return Constants.ReturnValues.RETURN_OK;
+                                }
                             }
 
 
@@ -387,4 +392,81 @@ public class SettlementFlow extends AppCompatActivity {
             }
             return inError;
         }
+
+
+    class ViewHolder {
+        TextView txtitemView;
+
+    }
+
+    class SettlementAdapter extends BaseAdapter {
+
+        private Context context;
+        List<HostModel> Datastring;
+
+        public SettlementAdapter(List<HostModel> Datastring, Context mContext) {
+
+            this.Datastring = Datastring;
+            context = mContext;
+
+        }
+
+
+        @Override
+        public int getCount() {
+            return Datastring.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return Datastring.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @SuppressLint("InflateParams")
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder = null;
+            LayoutInflater mInflater = (LayoutInflater) context
+                    .getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+            if (convertView == null) {
+                convertView = mInflater.inflate(R.layout.settelment_item, null);
+                holder = new ViewHolder();
+                holder.txtitemView = (TextView) convertView.findViewById(R.id.settelment_tv);
+
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
+            }
+
+            final HostModel rowHostItemModelItem = (HostModel) getItem(position);
+
+            holder.txtitemView.setText(rowHostItemModelItem.getHDT_DESCRIPTION());
+
+            holder.txtitemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+
+                    TransactionDetails.inGHDT = Integer.parseInt(rowHostItemModelItem.getHDT_HOST_ID());
+                    TransactionDetails.inGCOM = Integer.parseInt(rowHostItemModelItem.getHDT_COM_INDEX());
+                    TransactionDetails.inGCURR = Integer.parseInt(rowHostItemModelItem.getHDT_CURR_INDEX());
+
+                      if (AppUtil.isNetworkAvailable(SettlementFlow.this)) {
+                       mAsyncTask = new AsyncTaskRunner();
+                       mAsyncTask.execute(new String[]{"null", "null"});
+                        }else {
+                         Toast.makeText(SettlementFlow.this, "GetInvoice:BAR:NO INTERNET CONNECTION",Toast.LENGTH_SHORT).show();
+                       }
+
+                }
+            });
+
+            return convertView;
+        }
+
+    }
 }

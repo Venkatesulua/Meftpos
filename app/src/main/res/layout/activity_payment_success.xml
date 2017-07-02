@@ -80,7 +80,11 @@
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="48sp"
-            android:layout_margin="20sp">
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+           >
 
             <Button
                 android:id="@+id/sharebtn"
@@ -99,7 +103,31 @@
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="48sp"
-            android:layout_margin="20sp">
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
+
+            <Button
+                android:id="@+id/customercopy"
+                android:layout_width="fill_parent"
+                android:layout_height="45sp"
+                android:background="@drawable/all_corner_edittext_bg"
+                android:text="Print E-mail Copy"
+                 android:drawablePadding="5dp"
+                android:padding="5dp"
+                android:textColor="@color/colorPrimary" />
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="48sp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
 
             <Button
                 android:id="@+id/complete"
@@ -107,7 +135,7 @@
                 android:layout_height="45sp"
                 android:background="@drawable/all_corner_edittext_bg"
                 android:text="Go to Home"
-                 android:drawablePadding="5dp"
+                android:drawablePadding="5dp"
                 android:padding="5dp"
                 android:textColor="@color/colorPrimary" />
 

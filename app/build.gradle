@@ -45,15 +45,15 @@ android {
     buildTypes {
 
 
-                    debug {
-                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-                        debuggable false
-                        minifyEnabled false
-                        signingConfig signingConfigs.myconfig
+        debug {
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            debuggable true
+            minifyEnabled false
+            signingConfig signingConfigs.myconfig
           }
         release {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            debuggable false
+            debuggable true
             minifyEnabled false
           }
     }
@@ -115,6 +115,7 @@ dependencies {
     compile 'com.android.support:support-vector-drawable:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
+    compile 'com.journeyapps:zxing-android-embedded:3.4.0'
     compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;
     }

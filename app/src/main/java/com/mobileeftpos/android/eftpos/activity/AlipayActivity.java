@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.google.gson.Gson;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
@@ -67,7 +69,7 @@ public class AlipayActivity extends AppCompatActivity {
     public PrintReceipt printReceipt = new PrintReceipt();
     public PayServices payServices = new PayServices();
     AsyncTaskRunner mAsyncTask;
-     public static String barCodeValue=null;
+    public static String barCodeValue=null;
     public byte[] FinalData = new byte[1512];
     //public int TransactionDetails.inFinalLength = 0;
     public static boolean isFromBarcodeScanner;
@@ -77,8 +79,8 @@ public class AlipayActivity extends AppCompatActivity {
     private static final int TIME_OUT = 5000;
     private static String BASE_URL="https://devapi.prayapay.com/v2?";
     private String requestTypeValue,brandValue,storeIdValue,deviceIdValue,
-    reqIdValue,reqDTValue,custCodeValue,amountValue,currValue,signTypeValue,
-    signValue;
+            reqIdValue,reqDTValue,custCodeValue,amountValue,currValue,signTypeValue,
+            signValue;
 
 
     @Override
@@ -96,22 +98,47 @@ public class AlipayActivity extends AppCompatActivity {
         isFromBarcodeScanner=true;
         //String ReversalString = KeyValueDB.getReversal(context);
 
-        Log.i(TAG,"AlipayActivity::Alipay_onCreate_1");
+        /*Log.i(TAG,"AlipayActivity::Alipay_onCreate_1");
         Intent i = new Intent(AlipayActivity.this, FullScannerActivity.class);
         i.putExtra("FromAlipayActivity", true);
-        startActivityForResult(i, 111);
+        startActivityForResult(i, 111);*/
+
+        IntentIntegrator integrator = new IntentIntegrator(this);
+        integrator.setPrompt("Scan a barcode or QRcode");
+        integrator.setOrientationLocked(false);
+        integrator.initiateScan();
 
         /*Intent intentScan = new Intent(AlipayActivity.this, CaptureActivity.class);
         intentScan.setAction(Constants.QRCODE.BARCODE_INTENT_ACTION);
         intentScan.putExtra(Constants.QRCODE.BARCODE_DISABLE_HISTORY, false);
-//        intentScan.putExtra(Intents.Scan.FORMATS, String.format("%s,%s"
-//                , BarcodeFormat.CODE_128.toString(), BarcodeFormat.ITF.toString()));
+         //  intentScan.putExtra(Intents.Scan.FORMATS, String.format("%s,%s"
+        //  , BarcodeFormat.CODE_128.toString(), BarcodeFormat.ITF.toString()));
         startActivityForResult(intentScan, Constants.QRCODE.BARCODE_RESULT_CODE);*/
 
 
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null) {
+            if (result.getContents() == null) {
+                Toast.makeText(this, "QRCODE READ FAILED", Toast.LENGTH_LONG).show();
+            } else {
+
+                processBarcode(result.getContents());
+                Toast.makeText(getApplicationContext(), result.getContents(), Toast.LENGTH_SHORT).show();
+
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+
+
+/*
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -128,6 +155,7 @@ public class AlipayActivity extends AppCompatActivity {
 
 
     }
+*/
 
    /* @Override
     protected void onResume() {
@@ -153,6 +181,7 @@ public class AlipayActivity extends AppCompatActivity {
             mAsyncTask.execute(new String[]{"52.88.135.124", "10002"});
             //mAsyncTask.execute(new String[] { "192.168.43.117", "9999" });
             trDetails.setPAN(contents);
+            TransactionDetails.PAN = contents;
         }else {
             Toast.makeText(AlipayActivity.this, "BAR:NO INTERNET CONNECTION",Toast.LENGTH_SHORT).show();
         }
@@ -241,7 +270,7 @@ public class AlipayActivity extends AppCompatActivity {
         CommsModel comModel = new CommsModel();
         BatchModel batchModel = new BatchModel();
         Gson gson = new Gson();
-       // SharedPreference sharedpref= new SharedPreference();
+        // SharedPreference sharedpref= new SharedPreference();
         //Password Entry
         while(whLoop) {
             switch(inPhase++)
@@ -263,6 +292,7 @@ public class AlipayActivity extends AppCompatActivity {
                     Log.i(TAG, "Aipay:Server PORT ::: "+Port);
 
                     String stTrace = payServices.pGetSystemTrace(databaseObj);
+                    TransactionDetails.InvoiceNumber = stTrace;
 
                     Log.i(TAG, "Aipay:inCreatePacket:stTrace::"+stTrace);
 
@@ -473,7 +503,7 @@ public class AlipayActivity extends AppCompatActivity {
                         break;
                     }
 
-                   break;
+                    break;
                 case 4:
                     KeyValueDB.removeReversal(AlipayActivity.this);//Clear Reversal
                     int inRet = isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength);
@@ -497,6 +527,7 @@ public class AlipayActivity extends AppCompatActivity {
                 case 5:
                     Log.i(TAG, "\nSave Record:");
                     //save Record
+
                     isoPacket.vdSaveRecord(databaseObj);
                     break;
                 case 6://
