@@ -73,6 +73,11 @@ public class VoidFlow extends AppCompatActivity {
 
 
         TransactionDetails.EntryMode=Integer.toString(Constants.TransMode.SWIPE);
+        if(stInvoice.length() < 6)
+        {
+            stInvoice = String.format("%06d",Integer.parseInt(stInvoice));
+        }
+        TransactionDetails.InvoiceNumber = stInvoice;
         batchModeldata = reviewTrans.lgReviewAllTrans(databaseObj,stInvoice,batchModeldata);
 
         if(batchModeldata == null) {
@@ -321,6 +326,7 @@ public class VoidFlow extends AppCompatActivity {
                 case 6://
                     //Print receipt
                     Log.i(TAG, "\nPrinting Receipt");
+                    TransactionDetails.trxType = Constants.TransType.VOID;
                     printReceipt.inPrintReceipt(databaseObj);
                     break;
                 case 7://Show the receipt in the display and give option to print or email
@@ -360,9 +366,10 @@ public class VoidFlow extends AppCompatActivity {
                         break;
                     }
                     batchModeldata.setUPLOADED(Integer.toString(Constants.TRUE));
-                    databaseObj.UpdateBatchData(batchModeldata);
+                databaseObj.UpdateBatchData(batchModeldata);
+                KeyValueDB.removeUpload(VoidFlow.this);
 
-                    break;
+                break;
                 default:
                     whLoop=false;
                     break;

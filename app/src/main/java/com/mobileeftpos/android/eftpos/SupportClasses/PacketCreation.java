@@ -2,6 +2,7 @@ package com.mobileeftpos.android.eftpos.SupportClasses;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.provider.SyncStateContract;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -19,6 +20,11 @@ import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 
 import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by venkat on 6/1/2017.
@@ -39,6 +45,8 @@ public class PacketCreation {
     public static final String REVERSALPREFERENCE = "reversal" ;
     SharedPreferences sharedpreferences;
     Gson gson = new Gson();
+    int inVoided=0;
+    long SaleCount=0,SaleAmount=0,RefundCount=0,RefundAmount=0;
 
 
     public BatchModel vdSaveRecord(DBHelper databaseObj){
@@ -116,6 +124,73 @@ public class PacketCreation {
         return batchModel;
     }
 
+    public int vdScanRecord(DBHelper databaseObj){
+        //hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        BatchModel batchData;
+        SaleCount=SaleAmount=RefundCount=RefundAmount=0;
+        HostModel hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        List<BatchModel> batchModelList=databaseObj.getBatchData(hostData.getHDT_HOST_ID());
+        if(batchModelList.size() ==0 )
+        {
+            return Constants.ReturnValues.NO_TRANSCATION;
+        }
+        for(int i=0;i<batchModelList.size();i++) {
+            batchData = batchModelList.get(i);
+            if( !(batchData ==null || batchData.equals(""))){
+                int trxType = Integer.parseInt(batchData.getTRANS_TYPE());
+                inVoided = Integer.parseInt(batchData.getVOIDED());
+                if(trxType == Constants.TransType.ALIPAY_SALE && inVoided != Constants.TRUE)
+                {
+                    SaleCount = SaleCount+1;
+                    SaleAmount = SaleAmount + Long.parseLong(batchData.getAMOUNT());
+                }else if(trxType == Constants.TransType.ALIPAY_REFUND && inVoided != Constants.TRUE){
+                    RefundCount = RefundCount+1;
+                    RefundAmount = RefundAmount + Long.parseLong(batchData.getAMOUNT());
+                }
+            }
+
+            }
+
+        return Constants.ReturnValues.RETURN_OK;
+    }
+    String AlipayExtendedData(String staddinfo)
+    {
+        staddinfo ="merchant_name:";
+        staddinfo = staddinfo + merchantData.getMERCHANT_NAME();
+        staddinfo = staddinfo + ",merchant_no:";
+        staddinfo = staddinfo + hostData.getHDT_MERCHANT_ID();
+        staddinfo = staddinfo + ",business_no:";
+        staddinfo = staddinfo + "0";
+        staddinfo = staddinfo + ",terminal_id:";
+        staddinfo = staddinfo + hostData.getHDT_TERMINAL_ID();
+        staddinfo = staddinfo + ",mcc:";
+        staddinfo = staddinfo + "0";
+        staddinfo = staddinfo + ",region_code:";
+        staddinfo = staddinfo + barcode.getREGION_CODE();
+        staddinfo = staddinfo + ",term_sn:";
+        staddinfo = staddinfo + TransactionDetails.deviceId;
+
+        staddinfo = staddinfo + ",trans_create_time:";
+        staddinfo = staddinfo + TransactionDetails.trxDateTime.substring(2,14);
+
+        staddinfo = staddinfo + ",ver:";
+        staddinfo = staddinfo + "V1.0";
+
+
+        if(TransactionDetails.trxType == Constants.TransType.ALIPAY_SALE) {
+            staddinfo = staddinfo + ",scan:";
+            staddinfo = staddinfo + "y";
+        }
+
+        staddinfo = staddinfo + ",proto:";
+        staddinfo = staddinfo + "1";
+
+        staddinfo = staddinfo + ",sw:";
+        staddinfo = staddinfo + "V1.0";
+        staddinfo = staddinfo + ",";
+        return staddinfo;
+
+    }
     public int inCreatePacket(DBHelper databaseObj,byte[] FinalData,int inTrxType) {
         String stde27 = "";
         String stde29 = "";
@@ -131,7 +206,13 @@ public class PacketCreation {
         commData = databaseObj.getCommsData(TransactionDetails.inGCOM);
         merchantData = databaseObj.getMerchantData(0);
 
+        currModel.setCURR_LABEL("THB");
+        currModel.setCURR_EXPONENT("2");
+        currModel.setCURR_CODE("764");
 
+
+
+        String stAlipayExtData="";
         isoMsg.setPackager(packager);
         try {
 
@@ -169,6 +250,7 @@ public class PacketCreation {
                     isoMsg.set(29, stde29);
                     isoMsg.set(41, globalVar.tmsParam.getTMS_TERMINAL_ID());
                     break;
+                case Constants.TransType.ALIPAY_SALE_REPEAT:
                 case Constants.TransType.ALIPAY_SALE:
                     Log.i(TAG,"PacketCreation:::ALIPAY_SALE : ");
                     Log.i(TAG,"PacketCreation:::PARTNER_ID::"+barcode.getPARTNER_ID());
@@ -180,9 +262,15 @@ public class PacketCreation {
                     Log.i(TAG,"PacketCreation:::getMERCHANT_NAME::"+merchantData.getMERCHANT_NAME());
 
                     TransactionDetails.processingcode = Constants.PROCESSINGCODE.pcFinancialRequest;
-                    TransactionDetails.messagetype = Constants.MTI.Financial;
+                    if(inTrxType == Constants.TransType.ALIPAY_SALE) {
+                        TransactionDetails.messagetype = Constants.MTI.Financial;
+                        CreateTLVFields(1, Constants.MTI.Financial,FinalData);
+                    }
+                    else {
+                        TransactionDetails.messagetype = Constants.MTI.Financial_Repeat;
+                        CreateTLVFields(1, Constants.MTI.Financial_Repeat,FinalData);
+                    }
 
-                    CreateTLVFields(1, Constants.MTI.Financial,FinalData);
                     CreateTLVFields(3, Constants.PROCESSINGCODE.pcFinancialRequest,FinalData);
                     CreateTLVFields(4, barcode.getPARTNER_ID(),FinalData);
                     CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
@@ -194,39 +282,7 @@ public class PacketCreation {
                     CreateTLVFields(11,TransactionDetails.PAN,FinalData);
                     CreateTLVFields(41,hostData.getHDT_TERMINAL_ID(),FinalData);
 
-
-                    staddinfo ="merchant_name:";
-                    staddinfo = staddinfo + merchantData.getMERCHANT_NAME();
-                    staddinfo = staddinfo + ",merchant_no:";
-                    staddinfo = staddinfo + hostData.getHDT_MERCHANT_ID();
-                    staddinfo = staddinfo + ",business_no:";
-                    staddinfo = staddinfo + "0";
-                    staddinfo = staddinfo + ",terminal_id:";
-                    staddinfo = staddinfo + hostData.getHDT_TERMINAL_ID();
-                    staddinfo = staddinfo + ",mcc:";
-                    staddinfo = staddinfo + "0";
-                    staddinfo = staddinfo + ",region_code:";
-                    staddinfo = staddinfo + barcode.getREGION_CODE();
-                    staddinfo = staddinfo + ",term_sn:";
-                    staddinfo = staddinfo + TransactionDetails.deviceId;
-
-                    staddinfo = staddinfo + ",trans_create_time:";
-                    staddinfo = staddinfo + TransactionDetails.trxDateTime.substring(2,14);
-
-                    staddinfo = staddinfo + ",ver:";
-                    staddinfo = staddinfo + "V1.0";
-
-                    staddinfo = staddinfo + ",scan:";
-                    staddinfo = staddinfo + "y";
-
-                    staddinfo = staddinfo + ",proto:";
-                    staddinfo = staddinfo + "1";
-
-                    staddinfo = staddinfo + ",sw:";
-                    staddinfo = staddinfo + "V1.0";
-                    staddinfo = staddinfo + ",";
-
-                    CreateTLVFields(47,staddinfo,FinalData);
+                    CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
                     break;
                 case Constants.TransType.ALIPAY_REFUND:
                     break;
@@ -259,43 +315,15 @@ public class PacketCreation {
                     CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
 
 
-                    CreateTLVFields(8,TransactionDetails.RetrievalRefNumber,FinalData);
+                    if(inTrxType != Constants.TransType.REVERSAL)
+                        CreateTLVFields(8,TransactionDetails.RetrievalRefNumber,FinalData);
                     //CreateTLVFields(9,currModel.getCURR_LABEL(),FinalData);
                     CreateTLVFields(10,TransactionDetails.trxAmount,FinalData);
-                    //CreateTLVFields(11,TransactionDetails.PAN,FinalData);
+                    if(inTrxType == Constants.TransType.REVERSAL)
+                        CreateTLVFields(11,TransactionDetails.PAN,FinalData);
                     CreateTLVFields(41,hostData.getHDT_TERMINAL_ID(),FinalData);
-                    staddinfo ="merchant_name:";
-                    staddinfo = staddinfo + merchantData.getMERCHANT_NAME();
-                    staddinfo = staddinfo + ",merchant_no:";
-                    staddinfo = staddinfo + hostData.getHDT_MERCHANT_ID();
-                    staddinfo = staddinfo + ",business_no:";
-                    staddinfo = staddinfo + "0";
-                    staddinfo = staddinfo + ",terminal_id:";
-                    staddinfo = staddinfo + hostData.getHDT_TERMINAL_ID();
-                    staddinfo = staddinfo + ",mcc:";
-                    staddinfo = staddinfo + "0";
-                    staddinfo = staddinfo + ",region_code:";
-                    staddinfo = staddinfo + barcode.getREGION_CODE();
-                    staddinfo = staddinfo + ",term_sn:";
-                    staddinfo = staddinfo + TransactionDetails.deviceId;
 
-                    staddinfo = staddinfo + ",trans_create_time:";
-                    staddinfo = staddinfo + TransactionDetails.trxDateTime.substring(2,14);
-
-                    staddinfo = staddinfo + ",ver:";
-                    staddinfo = staddinfo + "V1.0";
-
-                    staddinfo = staddinfo + ",scan:";
-                    staddinfo = staddinfo + "y";
-
-                    staddinfo = staddinfo + ",proto:";
-                    staddinfo = staddinfo + "1";
-
-                    staddinfo = staddinfo + ",sw:";
-                    staddinfo = staddinfo + "V1.0";
-                    staddinfo = staddinfo + ",";
-
-                    CreateTLVFields(47,staddinfo,FinalData);
+                    CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
 
                     if(inTrxType == Constants.TransType.ALIPAY_UPLOAD)
                         CreateTLVFields(72,TransactionDetails.AlipayTag72,FinalData);
@@ -308,8 +336,119 @@ public class PacketCreation {
                     break;
                 case Constants.TransType.INIT_SETTLEMENT:
 
+                    TransactionDetails.processingcode = Constants.PROCESSINGCODE.initsettrequest;
+                    TransactionDetails.messagetype = Constants.MTI.Settlement;
+
+                    CreateTLVFields(1, Constants.MTI.Settlement,FinalData);
+                    CreateTLVFields(3, Constants.PROCESSINGCODE.initsettrequest,FinalData);
+                    CreateTLVFields(4, barcode.getPARTNER_ID(),FinalData);
+                    CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
+
+
+                    //CreateTLVFields(8,(TransactionDetails.trxDateTime+"00"),FinalData);
+                    CreateTLVFields(9,currModel.getCURR_LABEL(),FinalData);
+                    //CreateTLVFields(10,TransactionDetails.trxAmount,FinalData);
+                    //CreateTLVFields(11,TransactionDetails.PAN,FinalData);
+                    CreateTLVFields(41,hostData.getHDT_TERMINAL_ID(),FinalData);
+
+
+
+                    vdScanRecord(databaseObj);
+
+
+                    if(SaleCount!=0)
+                        CreateTLVFields(42,String.format("%03d", SaleCount),FinalData);
+                    else
+                        CreateTLVFields(42,"000",FinalData);
+                    if(SaleAmount !=0)
+                        CreateTLVFields(43,String.format("%012d", SaleAmount),FinalData);
+                    else
+                        CreateTLVFields(43,"000000000000",FinalData);
+                    if(RefundCount != 0)
+                        CreateTLVFields(44,String.format("%03d", RefundCount),FinalData);
+                    else
+                        CreateTLVFields(44,"000",FinalData);
+                    if(RefundAmount != 0)
+                        CreateTLVFields(45,String.format("%012d", RefundAmount),FinalData);
+                    else
+                        CreateTLVFields(45,"000000000000",FinalData);
+                    if(Integer.parseInt(hostData.getHDT_BATCH_NUMBER()) != 0) {
+                        long inLong = Long.parseLong(hostData.getHDT_BATCH_NUMBER());
+                        CreateTLVFields(46, String.format("%06d", inLong), FinalData);
+                    }
+                    else
+                        CreateTLVFields(46,"000000",FinalData);
+
+                    CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
                     break;
                 case Constants.TransType.FINAL_SETTLEMENT:
+                    TransactionDetails.processingcode = Constants.PROCESSINGCODE.finalsettrequest;
+                    TransactionDetails.messagetype = Constants.MTI.Settlement;
+
+                    CreateTLVFields(1, Constants.MTI.Settlement,FinalData);
+                    CreateTLVFields(3, Constants.PROCESSINGCODE.finalsettrequest,FinalData);
+                    CreateTLVFields(4, barcode.getPARTNER_ID(),FinalData);
+                    CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
+
+
+                    //CreateTLVFields(8,(TransactionDetails.trxDateTime+"00"),FinalData);
+                    CreateTLVFields(9,currModel.getCURR_LABEL(),FinalData);
+                    //CreateTLVFields(10,TransactionDetails.trxAmount,FinalData);
+                    //CreateTLVFields(11,TransactionDetails.PAN,FinalData);
+                    CreateTLVFields(41,hostData.getHDT_TERMINAL_ID(),FinalData);
+
+
+
+                    vdScanRecord(databaseObj);
+
+                    if(SaleCount!=0)
+                        CreateTLVFields(42,String.format("%03d", SaleCount),FinalData);
+                    else
+                        CreateTLVFields(42,"000",FinalData);
+                    if(SaleAmount !=0)
+                        CreateTLVFields(43,String.format("%012d", SaleAmount),FinalData);
+                    else
+                        CreateTLVFields(43,"000000000000",FinalData);
+                    if(RefundCount != 0)
+                        CreateTLVFields(44,String.format("%03d", RefundCount),FinalData);
+                    else
+                        CreateTLVFields(44,"000",FinalData);
+                    if(RefundAmount != 0)
+                        CreateTLVFields(45,String.format("%012d", RefundAmount),FinalData);
+                    else
+                        CreateTLVFields(45,"000000000000",FinalData);
+                    if(Integer.parseInt(hostData.getHDT_BATCH_NUMBER()) != 0) {
+                        long inLong = Long.parseLong(hostData.getHDT_BATCH_NUMBER());
+                        CreateTLVFields(46, String.format("%06d", inLong), FinalData);
+                    }
+                    else
+                        CreateTLVFields(46,"000000",FinalData);
+
+                    CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
+                    break;
+                case Constants.TransType.BATCH_TRANSFER:
+                    TransactionDetails.processingcode = Constants.PROCESSINGCODE.pcFinancialRequest;
+                    TransactionDetails.messagetype = Constants.MTI.BatchUpload;
+
+                    CreateTLVFields(1, Constants.MTI.BatchUpload,FinalData);
+                    CreateTLVFields(3, Constants.PROCESSINGCODE.pcFinancialRequest,FinalData);
+                    CreateTLVFields(4, barcode.getPARTNER_ID(),FinalData);
+                    CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
+
+
+                    CreateTLVFields(8,TransactionDetails.RetrievalRefNumber,FinalData);
+                    CreateTLVFields(9,currModel.getCURR_LABEL(),FinalData);
+                    if(inVoided == 1) {
+                        TransactionDetails.trxAmount="0";
+                        CreateTLVFields(10, TransactionDetails.trxAmount, FinalData);
+                    }
+                    else
+                        CreateTLVFields(10,TransactionDetails.trxAmount,FinalData);
+                    CreateTLVFields(11,TransactionDetails.PAN,FinalData);
+                    CreateTLVFields(41,hostData.getHDT_TERMINAL_ID(),FinalData);
+
+                    CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
+
                     break;
             }
 
@@ -319,7 +458,9 @@ public class PacketCreation {
             //  Log.i(TAG,"PacketCreation:::PACK:");
             // Get and print the output result
             try {
-                if(TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_SALE) {
+                if(TransactionDetails.trxType != Constants.TransType.INIT_SETTLEMENT &&
+                        TransactionDetails.trxType != Constants.TransType.FINAL_SETTLEMENT&&
+                        TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_SALE) {
                     Log.i(TAG,"PacketCreation:::NOT ALIPAY SALES ");
                     Log.i(TAG,"PacketCreation:::NOT ALIPAY SALES ");
                     logISOMsg(isoMsg);
@@ -460,11 +601,75 @@ public class PacketCreation {
         return inOffset;
     }
 
+    public int BatchTranfer(DBHelper databaseObj,String ServerIP,String Port){
+
+        BatchModel batchModeldata;
+        byte[] FinalData = new byte[1512];
+        RemoteHost remoteHost = new RemoteHost();
+        List<BatchModel> batchModelList=databaseObj.getBatchData(hostData.getHDT_HOST_ID());
+        for(int i=0;i<batchModelList.size();i++) {
+            batchModeldata = batchModelList.get(i);
+            if( !(batchModeldata ==null || batchModeldata.equals(""))) {
+                TransactionDetails.trxType = Integer.parseInt(batchModeldata.getTRANS_TYPE());
+                inVoided = Integer.parseInt(batchModeldata.getVOIDED());
+                TransactionDetails.inOritrxType = Integer.parseInt(batchModeldata.getTRANS_TYPE());
+                TransactionDetails.inGTrxMode = Integer.parseInt(batchModeldata.getTRANS_MODE());
+                TransactionDetails.processingcode = batchModeldata.getPROC_CODE();
+                TransactionDetails.trxAmount = batchModeldata.getAMOUNT();
+                TransactionDetails.tipAmount = batchModeldata.getTIP_AMOUNT();
+                TransactionDetails.trxDateTime = batchModeldata.getYEAR();
+                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getDATE();
+                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getTIME();
+                TransactionDetails.messagetype = batchModeldata.getORG_MESS_ID();
+//        batchModeldata.getSYS_TRACE_NUM(payServices.pGetSystemTrace(databaseObj));
+                TransactionDetails.ExpDate = batchModeldata.getDATE_EXP();
+                TransactionDetails.RetrievalRefNumber = batchModeldata.getRETR_REF_NUM();
+                TransactionDetails.chApprovalCode = batchModeldata.getAUTH_ID_RESP();
+                TransactionDetails.ResponseCode = batchModeldata.getRESP_CODE();
+                TransactionDetails.PAN = batchModeldata.getACCT_NUMBER();
+                TransactionDetails.PersonName = batchModeldata.getPERSON_NAME();
+                TransactionDetails.trxAmount = batchModeldata.getORIGINAL_AMOUNT();
+                TransactionDetails.responseMessge = batchModeldata.getADDITIONAL_DATA();
+                //batchModeldata.getPAYMENT_TERM_INFO(res.getString(res.getColumnIndex(DBStaticField.PAYMENT_TERM_INFO)));
+                TransactionDetails.PAN = batchModeldata.getPRIMARY_ACC_NUM();
+                TransactionDetails.POSEntryMode = batchModeldata.getPOS_ENT_MODE();
+                TransactionDetails.NII = batchModeldata.getNII();
+                TransactionDetails.POS_COND_CODE = batchModeldata.getPOS_COND_CODE();
+
+                DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSS");
+                Date date = new Date();
+                String stDate = dateFormat.format(date);
+                TransactionDetails.trxDateTime=stDate;
+
+                TransactionDetails.inFinalLength = inCreatePacket(databaseObj,FinalData, Constants.TransType.BATCH_TRANSFER);
+                if(TransactionDetails.inFinalLength == 0)
+                    return Constants.ReturnValues.RETURN_ERROR;
+
+                if (remoteHost.inConnection(ServerIP, Port) != 0)
+                        return Constants.ReturnValues.RETURN_ERROR;
+
+                if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null)
+                    return Constants.ReturnValues.RETURN_ERROR;
+
+                int inRet = inProcessPacket(FinalData,TransactionDetails.inFinalLength);
+                 if(inRet != Constants.ReturnValues.RETURN_OK) {
+                     return Constants.ReturnValues.RETURN_ERROR;
+                }
+                if (remoteHost.inDisconnection() != Constants.ReturnValues.RETURN_OK) {
+                    return Constants.ReturnValues.RETURN_ERROR;
+                }
+
+            }
+        }
+        return Constants.ReturnValues.RETURN_OK;
+    }
     public int inProcessPacket(byte[] FinalData,int nFinalLength) {
         //String result="";
         try {
             Log.i(TAG,"PacketCreation:::\ninProcessPacket_1:");
-            if(TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_SALE) {
+            if(TransactionDetails.trxType!= Constants.TransType.INIT_SETTLEMENT &&
+                    TransactionDetails.trxType!= Constants.TransType.FINAL_SETTLEMENT &&
+                    TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_SALE) {
                 isoMsg.unpack(FinalData);
                 // print the DE list
                 logISOMsg(isoMsg);
@@ -478,18 +683,28 @@ public class PacketCreation {
                 Log.i(TAG,"PacketCreation:::\ninProcessPacket_3:");
                 Log.i(TAG,"PacketCreation:::\nTerminal-ID:"+trDetails.getResTerminalId());
 
-                if(!trDetails.getResponseCode().equals("00")){
-                    Log.i(TAG,"PacketCreation:::\ninProcessPacket_4:");
-                    return 1;//ERROR
+                if(TransactionDetails.trxType == Constants.TransType.INIT_SETTLEMENT)
+                {
+                    if(TransactionDetails.ResponseCode.equals("95")){
+                        Log.i(TAG,"PacketCreation:::\ninProcessPacket_4-BATCH TRANSFER:");
+                        return Constants.ReturnValues.RETURN_BATCH_TRANSFER;//ERROR
+                    }
                 }
-
+                if(trDetails.getResponseCode().equals("00")){
+                    Log.i(TAG,"PacketCreation:::\ninProcessPacket_4:");
+                    return Constants.ReturnValues.RETURN_OK;//ERROR
+                }else if (TransactionDetails.ResponseCode.equals("UK")){
+                    return Constants.ReturnValues.RETURN_UNKNOWN;//ERROR
+                }else {
+                    return Constants.ReturnValues.RETURN_ERROR;//ERROR
+                }
             }
         } catch (ISOException ex) {
             Log.i(TAG, "PacketCreation:::ISO EXCEPTION");
             Log.i(TAG, ex.getMessage());
         }
 
-        return 0;
+        return Constants.ReturnValues.RETURN_OK;
     }
 
     int inParceAlipyResponse(byte[] input,int inLen){
@@ -516,7 +731,7 @@ public class PacketCreation {
         while (true) {
             inTag = (input[incurrentposition] * 256) + ((input[incurrentposition + 1]));
             incurrentposition = incurrentposition + 2;
-            inLength = (input[incurrentposition] * 256) + ((input[incurrentposition + 1]));
+            inLength = ((input[incurrentposition] & 0xFF) * 256) + ((input[incurrentposition + 1])&0xFF);
             incurrentposition = incurrentposition + 2;
             byte[] chtemp = new byte[inLength];
             Log.i(TAG,"PacketCreation:::inTag inTag :: "+chtemp.length);

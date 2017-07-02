@@ -185,13 +185,9 @@ public class AlipayActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             // execution of result of Long time consuming operation
             super.onPostExecute(result);
-            Log.i(TAG,"AlipayActivity::Alipay:onPostExecute");
 
-            if(result!=null && result.equals("0"))
+            if(result!=null && Integer.parseInt(result) == Constants.ReturnValues.RETURN_OK)
             {
-                Log.i(TAG, "Aipay:onPostExecute:SUCCESS");
-                Log.i(TAG, "Aipay:onPostExecute:SUCCESS");
-                Log.i(TAG, "Aipay:onPostExecute:SUCCESS");
                 printReceipt.inPrintReceipt(databaseObj);
                 //Redirect to Success Activity
                 new Handler().postDelayed(new Runnable() {
@@ -203,12 +199,8 @@ public class AlipayActivity extends AppCompatActivity {
                         progressDialog.dismiss();
                     }
                 }, TIME_OUT);
-            }else
+            }else if(Integer.parseInt(result) == Constants.ReturnValues.RETURN_ERROR)
             {
-                Log.i(TAG, "Aipay:onPostExecute:ERROR");
-                Log.i(TAG, "Aipay:onPostExecute:ERROR");
-                Log.i(TAG, "Aipay:onPostExecute:ERROR");
-
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -217,6 +209,10 @@ public class AlipayActivity extends AppCompatActivity {
                         progressDialog.dismiss();
                     }
                 }, TIME_OUT);
+            }
+            else if(Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN)
+            {
+                startActivity(new Intent(AlipayActivity.this,AlipayCheckPrompt.class));
             }
             payServices.vdUpdateSystemTrace(databaseObj);
             //progressDialog.dismiss();
@@ -238,8 +234,6 @@ public class AlipayActivity extends AppCompatActivity {
 
     private int processRequest(String ServerIP,String Port) {
 
-        Log.i(TAG,"AlipayActivity::processRequest_1");
-
         int inError=0;
         int inPhase=0;
         boolean whLoop=true;
@@ -253,43 +247,66 @@ public class AlipayActivity extends AppCompatActivity {
             switch(inPhase++)
             {
                 case 0://Validation; in force settlement;
-                    Log.i(TAG,"AlipayActivity::processRequest_2");
                     if (trDetails.inSortPAN(databaseObj) == 1) {
                         Log.i(TAG,"AlipayActivity::ERROR in SORTPAN");
                         inError = 1;
                     }
-                    Log.i(TAG,"AlipayActivity::Alipay::inSORTPAN ___OKOK");
                     break;
                 case 1://
 
-                    Log.i(TAG,"AlipayActivity::Alipay::COMMUNICATION PARAMS...");
                     comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
-                    Log.i(TAG,"AlipayActivity::Alipay::COMMUNICATION PARAMS2...");
                     String IP_Port = comModel.getCOM_PRIMARY_IP_PORT();
-                    Log.i(TAG,"AlipayActivity::Alipay::IP_Port::"+IP_Port);
                     int indexOffset = IP_Port.indexOf("|");
-                    Log.i(TAG,"AlipayActivity::Alipay::indexOffset::"+indexOffset);
                     ServerIP = IP_Port.substring(0,indexOffset);
-
-                    Log.i(TAG,"AlipayActivity::Alipay::ServerIP::"+ServerIP);
-
                     Port = IP_Port.substring(indexOffset+1);
-                    Log.i(TAG, "Aipay:inCreatePacket:");
                     Log.i(TAG, "Aipay:ServerIP ::: "+ServerIP);
                     Log.i(TAG, "Aipay:Server PORT ::: "+Port);
 
                     String stTrace = payServices.pGetSystemTrace(databaseObj);
 
                     Log.i(TAG, "Aipay:inCreatePacket:stTrace::"+stTrace);
-                    Log.i(TAG, "Aipay:inCreatePacket:stTrace::"+stTrace);
 
-                    Log.i(TAG, "Aipay:inConnection:");
                     if (remoteHost.inConnection(ServerIP, Port) != 0) {
+                        Log.i(TAG,"AlipayActivity::Connection Failed");
                         inError = 1;
                         break;
                     }
 
                     //KeyValueDB.removeUpload(context);
+                    //KeyValueDB.removeReversal(context);
+                    String ReversalData = KeyValueDB.getReversal(context);
+                    if(!ReversalData.isEmpty())
+                    {
+                        //FinalData = UploadData.getBytes();
+                        byte[] FinalData = new BigInteger(ReversalData, 16).toByteArray();
+                        TransactionDetails.inFinalLength = FinalData[0] *256;
+                        TransactionDetails.inFinalLength = TransactionDetails.inFinalLength + (FinalData[1]);
+                        TransactionDetails.inFinalLength = TransactionDetails.inFinalLength +2;
+                        if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
+                            Log.i(TAG,"AlipayActivity::REversal Send Failed");
+                            inError = 1;
+                            break;
+                        }
+
+                        if (isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength) != 0) {
+                            Log.i(TAG,"AlipayActivity::REversal Receive Failed");
+                            inError = 1;
+                            //redirect to error
+                            break;
+                        }
+                        KeyValueDB.removeReversal(context);
+
+                        if (remoteHost.inDisconnection() != 0) {
+                            inError = 1;
+                            break;
+                        }
+
+                        if (remoteHost.inConnection(ServerIP, Port) != 0) {
+                            Log.i(TAG,"AlipayActivity::Connection Failed");
+                            inError = 1;
+                            break;
+                        }
+                    }
                     String UploadData = KeyValueDB.getUpload(context);
                     if(!UploadData.isEmpty())
                     {
@@ -298,25 +315,29 @@ public class AlipayActivity extends AppCompatActivity {
                         TransactionDetails.inFinalLength = FinalData[0] *256;
                         TransactionDetails.inFinalLength = TransactionDetails.inFinalLength + (FinalData[1]);
                         TransactionDetails.inFinalLength = TransactionDetails.inFinalLength +2;
-                        Log.i(TAG, "Aipay:inSendRecvPacket:");
                         if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
+                            Log.i(TAG,"AlipayActivity::Upload Send Failed");
                             inError = 1;
                             break;
                         }
-
-                        result = "";
-                        for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
-                            result = result + String.format("%02x", FinalData[k]);
-                        }
-                        Log.i(TAG,"AlipayActivity::\nAlipay_inSendRecvPacket_Received:");
-                        Log.i(TAG,result);
-                        Log.i(TAG, "Aipay:inProcessPacket:");
                         if (isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength) != 0) {
                             inError = 1;
+                            Log.i(TAG,"AlipayActivity::Upload Receive Failed");
                             //redirect to error
                             break;
                         }
                         KeyValueDB.removeUpload(context);
+
+                        if (remoteHost.inDisconnection() != 0) {
+                            inError = 1;
+                            break;
+                        }
+
+                        if (remoteHost.inConnection(ServerIP, Port) != 0) {
+                            Log.i(TAG,"AlipayActivity::Connection Failed");
+                            inError = 1;
+                            break;
+                        }
                     }
 
                     /*String BatchReversalData = KeyValueDB.getReversal(context);
@@ -423,15 +444,27 @@ public class AlipayActivity extends AppCompatActivity {
                     break;
                 case 2://
 
+                    //int inTempTrxType = TransactionDetails.trxType;
+                    //TransactionDetails.trxType=Constants.TransType.REVERSAL;
+                    TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.REVERSAL);
+                    if(TransactionDetails.inFinalLength == 0) {
+                        inError = 1;
+                        break;
+                    }
+                    result = "";
+                    for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
+                        result = result + String.format("%02x", FinalData[k]);
+                    }
+                    Log.i(TAG,"\nSet Reversal:");
+                    Log.i(TAG,result);
+                    KeyValueDB.setReversal(AlipayActivity.this,new String(result));
+
+                    //TransactionDetails.trxType = inTempTrxType;
                     TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.ALIPAY_SALE);
                     if(TransactionDetails.inFinalLength == 0) {
                         inError = 1;
                         break;
                     }
-                    //Keep the reversal
-                    batchModel = isoPacket.vdSaveRecord(databaseObj);
-                    String json = gson.toJson(batchModel); // myObject - instance of MyObject
-                    KeyValueDB.setReversal(context, json);
                     break;
                 case 3://
                     Log.i(TAG, "Aipay:inSendRecvPacket:");
@@ -440,36 +473,27 @@ public class AlipayActivity extends AppCompatActivity {
                         break;
                     }
 
-                    result = "";
-                    for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
-                        result = result + String.format("%02x", FinalData[k]);
+                   break;
+                case 4:
+                    KeyValueDB.removeReversal(AlipayActivity.this);//Clear Reversal
+                    int inRet = isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength);
+
+                    if (remoteHost.inDisconnection() != 0) {
+                        inError = 1;
+                        break;
                     }
-                    Log.i(TAG,"AlipayActivity::\nAlipay_inSendRecvPacket_Received:");
-                    Log.i(TAG,result);
 
-                    break;
-                case 4://
-
-                    result = "";
-                    for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
-                        result = result + String.format("%02x", FinalData[k]);
-                    }
-                    Log.i(TAG,"AlipayActivity::\nAlipay_inProcessPacket_Received:");
-                    Log.i(TAG,result);
-
-                    Log.i(TAG, "Aipay:inProcessPacket:");
-                    if (isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength) != 0) {
+                    if (inRet == Constants.ReturnValues.RETURN_OK) {
+                        //redirect to error
+                        break;
+                    }else if(inRet == Constants.ReturnValues.RETURN_UNKNOWN)
+                    {//PROMPT CHECK REVERSAL and ENQUIRY
+                        return Constants.ReturnValues.RETURN_UNKNOWN;
+                    }else{
                         inError = 1;
                         //redirect to error
                         break;
                     }
-
-                    Log.i(TAG, "Aipay:inDisconnection:");
-                    if (remoteHost.inDisconnection() != 0) {
-                    inError = 1;
-                    break;
-                    }
-                    break;
                 case 5:
                     Log.i(TAG, "\nSave Record:");
                     //save Record
@@ -493,8 +517,8 @@ public class AlipayActivity extends AppCompatActivity {
                 Log.i(TAG, "Aipay:inError:1:");
 
                 //Redirect to error Activity
-
-                break;
+                return Constants.ReturnValues.RETURN_ERROR;
+                //break;
             }
         }
 
@@ -504,9 +528,10 @@ public class AlipayActivity extends AppCompatActivity {
             Log.i(TAG, "Aipay:SUCCESS");
             Log.i(TAG, "Aipay:SUCCESS");
             //Redirect to Success Activity
+            return Constants.ReturnValues.RETURN_OK;
 
         }
-        return inError;
+        return Constants.ReturnValues.RETURN_ERROR;
     }
 
 

@@ -21,10 +21,13 @@ import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.Review_Transaction;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
+import com.mobileeftpos.android.eftpos.database.DBStaticField;
 import com.mobileeftpos.android.eftpos.model.BatchModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
 import com.mobileeftpos.android.eftpos.model.HostModel;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
+
+import java.math.BigInteger;
 
 public class SettlementFlow extends AppCompatActivity {
 
@@ -42,32 +45,45 @@ public class SettlementFlow extends AppCompatActivity {
     private PrintReceipt printReceipt = new PrintReceipt();
     private static final int TIME_OUT = 5000;
 
+    int[] inHdtList = new int[100];
     private PacketCreation isoPacket = new PacketCreation();
     private RemoteHost remoteHost = new RemoteHost();
     public byte[] FinalData = new byte[1512];
+    public HostModel hostModel = new HostModel();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settlement_flow);
         databaseObj = new DBHelper(SettlementFlow.this);
+        long inLong = 1;
+       String ss = String.format("%06d", inLong);
         inSettlement();
     }
 
     private int inSettlement(){
         //findout number of host available
-        HostModel hostModel = new HostModel();
+
         for(int i=0;i<100;i++) {
             hostModel = databaseObj.getHostTableData(i);
             if( !(hostModel ==null || hostModel.equals(""))){
-                if(hostModel.getHDT_HOST_ENABLED()=="1"){
+                if(hostModel.getHDT_HOST_ENABLED().equals("1")){
                     //Dynamically add buttons now with the name of hostModel.getHDT_HOST_LABEL();
-
+                    if(hostModel.getHDT_HOST_LABEL().contains("ALI")) {
+                        inHdtList[0]=Integer.parseInt(hostModel.getHDT_HOST_ID());
+                        TransactionDetails.inGHDT = Integer.parseInt(hostModel.getHDT_HOST_ID());
+                        TransactionDetails.inGCOM = Integer.parseInt(hostModel.getHDT_COM_INDEX());
+                        TransactionDetails.inGCURR = Integer.parseInt(hostModel.getHDT_CURR_INDEX());
+                        break;
+                    }
                 }
             }else
                 break;
         }
+
         if (AppUtil.isNetworkAvailable(SettlementFlow.this)) {
             mAsyncTask = new AsyncTaskRunner();
+            mAsyncTask.execute(new String[]{"null", "null"});
             mAsyncTask.execute(new String[]{"null", "null"});
         }else {
             Toast.makeText(SettlementFlow.this, "GetInvoice:BAR:NO INTERNET CONNECTION",Toast.LENGTH_SHORT).show();
@@ -101,12 +117,7 @@ public class SettlementFlow extends AppCompatActivity {
             super.onPostExecute(result);
             Log.i(TAG, "GetInvoice::Alipay:onPostExecute");
             payService.vdUpdateSystemTrace(databaseObj);
-            if (result != null && result.equals("0")) {
-                Log.i(TAG, "GetInvoice:onPostExecute:SUCCESS");
-                Log.i(TAG, "GetInvoice:onPostExecute:SUCCESS");
-                Log.i(TAG, "GetInvoice:onPostExecute:SUCCESS");
-                // printReceipt.inPrintReceipt(databaseObj);
-                //Redirect to Success Activity
+            if (Integer.parseInt(result)==Constants.ReturnValues.RETURN_OK) {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -116,12 +127,23 @@ public class SettlementFlow extends AppCompatActivity {
                         progressDialog.dismiss();
                     }
                 }, TIME_OUT);
+                //Delete the Batch File
+                databaseObj.deleteallvalues(DBStaticField.TABLE_BATCH);
+                //Increment Batch Number
+                payService.vdUpdateSystemBatch(databaseObj);
                 //finish();
-            } else {
-                Log.i(TAG, "GetInvoice:onPostExecute:ERROR");
-                Log.i(TAG, "GetInvoice:onPostExecute:ERROR");
-                Log.i(TAG, "GetInvoice:onPostExecute:ERROR");
-
+            } if (Integer.parseInt(result)==Constants.ReturnValues.NO_TRANSCATION) {
+                TransactionDetails.responseMessge = "NO TRANSCATIONS TO SETTLE";
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent(SettlementFlow.this, PaymentFailure.class);
+                        startActivity(intent);
+                        progressDialog.dismiss();
+                    }
+                }, TIME_OUT);
+            }else
+             {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -155,18 +177,30 @@ public class SettlementFlow extends AppCompatActivity {
             boolean whLoop=true;
             String result="";
             CommsModel comModel = new CommsModel();
+            long SaleCount=0,SaleAmount=0,RefundCount=0,RefundAmount=0;
+            int inRet=0;
             //Password Entry
             while(whLoop) {
                 switch(inPhase++)
                 {
                     case 0://Validation; in force settlement;
-                        Log.i(TAG,"GetInvoice::processRequest_2");
-                        if (trDetails.inSortPAN(databaseObj) == 1) {
-                            Log.i(TAG,"GetInvoice::ERROR in SORTPAN");
-                            inError = 1;
-                        }
-                        Log.i(TAG,"GetInvoice::Alipay::inSORTPAN ___OKOK");
-                        break;
+
+                    //Log.i(TAG,"GetInvoice::processRequest_2");
+                    //if (trDetails.inSortPAN(databaseObj) == 1) {
+                    //  Log.i(TAG,"GetInvoice::ERROR in SORTPAN");
+                    //inError = 1;
+                    //}
+                    TransactionDetails.inGHDT = Integer.parseInt(hostModel.getHDT_HOST_ID());
+                    TransactionDetails.inGCOM = Integer.parseInt(hostModel.getHDT_COM_INDEX());
+                    TransactionDetails.inGCURR = Integer.parseInt(hostModel.getHDT_CURR_INDEX());
+
+
+                    inRet = isoPacket.vdScanRecord(databaseObj);
+                    if(inRet == Constants.ReturnValues.NO_TRANSCATION){
+                        return Constants.ReturnValues.NO_TRANSCATION;
+                    }
+                    Log.i(TAG,"GetInvoice::Alipay::inSORTPAN ___OKOK");
+                    break;
                     case 1://
 
                         Log.i(TAG,"GetInvoice::Alipay::COMMUNICATION PARAMS...");
@@ -196,6 +230,34 @@ public class SettlementFlow extends AppCompatActivity {
                             break;
                         }
 
+                        String ReversalData = KeyValueDB.getReversal(SettlementFlow.this);
+                        if(!ReversalData.isEmpty())
+                        {
+                            //FinalData = UploadData.getBytes();
+                            byte[] FinalData = new BigInteger(ReversalData, 16).toByteArray();
+                            TransactionDetails.inFinalLength = FinalData[0] *256;
+                            TransactionDetails.inFinalLength = TransactionDetails.inFinalLength + (FinalData[1]);
+                            TransactionDetails.inFinalLength = TransactionDetails.inFinalLength +2;
+                            Log.i(TAG, "Aipay:inSendRecvPacket:");
+                            if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
+                                inError = 1;
+                                break;
+                            }
+
+                            result = "";
+                            for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
+                                result = result + String.format("%02x", FinalData[k]);
+                            }
+                            Log.i(TAG,"AlipayActivity::\nAlipay_inSendRecvPacket_Received:");
+                            Log.i(TAG,result);
+                            Log.i(TAG, "Aipay:inProcessPacket:");
+                            if (isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength) != 0) {
+                                inError = 1;
+                                //redirect to error
+                                break;
+                            }
+                            KeyValueDB.removeReversal(SettlementFlow.this);
+                        }
                         String UploadData = KeyValueDB.getUpload(SettlementFlow.this);
                         if(!UploadData.isEmpty())
                         {
@@ -240,29 +302,46 @@ public class SettlementFlow extends AppCompatActivity {
                             break;
                         }
 
-                        result = "";
-                        for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
-                            result = result + String.format("%02x", FinalData[k]);
-                        }
-                        Log.i(TAG,"GetInvoice::\nAlipay_inSendRecvPacket_Received:");
-                        Log.i(TAG,result);
-
                         break;
                     case 4://
 
-                        result = "";
-                        for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
-                            result = result + String.format("%02x", FinalData[k]);
-                        }
-                        Log.i(TAG,"GetInvoice::\nAlipay_inProcessPacket_Received:");
-                        Log.i(TAG,result);
-
                         Log.i(TAG, "GetInvoice:inProcessPacket:");
-                        if (isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength) != 0) {
+                        inRet = isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength);
+                        if(inRet == Constants.ReturnValues.RETURN_BATCH_TRANSFER) {
+                            if(isoPacket.BatchTranfer(databaseObj,ServerIP,Port) ==Constants.ReturnValues.RETURN_OK){
+                                //Final Settlement
+                                TransactionDetails.trxType = Constants.TransType.FINAL_SETTLEMENT;
+                                TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.FINAL_SETTLEMENT);
+                                if(TransactionDetails.inFinalLength == 0)
+                                    return Constants.ReturnValues.RETURN_ERROR;
+
+                                if (remoteHost.inConnection(ServerIP, Port) != 0)
+                                    return Constants.ReturnValues.RETURN_ERROR;
+
+                                if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null)
+                                    return Constants.ReturnValues.RETURN_ERROR;
+
+                                inRet = isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength);
+                                if(inRet != Constants.ReturnValues.RETURN_OK) {
+                                    return Constants.ReturnValues.RETURN_ERROR;
+                                }
+                                if (remoteHost.inDisconnection() != Constants.ReturnValues.RETURN_OK) {
+                                    return Constants.ReturnValues.RETURN_ERROR;
+                                }
+                            }
+
+
+                        }else if(inRet == Constants.ReturnValues.RETURN_OK) {
+                            inError=0;
+                        }
+                            else if(inRet != 0) {
                             inError = 1;
                             //redirect to error
                             break;
                         }
+
+
+
 
                         Log.i(TAG, "GetInvoice:inDisconnection:");
                         if (remoteHost.inDisconnection() != 0) {
@@ -271,55 +350,14 @@ public class SettlementFlow extends AppCompatActivity {
                         }
                         break;
                     case 5:
-                        Log.i(TAG, "\nSave Record:");
-                        //save Record
-                        // isoPacket.vdSaveRecord(databaseObj);
-                        batchModeldata.setVOIDED(Integer.toString(Constants.TRUE));
-                        databaseObj.UpdateBatchData(batchModeldata);
-                        break;
+
                     case 6://
                         //Print receipt
                         Log.i(TAG, "\nPrinting Receipt");
                         printReceipt.inPrintReceipt(databaseObj);
                         break;
                     case 7://Show the receipt in the display and give option to print or email
-                        //startActivity(new Intent(GetInvoice.this, HomeActivity.class));
-                        //Upload void transaction
-                        //whLoop=false;
-                        stTrace = payService.pGetSystemTrace(databaseObj);
-                        FinalData=null;
-                        FinalData = new byte[1512];
 
-                        TransactionDetails.trxType=Constants.TransType.ALIPAY_UPLOAD;
-                        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.ALIPAY_UPLOAD);
-                        //String result;
-                        result = "";
-                        for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
-                            result = result + String.format("%02x", FinalData[k]);
-                        }
-                        Log.i(TAG,"\nSendings:");
-                        Log.i(TAG,result);
-                        KeyValueDB.setUpload(SettlementFlow.this,new String(result));
-
-                        if(TransactionDetails.inFinalLength == 0)
-                            break;
-                        if (remoteHost.inConnection(ServerIP, Port) != 0) {
-                            break;
-                        }
-                        if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
-                            break;
-                        }
-                        if (isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength) != 0) {
-                            //redirect to error
-                            break;
-                        }
-
-                        Log.i(TAG, "GetInvoice:inDisconnection:");
-                        if (remoteHost.inDisconnection() != 0) {
-                            break;
-                        }
-                        batchModeldata.setUPLOADED(Integer.toString(Constants.TRUE));
-                        databaseObj.UpdateBatchData(batchModeldata);
 
                         break;
                     default:

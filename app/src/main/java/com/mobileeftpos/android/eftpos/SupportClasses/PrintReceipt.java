@@ -158,22 +158,30 @@ public class PrintReceipt  {
                 inPrintBuffer = inPrintBuffer + merchantData.getADDRESS_LINE4();
             }
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(center, "UTF-8")+new String(boldOn, "UTF-8")+new String(fontSize1Big, "UTF-8");
-            inPrintBuffer = inPrintBuffer + "ALIPAY SALE" + new String(boldOff, "UTF-8");
-            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            String dateTime = "DATE/TIME : " + TransactionDetails.trxDateTime.substring(2,4)+"/"+TransactionDetails.trxDateTime.substring(4,6)+"/"+TransactionDetails.trxDateTime.substring(6,8)+" "+
-                    TransactionDetails.trxDateTime.substring(8,10) +":"+TransactionDetails.trxDateTime.substring(10,12)+":"+TransactionDetails.trxDateTime.substring(12,14);
-            inPrintBuffer = inPrintBuffer + dateTime;
+            if(TransactionDetails.trxType == Constants.TransType.ALIPAY_SALE)
+                inPrintBuffer = inPrintBuffer + "ALIPAY SALE" + new String(boldOff, "UTF-8");
+            else if(TransactionDetails.trxType == Constants.TransType.VOID)
+                inPrintBuffer = inPrintBuffer + "VOID" + new String(boldOff, "UTF-8");
+            else if(TransactionDetails.trxType == Constants.TransType.INIT_SETTLEMENT || TransactionDetails.trxType == Constants.TransType.FINAL_SETTLEMENT)
+                inPrintBuffer = inPrintBuffer + "SETTLEMENT" + new String(boldOff, "UTF-8");
+           // inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            //String dateTime = "DATE/TIME : " + TransactionDetails.trxDateTime.substring(2,4)+"/"+TransactionDetails.trxDateTime.substring(4,6)+"/"+TransactionDetails.trxDateTime.substring(6,8)+" "+
+              //      TransactionDetails.trxDateTime.substring(8,10) +":"+TransactionDetails.trxDateTime.substring(10,12)+":"+TransactionDetails.trxDateTime.substring(12,14);
+            //inPrintBuffer = inPrintBuffer + dateTime;
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             inPrintBuffer = inPrintBuffer + "MID:" + hostData.getHDT_MERCHANT_ID()+" "+"TID:"+hostData.getHDT_TERMINAL_ID()+"\n";
 
-            inPrintBuffer = inPrintBuffer + "INVOICE:" + traceNumber.getSYSTEM_TRACE()+" "+"BATCH:"+hostData.getHDT_BATCH_NUMBER();
+            if(TransactionDetails.trxType != Constants.TransType.VOID)
+                inPrintBuffer = inPrintBuffer + "INVOICE:" + traceNumber.getSYSTEM_TRACE()+" "+"BATCH:"+hostData.getHDT_BATCH_NUMBER()+"\n";
+            else
+                inPrintBuffer = inPrintBuffer + "INVOICE:" + TransactionDetails.InvoiceNumber+" "+"BATCH:"+hostData.getHDT_BATCH_NUMBER()+"\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+" ";
-            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer + "BUYER IDENTITY CODE\n";
+           // inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+           // inPrintBuffer = inPrintBuffer + "BUYER IDENTITY CODE\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer + TransactionDetails.PAN;
-            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer + "PTNR TRANS ID:"+TransactionDetails.PartnerTransID + "\n";
+            //inPrintBuffer = inPrintBuffer + TransactionDetails.PAN;
+            //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            //inPrintBuffer = inPrintBuffer + "PTNR TRANS ID:"+TransactionDetails.PartnerTransID + "\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ TransactionDetails.trxDateTime + "00";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
@@ -185,20 +193,22 @@ public class PrintReceipt  {
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ trDetails.getSellerId();
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer +"ALIPAY ID    :"+ TransactionDetails.chApprovalCode+"\n";
+            //inPrintBuffer = inPrintBuffer +"ALIPAY ID    :"+ TransactionDetails.chApprovalCode+"\n";
             inPrintBuffer = inPrintBuffer + TransactionDetails.responseMessge+"\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ trDetails.getAlipayTransId();
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+" ";
-            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(boldOn, "UTF-8")+new String(fontSize1Big, "UTF-8");
-            int inAmount = Integer.parseInt(TransactionDetails.trxAmount);
+            if(!(TransactionDetails.trxType == Constants.TransType.INIT_SETTLEMENT || TransactionDetails.trxType == Constants.TransType.FINAL_SETTLEMENT)) {
+                inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(left, "UTF-8") + new String(boldOn, "UTF-8") + new String(fontSize1Big, "UTF-8");
+                int inAmount = Integer.parseInt(TransactionDetails.trxAmount);
 
-            Log.i(TAG,"inAmount:"+inAmount);
+                Log.i(TAG, "inAmount:" + inAmount);
 
-            String stAmount = String.format("%01d.%02d", (inAmount/100),(inAmount%100));
-            Log.i(TAG,"stAmount:"+stAmount);
+                String stAmount = String.format("%01d.%02d", (inAmount / 100), (inAmount % 100));
+                Log.i(TAG, "stAmount:" + stAmount);
 
-            inPrintBuffer = inPrintBuffer + "TOTAL SGD " + stAmount + new String(boldOff, "UTF-8");
+                inPrintBuffer = inPrintBuffer + "TOTAL SGD " + stAmount + new String(boldOff, "UTF-8");
+            }
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
             inPrintBuffer = inPrintBuffer + "MERCHANT COPY"+new String(next4Line, "UTF-8")+new String(breakPartial, "UTF-8");
 

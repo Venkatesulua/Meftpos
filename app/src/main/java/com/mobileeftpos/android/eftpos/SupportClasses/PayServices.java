@@ -3,6 +3,7 @@ package com.mobileeftpos.android.eftpos.SupportClasses;
 import android.util.Log;
 
 import com.mobileeftpos.android.eftpos.database.DBHelper;
+import com.mobileeftpos.android.eftpos.model.HostModel;
 import com.mobileeftpos.android.eftpos.model.TraceNumberModel;
 
 /**
@@ -50,6 +51,22 @@ public class PayServices {
         String newno = String.format("%06d", ulSystemTraceL);
         traceno.setSYSTEM_TRACE(newno);
         databaseObj.UpdateTraceNumberData(traceno);
+    }
+
+    public void vdUpdateSystemBatch(DBHelper databaseObj)
+    {
+        HostModel hostData=new HostModel();
+        hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        long ulSystemTraceL=0L;
+        if(hostData.getHDT_BATCH_NUMBER()!=null && !hostData.getHDT_BATCH_NUMBER().equalsIgnoreCase("null")) {
+            ulSystemTraceL = Integer.parseInt(hostData.getHDT_BATCH_NUMBER());
+        }
+        if (++ulSystemTraceL>=900000L)
+            ulSystemTraceL=1L;
+
+        String newno = String.format("%06d", ulSystemTraceL);
+        hostData.setHDT_BATCH_NUMBER(newno);
+        databaseObj.UpdateHostData(hostData);
     }
 
 }

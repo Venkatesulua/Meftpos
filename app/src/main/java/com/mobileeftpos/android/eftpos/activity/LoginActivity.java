@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.mobileeftpos.android.eftpos.R;
+import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
 
@@ -117,6 +118,8 @@ public class LoginActivity extends AppCompatActivity {
 
                 Log.i(TAG,"LogOn SCREEN");
                 final String tmDevice, tmSerial, androidId;
+
+
                 TransactionDetails.deviceId = "" + tm.getDeviceId();
                 Log.i(TAG,"TransactionDetails.deviceId::"+TransactionDetails.deviceId);
                 /*tmSerial = "" + tm.getSimSerialNumber();

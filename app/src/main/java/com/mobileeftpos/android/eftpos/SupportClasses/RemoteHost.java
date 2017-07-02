@@ -98,11 +98,11 @@ public class RemoteHost {
             }
         } catch (UnknownHostException e) {
             Log.i(TAG, "Don't know about host: hostname");
-            return 1;
+            return Constants.ReturnValues.RETURN_ERROR;
         } catch (IOException e) {
             Log.i(TAG, "Couldn't get I/O for the connection to: hostname");
-            return 1;
+            return Constants.ReturnValues.RETURN_ERROR;
         }
-        return 0;
+        return Constants.ReturnValues.RETURN_OK;
     }
 }

@@ -37,6 +37,9 @@ public class Constants {
 		public static final int INIT_SETTLEMENT = 8;
 		public static final int FINAL_SETTLEMENT = 9;
 		public static final int ALIPAY_UPLOAD = 10;
+		public static final int BATCH_TRANSFER = 11;
+		public static final int ALIPAY_SALE_REPEAT = 12;
+
 	}
 
 	public class ResponseCodes {
@@ -48,6 +51,10 @@ public class Constants {
 		public static final int RETURN_TIMEOUT = 1;
 		public static final int RETURN_CANCEL = 2;
 		public static final int RETURN_ERROR = 3;
+		public static final int RETURN_BATCH_TRANSFER = 4;
+		public static final int RETURN_UNKNOWN = 5;
+		public static final int NO_TRANSCATION = 6;
+		public static final int TRANSACTION_NOT_SUPPORTED = 7;
 	}
 
 	public class TMSReturnValues {
@@ -67,6 +74,7 @@ public class Constants {
 		public static final String Reversal = "0400";
 		public static final String Settlement = "0500";
 		public static final String NetworkManagement = "0800";
+		public static final String Financial_Repeat = "0201";
 	}
 
 	public class PROCESSINGCODE {
@@ -74,6 +82,8 @@ public class Constants {
 		public static final String pcTmsSubsequent = "930110";
 		public static final String pcFinancialRequest = "000000";
 		public static final String stVoid = "020000";
+		public static final String initsettrequest = "920000";
+		public static final String finalsettrequest = "960000";
 	}
 
 	public class PaymentStatus{

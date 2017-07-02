@@ -77,7 +77,6 @@
         <activity
             android:name=".activity.TransactionType"
             android:label="@string/title_activity_transaction_type"
-
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity android:name=".activity.VoidFlow" />
@@ -93,6 +92,7 @@
             android:name="io.fabric.ApiKey"
             android:value="9ae83f84f38427891bbb8bedebf7172679eb24f6" />
 
+        <activity android:name=".activity.AlipayCheckPrompt"></activity>
     </application>
 
 </manifest>

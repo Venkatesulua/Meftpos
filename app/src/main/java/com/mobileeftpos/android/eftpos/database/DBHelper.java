@@ -1102,6 +1102,18 @@ public class DBHelper {
         }
         return traceModel;
     }
+
+    public boolean UpdateHostData(HostModel model) {
+
+        SQLiteDatabase db = DBHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DBStaticField.HDT_BATCH_NUMBER, model.getHDT_BATCH_NUMBER());
+        Log.i(TAG,"DBHELPER::UpdateTraceNumberData::"+model.getHDT_BATCH_NUMBER());
+        Log.i(TAG,"DBHELPER::UpdateTraceNumberData:getTRACE_UNIQUE_ID::"+model.getHDT_HOST_ID());
+        db.update(DBStaticField.TABLE_HOST,contentValues,"HDT_HOST_ID="+model.getHDT_HOST_ID(),null);
+
+        return true;
+    }
     public boolean InsertHostTablelData(HostModel model) {
 
         SQLiteDatabase db = DBHelper.getWritableDatabase();

@@ -11,9 +11,12 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
+import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
+import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.database.DBStaticField;
 import com.mobileeftpos.android.eftpos.model.BarcodeModel;
+import com.mobileeftpos.android.eftpos.model.BatchModel;
 import com.mobileeftpos.android.eftpos.model.CardBinModel;
 import com.mobileeftpos.android.eftpos.model.CardTypeModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
@@ -31,6 +34,8 @@ import com.mobileeftpos.android.eftpos.model.ReportsModel;
 import com.mobileeftpos.android.eftpos.model.TraceNumberModel;
 import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
 import com.mobileeftpos.android.eftpos.model.UtilityTable;
+
+import java.util.List;
 
 /**
  * Created by Prathap on 6/4/17.

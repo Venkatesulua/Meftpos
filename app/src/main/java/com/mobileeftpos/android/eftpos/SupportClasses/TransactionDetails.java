@@ -37,7 +37,7 @@ public class TransactionDetails {
     public static int inGTrxMode;
     public static String processingcode;
     public static String messagetype;
-    public static int InvoiceNumber;
+    public static String InvoiceNumber;
     public static String RetrievalRefNumber;
     public static String ResponseCode;
     public static String PersonName;
@@ -95,7 +95,7 @@ public class TransactionDetails {
         inGTrxMode=0;
         processingcode="";
         messagetype="";
-        InvoiceNumber=0;
+        InvoiceNumber="";
         RetrievalRefNumber="";
         ResponseCode="";
         PersonName="";
