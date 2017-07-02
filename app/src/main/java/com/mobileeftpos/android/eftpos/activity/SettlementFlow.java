@@ -27,7 +27,7 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.Review_Transaction;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
-//import com.mobileeftpos.android.eftpos.adapter.SettlementAdapter;
+
 import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.database.DBStaticField;
 import com.mobileeftpos.android.eftpos.model.BatchModel;
@@ -36,7 +36,13 @@ import com.mobileeftpos.android.eftpos.model.HostModel;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 
 
+
 import java.math.BigInteger;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,11 +63,13 @@ public class SettlementFlow extends AppCompatActivity {
     private static final int TIME_OUT = 5000;
 
 
+
     //int[] inHdtList = new int[100];
    // private PacketCreation isoPacket = new PacketCreation();
     //private RemoteHost remoteHost = new RemoteHost();
     //public byte[] FinalData = new byte[1512];
     public HostModel hostModel = new HostModel();
+
 
 
     private ListView settelmentListview;
@@ -196,12 +204,22 @@ public class SettlementFlow extends AppCompatActivity {
                 {
                     case 0://Validation; in force settlement;
 
+
                     inRet = isoPacket.vdScanRecord(databaseObj);
                     if(inRet == Constants.ReturnValues.NO_TRANSCATION){
                         return Constants.ReturnValues.NO_TRANSCATION;
                     }
                     Log.i(TAG,"GetInvoice::Alipay::inSORTPAN ___OKOK");
                     break;
+
+
+                       /* Log.i(TAG,"GetInvoice::processRequest_2");
+                        if (trDetails.inSortPAN(databaseObj) == 1) {
+                            Log.i(TAG,"GetInvoice::ERROR in SORTPAN");
+                            inError = 1;
+                        }
+                        Log.i(TAG,"GetInvoice::Alipay::inSORTPAN ___OKOK");*/
+                        //break;
 
                     case 1://
 
