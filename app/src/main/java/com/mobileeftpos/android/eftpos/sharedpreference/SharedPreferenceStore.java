@@ -28,6 +28,7 @@ public final class SharedPreferenceStore {
 			.getSimpleName();
 	public static final String KEY_REVERSAL = "reversal";
 	public static final String KEY_UPLOAD = "upload";
+	public static final String KEY_LAST_RECEIPT = "lastReceipt";
 
 
 

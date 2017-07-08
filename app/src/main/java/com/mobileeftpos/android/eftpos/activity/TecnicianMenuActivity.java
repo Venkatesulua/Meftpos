@@ -1,6 +1,9 @@
 package com.mobileeftpos.android.eftpos.activity;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,7 +14,9 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
+import com.mobileeftpos.android.eftpos.SupportClasses.BluetoothUtil;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
+import com.mobileeftpos.android.eftpos.SupportClasses.ESCUtil;
 import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
@@ -37,6 +42,7 @@ import com.mobileeftpos.android.eftpos.model.TraceNumberModel;
 import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
 import com.mobileeftpos.android.eftpos.model.UtilityTable;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -77,13 +83,20 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
+
+        ESCUtil cc = new ESCUtil();
         switch (view.getId()) {
             case R.id.clrreverseItem:
+                KeyValueDB.removeReversal(context);
+                Toast.makeText(TecnicianMenuActivity.this, "REVERSAL CLEARED", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(TecnicianMenuActivity.this, HomeActivity.class));
                 break;
 
             case R.id.clrbatchItem:
                 //delete batch
 
+                int BatchPresent=0;
+                BatchModel batchdata = new BatchModel();
                 List<HostModel> hostModelList = databaseObj.getAllHostTableData();
                 for (int i = 0; i < hostModelList.size(); i++) {
                     hostModel = hostModelList.get(i);
@@ -93,17 +106,26 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 //Dynamically add buttons now with the name of hostModel.getHDT_HOST_LABEL();
                 //Increment Batch Number
                 TransactionDetails.inGHDT=Integer.parseInt(hostModel.getHDT_HOST_ID());
+                            if(batchdata.getHDT_INDEX() != null)
+                            {
+                                BatchPresent =1;
+                            }
                 payService.vdUpdateSystemBatch(databaseObj);
                     }
                 }
             }
                 databaseObj.deleteallvalues(DBStaticField.TABLE_BATCH);
-                        KeyValueDB.removeReversal(context);
-                        KeyValueDB.removeUpload(context);
-                        //ALL BATCH DELETED
+                KeyValueDB.removeReversal(context);
+                KeyValueDB.removeUpload(context);
+                //ALL BATCH DELETED
+
+                Toast.makeText(TecnicianMenuActivity.this, "ALL HOST DELETED", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(TecnicianMenuActivity.this, HomeActivity.class));
+
                 break;
 
             case R.id.printconfigitem:
+
                 break;
 
             case R.id.mmsdownloaditem:

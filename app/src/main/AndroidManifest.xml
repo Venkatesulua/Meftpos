@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-sdk android:minSdkVersion="10"/>
 
     <application
         android:name=".app.EftposApp"
@@ -93,12 +95,13 @@
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
             tools:replace="screenOrientation" />
-        
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="9ae83f84f38427891bbb8bedebf7172679eb24f6" />
 
+        <activity android:name=".activity.RefundFlow" />
+        <activity android:name=".activity.ConfirmRefund"></activity>
     </application>
 
 </manifest>

@@ -12,6 +12,7 @@ public class MenuConstants {
     public static final String PREAUTH="PREAUTH";
     public static final String ADJUST="ADJUST";
     public static final String OFFLINE="OFFLINE/CAPTURE";
+    public static final String REFUND="REFUND";
     public static final String CASH_ADV="CASH ADV";
     public static final String EZLINK_TOPUP="EZLINK TOPUP";
     public static final String CEPAS_SALE="CEPAS SALE";

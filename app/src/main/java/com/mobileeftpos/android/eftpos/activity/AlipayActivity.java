@@ -33,6 +33,7 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.async.AsyncTaskRequestResponse;
 import com.mobileeftpos.android.eftpos.async.WebServiceCall;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.model.AlipayResponceModel;
@@ -63,19 +64,25 @@ import java.util.Locale;
 public class AlipayActivity extends AppCompatActivity {
 
 
+    private AsyncTaskRequestResponse ASTask = new AsyncTaskRequestResponse();
+    public static Context context;
+    public static String barCodeValue=null;
+    public static boolean isFromBarcodeScanner;
+    private final String TAG = "my_custom_msg";
+
     public TransactionDetails trDetails = new TransactionDetails();
     public PacketCreation isoPacket = new PacketCreation();
     public RemoteHost remoteHost = new RemoteHost();
     public PrintReceipt printReceipt = new PrintReceipt();
     public PayServices payServices = new PayServices();
     AsyncTaskRunner mAsyncTask;
-    public static String barCodeValue=null;
+
     public byte[] FinalData = new byte[1512];
     //public int TransactionDetails.inFinalLength = 0;
-    public static boolean isFromBarcodeScanner;
-    private final String TAG = "my_custom_msg";
+
+
     private static DBHelper databaseObj;
-    public static Context context;
+
     private static final int TIME_OUT = 5000;
     private static String BASE_URL="https://devapi.prayapay.com/v2?";
     private String requestTypeValue,brandValue,storeIdValue,deviceIdValue,
@@ -88,7 +95,7 @@ public class AlipayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alipay);
 
-        databaseObj = new DBHelper(AlipayActivity.this);
+        //databaseObj = new DBHelper(AlipayActivity.this);
         context = AlipayActivity.this;
 
 
@@ -98,15 +105,15 @@ public class AlipayActivity extends AppCompatActivity {
         isFromBarcodeScanner=true;
         //String ReversalString = KeyValueDB.getReversal(context);
 
-        /*Log.i(TAG,"AlipayActivity::Alipay_onCreate_1");
+        Log.i(TransactionDetails.TAG,"AlipayActivity::Alipay_onCreate_1");
         Intent i = new Intent(AlipayActivity.this, FullScannerActivity.class);
         i.putExtra("FromAlipayActivity", true);
-        startActivityForResult(i, 111);*/
+        startActivityForResult(i, 111);
 
-        IntentIntegrator integrator = new IntentIntegrator(this);
+        /*IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setPrompt("Scan a barcode or QRcode");
         integrator.setOrientationLocked(false);
-        integrator.initiateScan();
+        integrator.initiateScan();*/
 
         /*Intent intentScan = new Intent(AlipayActivity.this, CaptureActivity.class);
         intentScan.setAction(Constants.QRCODE.BARCODE_INTENT_ACTION);
@@ -118,7 +125,7 @@ public class AlipayActivity extends AppCompatActivity {
 
 
     }
-
+/*
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
@@ -134,11 +141,11 @@ public class AlipayActivity extends AppCompatActivity {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
-    }
+    }*/
 
 
 
-/*
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -155,7 +162,7 @@ public class AlipayActivity extends AppCompatActivity {
 
 
     }
-*/
+
 
    /* @Override
     protected void onResume() {
@@ -177,16 +184,18 @@ public class AlipayActivity extends AppCompatActivity {
         Log.i(TAG,"AlipayActivity::Alipay:processBarcode");
         TransactionDetails.inGTrxMode=Constants.TransMode.BARCODE;
         if (AppUtil.isNetworkAvailable(AlipayActivity.this)) {
-            mAsyncTask = new AsyncTaskRunner();
-            mAsyncTask.execute(new String[]{"52.88.135.124", "10002"});
-            //mAsyncTask.execute(new String[] { "192.168.43.117", "9999" });
-            trDetails.setPAN(contents);
             TransactionDetails.PAN = contents;
+            TransactionDetails.trxType = Constants.TransType.ALIPAY_SALE;
+            TransactionDetails.inOritrxType = Constants.TransType.ALIPAY_SALE;
+            ASTask.AsyncTaskCreation(context);
+
+
         }else {
             Toast.makeText(AlipayActivity.this, "BAR:NO INTERNET CONNECTION",Toast.LENGTH_SHORT).show();
         }
 
     }
+
 
     private class AsyncTaskRunner extends AsyncTask<String, Void, String> {
 
@@ -217,7 +226,7 @@ public class AlipayActivity extends AppCompatActivity {
 
             if(result!=null && Integer.parseInt(result) == Constants.ReturnValues.RETURN_OK)
             {
-                printReceipt.inPrintReceipt(databaseObj);
+                printReceipt.inPrintReceipt(databaseObj,context);
                 //Redirect to Success Activity
                 new Handler().postDelayed(new Runnable() {
                     @Override

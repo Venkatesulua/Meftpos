@@ -22,10 +22,12 @@ import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
 import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
+import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.database.DBStaticField;
 import com.mobileeftpos.android.eftpos.model.BarcodeModel;
+import com.mobileeftpos.android.eftpos.model.BatchModel;
 import com.mobileeftpos.android.eftpos.model.CardBinModel;
 import com.mobileeftpos.android.eftpos.model.CardTypeModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
@@ -83,6 +85,7 @@ public class AdminActivity extends Activity {
     private static DBHelper databaseObj;
     public static Context context;
     String connectToStr;
+    int TIME_OUT = 5000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +106,37 @@ public class AdminActivity extends Activity {
             public void onClick(View v) {
                 if (((appName.getText().toString().length() > 0) && (terminalId.getText().toString().length() > 0) &&
                         (connectionType.getSelectedItem().toString().length() > 0) && (!connectionTo.getSelectedItem().toString().equalsIgnoreCase("No Options")) && (connectionTo.getSelectedItem().toString().length() > 0))) {
-                    new AsyncTaskRunner().execute();
+                    int BatchPresent=0;
+                    BatchModel batchdata = new BatchModel();
+                    HostModel hostModel = new HostModel();
+                    List<HostModel> hostModelList = databaseObj.getAllHostTableData();
+                    for (int i = 0; i < hostModelList.size(); i++) {
+                        hostModel = hostModelList.get(i);
+                        if (!(hostModel == null || hostModel.equals(""))) {
+                            if (hostModel.getHDT_HOST_ENABLED().equalsIgnoreCase("1")) {
+
+                                //Dynamically add buttons now with the name of hostModel.getHDT_HOST_LABEL();
+                                //Increment Batch Number
+                                TransactionDetails.inGHDT=Integer.parseInt(hostModel.getHDT_HOST_ID());
+                                if(batchdata.getHDT_INDEX() != null)
+                                {
+                                        BatchPresent =1;
+                                }
+
+                            }
+                        }
+                    }
+                    if(BatchPresent == 1) {
+                        TransactionDetails.responseMessge = "PLZ SETTLE FIRST";
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent intent = new Intent(AdminActivity.this, PaymentFailure.class);
+                                startActivity(intent);
+                            }
+                        }, TIME_OUT);
+                    }else
+                        new AsyncTaskRunner().execute();
                 } else {
                     Toast.makeText(AdminActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
                 }
@@ -1486,13 +1519,23 @@ public class AdminActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
+
             // execution of result of Long time consuming operation
             if(result.equals("OK")) {
                 Toast.makeText(AdminActivity.this, "DOWNLOAD SUCCESSFUL", Toast.LENGTH_LONG).show();
-                progress.dismiss();
+                startActivity(new Intent(AdminActivity.this, HomeActivity.class));
+                                progress.dismiss();
             }else{
 
-                        Toast.makeText(AdminActivity.this, "DOWNLOAD FAILED TRY AGAIN !!!", Toast.LENGTH_LONG).show();
+                       // Toast.makeText(AdminActivity.this, "DOWNLOAD FAILED TRY AGAIN !!!", Toast.LENGTH_LONG).show();
+                TransactionDetails.responseMessge = "TMS DOWNLOAD FAILED";
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent(AdminActivity.this, PaymentFailure.class);
+                        startActivity(intent);
+                    }
+                }, TIME_OUT);
                         progress.dismiss();
 
             }

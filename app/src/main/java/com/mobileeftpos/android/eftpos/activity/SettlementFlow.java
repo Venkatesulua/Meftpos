@@ -136,31 +136,44 @@ public class SettlementFlow extends AppCompatActivity {
             super.onPostExecute(result);
             Log.i(TAG, "GetInvoice::Alipay:onPostExecute");
             payService.vdUpdateSystemTrace(databaseObj);
-            if (Integer.parseInt(result)==Constants.ReturnValues.RETURN_OK) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(SettlementFlow.this, PaymentSuccess.class);
-                        startActivity(intent);
+            if(result!=null && !result.equalsIgnoreCase("null")) {
+                if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_OK) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(SettlementFlow.this, PaymentSuccess.class);
+                            startActivity(intent);
 
-                        progressDialog.dismiss();
-                    }
-                }, TIME_OUT);
-                //Delete the Batch File
-                databaseObj.deleteallvalues(DBStaticField.TABLE_BATCH);
-                //Increment Batch Number
-                payService.vdUpdateSystemBatch(databaseObj);
-                //finish();
-            } if (Integer.parseInt(result)==Constants.ReturnValues.NO_TRANSCATION) {
-                TransactionDetails.responseMessge = "NO TRANSCATIONS TO SETTLE";
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(SettlementFlow.this, PaymentFailure.class);
-                        startActivity(intent);
-                        progressDialog.dismiss();
-                    }
-                }, TIME_OUT);
+                            progressDialog.dismiss();
+                        }
+                    }, TIME_OUT);
+                    //Delete the Batch File
+                    databaseObj.deleteallvalues(DBStaticField.TABLE_BATCH);
+                    //Increment Batch Number
+                    payService.vdUpdateSystemBatch(databaseObj);
+                    //finish();
+                }
+                else if (Integer.parseInt(result) == Constants.ReturnValues.NO_TRANSCATION) {
+                    TransactionDetails.responseMessge = "NO TRANSCATIONS TO SETTLE";
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(SettlementFlow.this, PaymentFailure.class);
+                            startActivity(intent);
+                            progressDialog.dismiss();
+                        }
+                    }, TIME_OUT);
+                }else
+                {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(SettlementFlow.this, PaymentFailure.class);
+                            startActivity(intent);
+                            progressDialog.dismiss();
+                        }
+                    }, TIME_OUT);
+                }
             }else
              {
                 new Handler().postDelayed(new Runnable() {
@@ -281,8 +294,8 @@ public class SettlementFlow extends AppCompatActivity {
                         String UploadData = KeyValueDB.getUpload(SettlementFlow.this);
                         if(!UploadData.isEmpty())
                         {
-                            TransactionDetails.inFinalLength = UploadData.length();
-                            FinalData = UploadData.getBytes();
+                            FinalData = new BigInteger(UploadData, 16).toByteArray();
+                           // FinalData = UploadData.getBytes();
                             TransactionDetails.inFinalLength = FinalData[0] *256;
                             TransactionDetails.inFinalLength = TransactionDetails.inFinalLength + (FinalData[1]);
                             TransactionDetails.inFinalLength = TransactionDetails.inFinalLength +2;
@@ -302,6 +315,18 @@ public class SettlementFlow extends AppCompatActivity {
                             if (isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength) != 0) {
                                 inError = 1;
                                 //redirect to error
+                                break;
+                            }
+                            KeyValueDB.removeUpload(SettlementFlow.this);
+
+                            if (remoteHost.inDisconnection() != 0) {
+                                inError = 1;
+                                break;
+                            }
+
+                            if (remoteHost.inConnection(ServerIP, Port) != 0) {
+                                Log.i(TAG,"AlipayActivity::Connection Failed");
+                                inError = 1;
                                 break;
                             }
                         }
@@ -349,7 +374,7 @@ public class SettlementFlow extends AppCompatActivity {
                                     return Constants.ReturnValues.RETURN_ERROR;
                                 }
                                 if(inRet == Constants.ReturnValues.RETURN_OK) {
-                                    return Constants.ReturnValues.RETURN_OK;
+                                    inError=0;
                                 }
                             }
 
@@ -374,10 +399,11 @@ public class SettlementFlow extends AppCompatActivity {
                         break;
                     case 5:
 
+                        break;
                     case 6://
                         //Print receipt
                         Log.i(TAG, "\nPrinting Receipt");
-                        printReceipt.inPrintReceipt(databaseObj);
+                        printReceipt.inPrintReceipt(databaseObj,SettlementFlow.this);
                         break;
                     case 7://Show the receipt in the display and give option to print or email
 
@@ -406,9 +432,10 @@ public class SettlementFlow extends AppCompatActivity {
                 Log.i(TAG, "GetInvoice:SUCCESS");
                 Log.i(TAG, "GetInvoice:SUCCESS");
                 //Redirect to Success Activity
+                return Constants.ReturnValues.RETURN_OK;
 
             }
-            return inError;
+            return Constants.ReturnValues.RETURN_ERROR;
         }
 
 

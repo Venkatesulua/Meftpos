@@ -14,12 +14,16 @@ import com.mobileeftpos.android.eftpos.model.MerchantModel;
  */
 //20170523: Venkat added transaction details table
 public class TransactionDetails {
-    private final String TAG = "my_custom_msg";
+    public static final String TAG = "my_custom_msg";
 
+    public static int inGHDT;
+    public static int inGCDT;
+    public static int inGCTT;
+    public static int inGCOM;
+    public static int inGCURR;
 
-
+    public static int inFinalLength;
     public static  String deviceId;
-
     public static String trxAmount;
     public static String tipAmount;
     public static String trxDateTime;//yyyyMMddHHmmssSS
@@ -27,13 +31,9 @@ public class TransactionDetails {
     public static String ExpDate;
     public static int trxType;
     public static int inOritrxType;
+    public static String stOriAmount;
     public static String chApprovalCode;
     public static String EntryMode;
-    public static int inGHDT;
-    public static int inGCDT;
-    public static int inGCTT;
-    public static int inGCOM;
-    public static int inGCURR;
     public static int inGTrxMode;
     public static String processingcode;
     public static String messagetype;
@@ -44,24 +44,26 @@ public class TransactionDetails {
     public static String POSEntryMode;
     public static String NII;
     public static String POS_COND_CODE;
-    public static int inFinalLength;
+
+    public static String refundid;
+    public static String refundreason;
+    public static String responseMessge;
+    public static String AlipayTag72;
 
     // public static int inGHDT ;
     int inGNoOfValidHosts;
 
-    private String reqterminalid;
-    private String resterminalid;
-    private String currency;
 
-    //private String messagetype;
+
+   /* //private String messagetype;
     //private String processingcode;
 
     private String partnerid;
     private String sellerid;
     private String partnertransid;
     private String buyerid;
-    private String refundid;
-    private String refundreason;
+
+
     private String quantity;
     private String transactionname;
     private String userid;
@@ -69,14 +71,14 @@ public class TransactionDetails {
     private String androidserialid;
     private String responsecode;
     private String responsemesage;
-    private String alipaytransid;
+    private String alipaytransid;*/
     //public static String EntryMode;
     //private DBHelper databaseObj;
     //public Context context;
     //ALIPAy response
-    public static String responseMessge;
-    public static String PartnerTransID;
-    public static String AlipayTag72;
+
+   // public static String PartnerTransID;
+
 
     public void vdCleanFields(){
         trxAmount="";
@@ -104,6 +106,8 @@ public class TransactionDetails {
         POS_COND_CODE="";
         inGNoOfValidHosts=0;
         AlipayTag72="";
+        refundid="";
+        //PartnerTransID="";
 
         
     }
@@ -119,6 +123,8 @@ public class TransactionDetails {
 
         //memset(Pantemp,0,sizeof(Pantemp));
         //memcpy(Pantemp,keystr,strlen(keystr));
+        if(TransactionDetails.PAN.isEmpty()|| TransactionDetails.PAN==null )
+            return Constants.ReturnValues.TRANSACTION_NOT_SUPPORTED;
 
 
         Log.i(TAG,"TransDetails::inSortPAN:");
@@ -182,7 +188,7 @@ public class TransactionDetails {
             Log.i(TAG,"TransDetails::come out of loop");
             if(cardbinModeldata.getCDT_LO_RANGE().length() == 0 || cardbinModeldata.getCDT_HI_RANGE().length() == 0) {
                 Log.i(TAG,"TransDetails::cardbinModeldata.getCDT_LO_RANGE().length()");
-                return 1;
+                return Constants.ReturnValues.TRANSACTION_NOT_SUPPORTED;
             }
         }
 
@@ -212,7 +218,7 @@ public class TransactionDetails {
                 Log.i(TAG,"TransDetails::inGCOM..."+inGCOM);
                 Log.i(TAG,"TransDetails::inGCURR..."+inGCURR);
                 inFindGetCTT(inGHDT, databaseObj);
-                return 0;
+                return Constants.ReturnValues.RETURN_OK;
 
             }else {
                 Log.i(TAG, "inlocalHdtIndex2..." + inlocalHdtIndex);
@@ -222,7 +228,7 @@ public class TransactionDetails {
 
         }
 
-    return 1;
+    return Constants.ReturnValues.TRANSACTION_NOT_SUPPORTED;
     }
 
     int inFindGetCTT(int inHDTIndex, DBHelper databaseObj)
@@ -414,7 +420,7 @@ public class TransactionDetails {
 
 
 
-    public void setMessageType(String messagetype) {this.messagetype = messagetype;}
+    /*public void setMessageType(String messagetype) {this.messagetype = messagetype;}
     public String getMessageType() {return messagetype;}
 
     public void setProcessingCode(String messagetype) {this.processingcode = processingcode;}
@@ -473,11 +479,8 @@ public class TransactionDetails {
     public String getAlipayTransId() {return alipaytransid;}
 
     public void settrxAmount(String trxAmount) {this.trxAmount = trxAmount;}
-    public String gettrxAmount() {return trxAmount;}
+    public String gettrxAmount() {return trxAmount;}*/
 
-    public void setPAN(String PAN) {
-        this.PAN = PAN;
-    }
-    public String getPAN() {return PAN;}
+
 
 }

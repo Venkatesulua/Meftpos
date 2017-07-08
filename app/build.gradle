@@ -50,12 +50,12 @@ android {
             debuggable true
             minifyEnabled false
             signingConfig signingConfigs.myconfig
-          }
+        }
         release {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             debuggable true
             minifyEnabled false
-          }
+        }
     }
 
     packagingOptions {
@@ -97,12 +97,15 @@ dependencies {
     compile('org.apache.httpcomponents:httpcore:4.4.1') {
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
-    compile 'com.android.support:appcompat-v7:25.3.1'
     compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
     apt "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
+
+
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+        transitive = true;
+    }
+    compile 'com.android.support:appcompat-v7:25.3.1'
     testCompile 'junit:junit:4.12'
-
-
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support:multidex:1.0.1'
@@ -114,11 +117,8 @@ dependencies {
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:support-vector-drawable:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    testCompile 'junit:junit:4.12'
     compile 'com.journeyapps:zxing-android-embedded:3.4.0'
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
-        transitive = true;
-    }
+    testCompile 'junit:junit:4.12'
 }
 
 

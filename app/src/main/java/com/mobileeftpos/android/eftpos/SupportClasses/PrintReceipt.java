@@ -3,6 +3,7 @@ package com.mobileeftpos.android.eftpos.SupportClasses;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -38,7 +39,7 @@ public class PrintReceipt  {
     //private int inFinalLength=0;
     //private TransactionDetails trDetails = new TransactionDetails();
 
-    public int inPrintReceipt(DBHelper databaseObj){
+    public int inPrintReceipt(DBHelper databaseObj, Context context){
         Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING:");
         // 1: Get BluetoothAdapter
         BluetoothAdapter btAdapter = BluetoothUtil.getBTAdapter();
@@ -60,7 +61,7 @@ public class PrintReceipt  {
 
         Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING_STRING STRING:");
         // 3: Generate a order data
-        byte[] data = generateMockData1(databaseObj);
+        byte[] data = generateMockData1(databaseObj,context);
         // 4: Using InnerPrinter print data
         BluetoothSocket socket = null;
         try {
@@ -81,7 +82,7 @@ public class PrintReceipt  {
         return 0;
     }
 
-    private byte[] generateMockData1(DBHelper databaseObj) {
+    private byte[] generateMockData1(DBHelper databaseObj,Context context) {
         String inPrintBuffer="";
         barcode = databaseObj.getBarcodeData(0);
         currModel = databaseObj.getCurrencyData(TransactionDetails.inGCURR);
@@ -165,17 +166,35 @@ public class PrintReceipt  {
                 inPrintBuffer = inPrintBuffer + "VOID" + new String(boldOff, "UTF-8");
             else if(TransactionDetails.trxType == Constants.TransType.INIT_SETTLEMENT || TransactionDetails.trxType == Constants.TransType.FINAL_SETTLEMENT)
                 inPrintBuffer = inPrintBuffer + "SETTLEMENT" + new String(boldOff, "UTF-8");
-           // inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            //String dateTime = "DATE/TIME : " + TransactionDetails.trxDateTime.substring(2,4)+"/"+TransactionDetails.trxDateTime.substring(4,6)+"/"+TransactionDetails.trxDateTime.substring(6,8)+" "+
-              //      TransactionDetails.trxDateTime.substring(8,10) +":"+TransactionDetails.trxDateTime.substring(10,12)+":"+TransactionDetails.trxDateTime.substring(12,14);
-            //inPrintBuffer = inPrintBuffer + dateTime;
+            else if(TransactionDetails.trxType == Constants.TransType.ALIPAY_REFUND)
+                inPrintBuffer = inPrintBuffer + "REFUND" + new String(boldOff, "UTF-8");
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer + "MID:" + hostData.getHDT_MERCHANT_ID()+" "+"TID:"+hostData.getHDT_TERMINAL_ID()+"\n";
+            String dateTime = "DATE/TIME : " + TransactionDetails.trxDateTime.substring(2,4)+"/"+TransactionDetails.trxDateTime.substring(4,6)+"/"+TransactionDetails.trxDateTime.substring(6,8)+" "+
+                    TransactionDetails.trxDateTime.substring(8,10) +":"+TransactionDetails.trxDateTime.substring(10,12)+":"+TransactionDetails.trxDateTime.substring(12,14);
+            inPrintBuffer = inPrintBuffer + dateTime;
+            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
+            String stTemp1 = "MID:" + hostData.getHDT_MERCHANT_ID();
+            String stTemp2 = "TID:"+hostData.getHDT_TERMINAL_ID();
+            String Temp3 ="";
+            for(int i=0; i< (31- stTemp1.length() - stTemp2.length()); i++){
+                Temp3 = Temp3+" ";
+            }
 
-            inPrintBuffer = inPrintBuffer + "INVOICE:" + TransactionDetails.InvoiceNumber+" "+"BATCH:"+hostData.getHDT_BATCH_NUMBER()+"\n";
+            inPrintBuffer = inPrintBuffer + stTemp1 + Temp3+  stTemp2 + "\n";
+            //inPrintBuffer = inPrintBuffer + "MID:" + hostData.getHDT_MERCHANT_ID()+" "+"TID:"+hostData.getHDT_TERMINAL_ID()+"\n";
+
+            stTemp1 = "INVOICE:" + TransactionDetails.InvoiceNumber;
+            stTemp2 = "BATCH:"+hostData.getHDT_BATCH_NUMBER();
+            Temp3 ="";
+            for(int i=0; i< (31-stTemp1.length() - stTemp2.length()); i++){
+                Temp3 = Temp3+" ";
+            }
+            inPrintBuffer = inPrintBuffer + stTemp1 + Temp3+  stTemp2+"\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+" ";
+            inPrintBuffer = inPrintBuffer + "HOST: "+hostData.getHDT_HOST_LABEL()+"\n";
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer + "BUYER IDENTITY CODE\n"+TransactionDetails.PAN+"\n";
+            if(!(TransactionDetails.trxType == Constants.TransType.INIT_SETTLEMENT || TransactionDetails.trxType == Constants.TransType.FINAL_SETTLEMENT || TransactionDetails.trxType == Constants.TransType.ALIPAY_REFUND))
+                inPrintBuffer = inPrintBuffer + "BUYER IDENTITY CODE\n"+TransactionDetails.PAN+"\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             //inPrintBuffer = inPrintBuffer + TransactionDetails.PAN;
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
@@ -183,11 +202,11 @@ public class PrintReceipt  {
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ TransactionDetails.trxDateTime + "00";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer + "PARTNER ID   :"+ barcode.getPARTNER_ID()+"\n";
+            //inPrintBuffer = inPrintBuffer + "PARTNER ID   :"+ barcode.getPARTNER_ID()+"\n";
             // inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ trDetails.getPartnerId();
             // inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            inPrintBuffer = inPrintBuffer +"SELLER ID    :"+ barcode.getSELLER_ID()+"\n";
+            //inPrintBuffer = inPrintBuffer +"SELLER ID    :"+ barcode.getSELLER_ID()+"\n";
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+ trDetails.getSellerId();
             //inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(left, "UTF-8")+new String(fontSize2Small, "UTF-8");
@@ -205,16 +224,30 @@ public class PrintReceipt  {
                 String stAmount = String.format("%01d.%02d", (inAmount / 100), (inAmount % 100));
                 Log.i(TAG, "stAmount:" + stAmount);
 
-                inPrintBuffer = inPrintBuffer + "TOTAL SGD " + stAmount + new String(boldOff, "UTF-8");
+                CurrencyModel curr = new CurrencyModel();
+                curr = databaseObj.getCurrencyData(TransactionDetails.inGCURR);
+                String cuLabel = curr.getCURR_LABEL();
+                inPrintBuffer = inPrintBuffer + "AMT "+ cuLabel +" "+ stAmount + new String(boldOff, "UTF-8");
             }
-            inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-            if(MerchantCopy == 0) {
-                inPrintBuffer = inPrintBuffer + "MERCHANT COPY" + new String(next4Line, "UTF-8") + new String(breakPartial, "UTF-8");
-                MerchantCopy++;
-            }else {
-                MerchantCopy=0;
-                inPrintBuffer = inPrintBuffer + "CUSTOMER COPY" + new String(next4Line, "UTF-8") + new String(breakPartial, "UTF-8");
+            if(!(TransactionDetails.trxType == Constants.TransType.INIT_SETTLEMENT || TransactionDetails.trxType == Constants.TransType.FINAL_SETTLEMENT)) {
+
+                inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8") + new String(fontSize1Small, "UTF-8");
+                inPrintBuffer = inPrintBuffer + "I AGREE TO PAY THE ABOVE AMOUNT" + "\n";
+                inPrintBuffer = inPrintBuffer + "ACCORDING TO ISSUER AGREEMENT";
+                inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8") + new String(fontSize2Small, "UTF-8");
+                if (MerchantCopy == 0) {
+                    inPrintBuffer = inPrintBuffer + "MERCHANT COPY" + new String(next4Line, "UTF-8") + new String(breakPartial, "UTF-8");
+                    MerchantCopy++;
+                } else {
+                    MerchantCopy = 0;
+                    inPrintBuffer = inPrintBuffer + "CUSTOMER COPY" + new String(next4Line, "UTF-8") + new String(breakPartial, "UTF-8");
+                }
+            }else{
+                inPrintBuffer = inPrintBuffer + "" + new String(next4Line, "UTF-8") + new String(breakPartial, "UTF-8");
             }
+
+            KeyValueDB.setLastReceipt(context,inPrintBuffer);
+
 
             return inPrintBuffer.getBytes();
             //return ESCUtil.byteMerger(cmdBytes);

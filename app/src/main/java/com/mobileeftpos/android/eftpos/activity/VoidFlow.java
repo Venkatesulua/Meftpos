@@ -1,6 +1,7 @@
 package com.mobileeftpos.android.eftpos.activity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -22,6 +23,7 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.Review_Transaction;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.async.AsyncTaskRequestResponse;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.model.BatchModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
@@ -47,6 +49,8 @@ public class VoidFlow extends AppCompatActivity {
     private RemoteHost remoteHost = new RemoteHost();
     public byte[] FinalData = new byte[1512];
     //private int TransactionDetails.inFinalLength = 0;
+    private AsyncTaskRequestResponse ASTask = new AsyncTaskRequestResponse();
+    public static Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +61,7 @@ public class VoidFlow extends AppCompatActivity {
         submitButton = (Button) findViewById(R.id.invoice_btn);
         submitButton.setOnClickListener(new ClickLIstener());
         databaseObj = new DBHelper(VoidFlow.this);
+        context = VoidFlow.this;
 
     }
     private class ClickLIstener implements View.OnClickListener {
@@ -64,7 +69,10 @@ public class VoidFlow extends AppCompatActivity {
         public void onClick(View view) {
             if (view == submitButton) {
 
-                inVoid(editInvoice.getText().toString());
+                if (editInvoice.getText().toString().length() > 0 && editInvoice.getText().toString().length() < 7)
+                    inVoid(editInvoice.getText().toString());
+                else
+                    Toast.makeText(VoidFlow.this, "Invoice Field is missing or \n Excess Code entered", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -108,6 +116,9 @@ public class VoidFlow extends AppCompatActivity {
     int processVoid(){
 
         if (AppUtil.isNetworkAvailable(VoidFlow.this)) {
+            //String ppp = TransactionDetails.PAN ;
+            //TransactionDetails.trxType = Constants.TransType.VOID;
+            //ASTask.AsyncTaskCreation(context);
             mAsyncTask = new AsyncTaskRunner();
             mAsyncTask.execute(new String[]{"null", "null"});
         }else {
@@ -327,7 +338,7 @@ public class VoidFlow extends AppCompatActivity {
                     //Print receipt
                     Log.i(TAG, "\nPrinting Receipt");
                     TransactionDetails.trxType = Constants.TransType.VOID;
-                    printReceipt.inPrintReceipt(databaseObj);
+                    printReceipt.inPrintReceipt(databaseObj,VoidFlow.this);
                     break;
                 case 7://Show the receipt in the display and give option to print or email
                     //startActivity(new Intent(GetInvoice.this, HomeActivity.class));
@@ -351,8 +362,8 @@ public class VoidFlow extends AppCompatActivity {
                     if(TransactionDetails.inFinalLength == 0)
                        break;
                     if (remoteHost.inConnection(ServerIP, Port) != 0) {
-                        break;
-                    }
+                    break;
+                }
                     if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
                         break;
                     }

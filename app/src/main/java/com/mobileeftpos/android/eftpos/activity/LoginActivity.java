@@ -113,15 +113,7 @@ public class LoginActivity extends AppCompatActivity {
 
             if(userNameStr.equalsIgnoreCase("admin") && passWordStr.equals("admin")) {
 
-                final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
 
-
-                Log.i(TAG,"LogOn SCREEN");
-                final String tmDevice, tmSerial, androidId;
-
-
-                TransactionDetails.deviceId = "" + tm.getDeviceId();
-                Log.i(TAG,"TransactionDetails.deviceId::"+TransactionDetails.deviceId);
                 /*tmSerial = "" + tm.getSimSerialNumber();
                 Log.i(TAG,"tmSerial::"+tmSerial);
                 androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);

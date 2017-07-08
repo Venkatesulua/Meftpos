@@ -53,7 +53,7 @@ public class TwoFragment extends Fragment implements View.OnClickListener{
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.reprintItem:
- startActivity(new Intent(getActivity(),ReprintMenuActivity.class));
+                startActivity(new Intent(getActivity(),ReprintMenuActivity.class));
                 break;
 
             case R.id.reportItem:

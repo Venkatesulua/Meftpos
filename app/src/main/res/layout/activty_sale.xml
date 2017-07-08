@@ -43,14 +43,16 @@
         android:layout_width="match_parent"
         android:layout_height="8dp"
         android:layout_below="@+id/relativr_layout"
-        android:background="@drawable/line_bg"/>
+        android:background="@drawable/line_bg"
+        android:id="@+id/imageView" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:orientation="vertical"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="80dp"
-        android:layout_height="wrap_content">
+        android:layout_marginTop="27dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageView"
+        android:layout_alignParentStart="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -61,10 +63,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="7dp"
             android:layout_weight="0.6"
             android:gravity="left"
-            android:text="Amount $:"
-            android:layout_marginLeft="7dp"
+            android:text="Amount :"
             android:textColor="@color/colorAccent"
             android:textSize="20dp" />
 
@@ -73,10 +75,11 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_weight="0.4"
-            android:singleLine="true"
-            android:inputType="numberDecimal"
             android:background="@drawable/all_corner_saleedittext_bg"
-            android:padding="10dp" />
+            android:hint="$0.00"
+            android:inputType="numberDecimal"
+            android:padding="10dp"
+            android:singleLine="true" />
     </LinearLayout>
 
     <Button

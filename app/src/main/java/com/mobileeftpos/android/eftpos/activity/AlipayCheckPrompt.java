@@ -1,6 +1,7 @@
 package com.mobileeftpos.android.eftpos.activity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -46,6 +47,7 @@ public class AlipayCheckPrompt extends AppCompatActivity {
     public PrintReceipt printReceipt = new PrintReceipt();
     private static final int TIME_OUT = 5000;
     public PayServices payServices = new PayServices();
+    public static Context context;
 
 
     private CommsModel comModel = new CommsModel();
@@ -55,7 +57,7 @@ public class AlipayCheckPrompt extends AppCompatActivity {
         setContentView(R.layout.activity_alipay_check_prompt);
         databaseObj = new DBHelper(AlipayCheckPrompt.this);
         comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
-
+        context = AlipayCheckPrompt.this;
 
         btnCancel1 = (Button) findViewById(R.id.btnCancel);
         btnCheck1 = (Button) findViewById(R.id.btnCheck);
@@ -176,7 +178,7 @@ public class AlipayCheckPrompt extends AppCompatActivity {
             super.onPostExecute(result);
 
             if (result != null && Integer.parseInt(result) == Constants.ReturnValues.RETURN_OK) {
-                printReceipt.inPrintReceipt(databaseObj);
+                printReceipt.inPrintReceipt(databaseObj,context);
                 //Redirect to Success Activity
                 new Handler().postDelayed(new Runnable() {
                     @Override

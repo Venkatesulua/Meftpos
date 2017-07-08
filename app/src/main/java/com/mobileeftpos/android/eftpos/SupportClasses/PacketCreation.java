@@ -203,10 +203,6 @@ public class PacketCreation {
         commData = databaseObj.getCommsData(TransactionDetails.inGCOM);
         merchantData = databaseObj.getMerchantData(0);
 
-        currModel.setCURR_LABEL("THB");
-        currModel.setCURR_EXPONENT("2");
-        currModel.setCURR_CODE("764");
-
 
 
         String stAlipayExtData="";
@@ -282,48 +278,91 @@ public class PacketCreation {
                     CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
                     break;
                 case Constants.TransType.ALIPAY_REFUND:
-                    break;
-                case Constants.TransType.PAYMENT_SALE:
-                    break;
-                case Constants.TransType.ALIPAY_UPLOAD:
-                case Constants.TransType.VOID:
-                case Constants.TransType.REVERSAL:
-                    if(inTrxType == Constants.TransType.VOID)
-                        CreateTLVFields(1, Constants.MTI.Financial,FinalData);
-                    else if(inTrxType == Constants.TransType.REVERSAL)
-                        CreateTLVFields(1, Constants.MTI.Reversal,FinalData);
-                    else if(inTrxType == Constants.TransType.ALIPAY_UPLOAD)
-                        CreateTLVFields(1, Constants.MTI.FinancialAdvice,FinalData);
-                    else
-                        CreateTLVFields(1, Constants.MTI.Financial,FinalData);
-                   if(inTrxType == Constants.TransType.VOID)
-                        CreateTLVFields(3, Constants.PROCESSINGCODE.stVoid,FinalData);
-                    else if(TransactionDetails.inOritrxType == Constants.TransType.ALIPAY_SALE && inTrxType == Constants.TransType.REVERSAL)
-                        CreateTLVFields(3, Constants.PROCESSINGCODE.pcFinancialRequest,FinalData);
-                    else if(TransactionDetails.inOritrxType == Constants.TransType.VOID && inTrxType == Constants.TransType.REVERSAL)
-                        CreateTLVFields(3, Constants.PROCESSINGCODE.stVoid,FinalData);
-                   else if(TransactionDetails.inOritrxType == Constants.TransType.ALIPAY_SALE && inTrxType == Constants.TransType.ALIPAY_UPLOAD)
-                       CreateTLVFields(3, Constants.PROCESSINGCODE.stVoid,FinalData);
-                   else if(TransactionDetails.inOritrxType == Constants.TransType.VOID && inTrxType == Constants.TransType.ALIPAY_UPLOAD)
-                       CreateTLVFields(3, Constants.PROCESSINGCODE.stVoid,FinalData);
-                    else
-                       CreateTLVFields(3, Constants.PROCESSINGCODE.pcFinancialRequest,FinalData);
+
+                    TransactionDetails.processingcode = Constants.PROCESSINGCODE.pcRefund;
+                    if(inTrxType == Constants.TransType.ALIPAY_REFUND) {
+                        TransactionDetails.messagetype = Constants.MTI.Financial;
+                    }
+                    else {
+                        TransactionDetails.messagetype = Constants.MTI.Financial_Repeat;
+
+                    }
+
+                    CreateTLVFields(1, TransactionDetails.messagetype,FinalData);
+                    CreateTLVFields(2, TransactionDetails.stOriAmount,FinalData);
+                    CreateTLVFields(3, TransactionDetails.processingcode,FinalData);
                     CreateTLVFields(4, barcode.getPARTNER_ID(),FinalData);
                     CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
 
 
-                    if(inTrxType != Constants.TransType.REVERSAL)
-                        CreateTLVFields(8,TransactionDetails.RetrievalRefNumber,FinalData);
-                    //CreateTLVFields(9,currModel.getCURR_LABEL(),FinalData);
+                    CreateTLVFields(8,TransactionDetails.RetrievalRefNumber,FinalData);
+                    CreateTLVFields(9,currModel.getCURR_LABEL(),FinalData);
                     CreateTLVFields(10,TransactionDetails.trxAmount,FinalData);
-                    if(inTrxType == Constants.TransType.REVERSAL)
-                        CreateTLVFields(11,TransactionDetails.PAN,FinalData);
+                    //rCreateTLVFields(11,TransactionDetails.PAN,FinalData);
                     CreateTLVFields(41,hostData.getHDT_TERMINAL_ID(),FinalData);
 
                     CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
+                    break;
 
-                    if(inTrxType == Constants.TransType.ALIPAY_UPLOAD)
-                        CreateTLVFields(72,TransactionDetails.AlipayTag72,FinalData);
+                case Constants.TransType.PAYMENT_SALE:
+                    break;
+                case Constants.TransType.REVERSAL:
+                    CreateTLVFields(1, Constants.MTI.Reversal,FinalData);
+
+                    if(TransactionDetails.trxType == Constants.TransType.ALIPAY_REFUND)
+                        CreateTLVFields(2, TransactionDetails.stOriAmount,FinalData);
+
+                    if(TransactionDetails.trxType == Constants.TransType.ALIPAY_SALE)
+                        CreateTLVFields(3, Constants.PROCESSINGCODE.pcFinancialRequest,FinalData);
+                    else if(TransactionDetails.trxType == Constants.TransType.VOID)
+                        CreateTLVFields(3, Constants.PROCESSINGCODE.stVoid,FinalData);
+                    else if(TransactionDetails.trxType == Constants.TransType.ALIPAY_REFUND)
+                        CreateTLVFields(3, Constants.PROCESSINGCODE.pcRefund,FinalData);
+                    else
+                        CreateTLVFields(3, Constants.PROCESSINGCODE.pcFinancialRequest,FinalData);
+
+                    CreateTLVFields(4, barcode.getPARTNER_ID(),FinalData);
+                    CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
+                    CreateTLVFields(10,TransactionDetails.trxAmount,FinalData);
+                    CreateTLVFields(11,TransactionDetails.PAN,FinalData);
+                    CreateTLVFields(41,hostData.getHDT_TERMINAL_ID(),FinalData);
+                    CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
+                    break;
+                case Constants.TransType.ALIPAY_UPLOAD:
+
+                    CreateTLVFields(1, Constants.MTI.FinancialAdvice,FinalData);
+                    if(TransactionDetails.trxType == Constants.TransType.ALIPAY_REFUND)
+                        CreateTLVFields(2, TransactionDetails.stOriAmount,FinalData);
+
+                    if(TransactionDetails.trxType == Constants.TransType.VOID)
+                        CreateTLVFields(3, Constants.PROCESSINGCODE.stVoid,FinalData);
+                    else if(TransactionDetails.trxType == Constants.TransType.ALIPAY_REFUND)
+                        CreateTLVFields(3, Constants.PROCESSINGCODE.pcRefund,FinalData);
+                    else
+                        CreateTLVFields(3, Constants.PROCESSINGCODE.pcFinancialRequest,FinalData);
+
+                    CreateTLVFields(4, barcode.getPARTNER_ID(),FinalData);
+                    CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
+
+                    CreateTLVFields(8,TransactionDetails.RetrievalRefNumber,FinalData);
+                    CreateTLVFields(10,TransactionDetails.trxAmount,FinalData);
+                    CreateTLVFields(41,hostData.getHDT_TERMINAL_ID(),FinalData);
+                    CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
+                    CreateTLVFields(72,TransactionDetails.AlipayTag72,FinalData);
+
+                    break;
+                case Constants.TransType.VOID:
+
+                   CreateTLVFields(1, Constants.MTI.Financial,FinalData);
+                   CreateTLVFields(3, Constants.PROCESSINGCODE.stVoid,FinalData);
+                    CreateTLVFields(4, barcode.getPARTNER_ID(),FinalData);
+                    CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
+                    CreateTLVFields(8,TransactionDetails.RetrievalRefNumber,FinalData);
+                    //CreateTLVFields(9,currModel.getCURR_LABEL(),FinalData);
+                    CreateTLVFields(10,TransactionDetails.trxAmount,FinalData);
+                    CreateTLVFields(11,TransactionDetails.PAN,FinalData);
+                    CreateTLVFields(41,hostData.getHDT_TERMINAL_ID(),FinalData);
+                    CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
 
                     break;
                // case Constants.TransType.REVERSAL:
@@ -428,7 +467,7 @@ public class PacketCreation {
                     TransactionDetails.messagetype = Constants.MTI.BatchUpload;
 
                     CreateTLVFields(1, Constants.MTI.BatchUpload,FinalData);
-                    CreateTLVFields(3, Constants.PROCESSINGCODE.pcFinancialRequest,FinalData);
+                    CreateTLVFields(3, Constants.PROCESSINGCODE.pcFinancialRequest, FinalData);
                     CreateTLVFields(4, barcode.getPARTNER_ID(),FinalData);
                     CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
 
@@ -457,6 +496,7 @@ public class PacketCreation {
             try {
                 if(TransactionDetails.trxType != Constants.TransType.INIT_SETTLEMENT &&
                         TransactionDetails.trxType != Constants.TransType.FINAL_SETTLEMENT&&
+                        TransactionDetails.trxType !=  Constants.TransType.ALIPAY_REFUND && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_REFUND &&
                         TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_SALE) {
                     Log.i(TAG,"PacketCreation:::NOT ALIPAY SALES ");
                     Log.i(TAG,"PacketCreation:::NOT ALIPAY SALES ");
@@ -666,6 +706,7 @@ public class PacketCreation {
             Log.i(TAG,"PacketCreation:::\ninProcessPacket_1:");
             if(TransactionDetails.trxType!= Constants.TransType.INIT_SETTLEMENT &&
                     TransactionDetails.trxType!= Constants.TransType.FINAL_SETTLEMENT &&
+                    TransactionDetails.trxType !=  Constants.TransType.ALIPAY_REFUND && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_REFUND &&
                     TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_SALE) {
                 isoMsg.unpack(FinalData);
                 // print the DE list
@@ -677,8 +718,8 @@ public class PacketCreation {
 
                 inParceAlipyResponse(FinalData,TransactionDetails.inFinalLength);
 
-                Log.i(TAG,"PacketCreation:::\ninProcessPacket_3:");
-                Log.i(TAG,"PacketCreation:::\nTerminal-ID:"+trDetails.getResTerminalId());
+                //Log.i(TAG,"PacketCreation:::\ninProcessPacket_3:");
+                //Log.i(TAG,"PacketCreation:::\nTerminal-ID:"+trDetails.getResTerminalId());
 
                 if(TransactionDetails.trxType == Constants.TransType.INIT_SETTLEMENT)
                 {
@@ -687,7 +728,7 @@ public class PacketCreation {
                         return Constants.ReturnValues.RETURN_BATCH_TRANSFER;//ERROR
                     }
                 }
-                if(trDetails.getResponseCode().equals("00")){
+                if(TransactionDetails.ResponseCode.equals("00")){
                     Log.i(TAG,"PacketCreation:::\ninProcessPacket_4:");
                     return Constants.ReturnValues.RETURN_OK;//ERROR
                 }else if (TransactionDetails.ResponseCode.equals("UK")){
@@ -746,23 +787,24 @@ public class PacketCreation {
 
             switch (inTag) {
                 case 1:// Message type
-                    trDetails.setMessageType( new String(chtemp));
+                    //trDetails.setMessageType( new String(chtemp));
+                    TransactionDetails.messagetype = new String(chtemp);
                     break;
                 case 3:// Processing code
-                    trDetails.setProcessingCode( new String(chtemp));
+                    TransactionDetails.processingcode = new String(chtemp);
                     break;
                 case 4:// partner id
-                    trDetails.setPartnerId( new String(chtemp));
+                    //trDetails.setPartnerId( new String(chtemp));
                     break;
                 case 5:// sellerid
-                    trDetails.setSellerId( new String(chtemp));
+                    //trDetails.setSellerId( new String(chtemp));
                     break;
                 case 8:// partnertransid
-                    trDetails.setPartnerTransId( new String(chtemp));
+                    //trDetails.setPartnerTransId( new String(chtemp));
                     TransactionDetails.RetrievalRefNumber=new String(chtemp);
                     break;
                 case 9:// currency
-                    trDetails.setCurrency( new String(chtemp));
+                    //trDetails.setCurrency( new String(chtemp));
                     break;
                 case 0x0a:// paymentamount
                     //trDetails.settrxAmount( new String(chtemp));
@@ -771,25 +813,27 @@ public class PacketCreation {
                     //trDetails.setBuyerId( new String(chtemp));
                     break;
                 case 0x0c:// refundid
-                    trDetails.setRefundId( new String(chtemp));
+                    TransactionDetails.refundid=new String(chtemp);
+                    //trDetails.setRefundId( new String(chtemp));
                     break;
                 case 0x0d:// refundreason
-                    trDetails.setRefundReason( new String(chtemp));
+                    TransactionDetails.refundreason=new String(chtemp);
+                   // trDetails.setRefundReason( new String(chtemp));
                     break;
                 case 0x26:// alipaytransid
-                    trDetails.setAlipayTransId( new String(chtemp));
+                    //trDetails.setAlipayTransId( new String(chtemp));
                     TransactionDetails.chApprovalCode = new String(chtemp);
                     break;
                 case 0x27:// responsecode
-                    trDetails.setResponseCode( new String(chtemp));
+                    //trDetails.setResponseCode( new String(chtemp));
                     TransactionDetails.ResponseCode=new String(chtemp);
                     break;
                 case 0x28:// responsemesage
-                    trDetails.setResponseMesage( new String(chtemp));
+                   // trDetails.setResponseMesage( new String(chtemp));
                     TransactionDetails.responseMessge=new String(chtemp);
                     break;
                 case 0x29:// terminalid
-                    trDetails.setResTerminalId( new String(chtemp));
+                    //trDetails.setResTerminalId( new String(chtemp));
                     break;
                 case 63:// Host Message
                     TransactionDetails.responseMessge=new String(chtemp);

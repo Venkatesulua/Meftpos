@@ -59,5 +59,23 @@ public class KeyValueDB {
         SharedPreferenceStore.deleteSharedPreference(SharedPreferenceStore.KEY_UPLOAD);
     }
 
+    public static String getLastReceipt(Context context) {
+        return SharedPreferenceStore.getEncryptedSharedPref(SharedPreferenceStore.KEY_LAST_RECEIPT);
+        //return getPrefs(context).getString("Reversal", "");
+    }
+
+    public static void setLastReceipt(Context context, String input) {
+        SharedPreferenceStore.setEncryptedSharedPref(SharedPreferenceStore.KEY_LAST_RECEIPT,input);
+        //SharedPreferences.Editor editor = getPrefs(context).edit();
+        // editor.putString("Reversal", input);
+        //editor.commit();
+    }
+    public static void removeLastReceipt(Context context) {
+        //SharedPreferences.Editor editor = getPrefs(context).edit();
+        //editor.remove("Upload");
+        //editor.apply();
+        SharedPreferenceStore.deleteSharedPreference(SharedPreferenceStore.KEY_LAST_RECEIPT);
+    }
+
 
 }

@@ -12,11 +12,13 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
+import com.mobileeftpos.android.eftpos.model.HostModel;
 import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
 import com.mobileeftpos.android.eftpos.utils.MenuConstants;
 
@@ -24,6 +26,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 public class OneFragment extends Fragment  {
@@ -39,6 +42,7 @@ public class OneFragment extends Fragment  {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         databaseObj = new DBHelper(getActivity());
+
     }
 
     @Override
@@ -71,6 +75,10 @@ public class OneFragment extends Fragment  {
 
         if(controlModel.getVOID_CTRL() != null && controlModel.getVOID_CTRL().equalsIgnoreCase("1")){
             homeListData.add(MenuConstants.VOID);
+        }
+
+        if(controlModel.getREFUND_CTRL() != null && controlModel.getREFUND_CTRL().equalsIgnoreCase("1")){
+            homeListData.add(MenuConstants.REFUND);
         }
 
         if(controlModel.getAUTH_CTRL() != null && controlModel.getAUTH_CTRL().equalsIgnoreCase("1")){
@@ -117,7 +125,12 @@ public class OneFragment extends Fragment  {
         TransactionDetails.trxDateTime=stDate;
 
 
-        switch (selectedItem) {
+         if(inCheckParamaters() != Constants.ReturnValues.RETURN_OK)
+         {
+             Toast.makeText(getActivity(), "Please download TMS Parameters", Toast.LENGTH_SHORT).show();
+             return;
+         }
+         switch (selectedItem) {
 
             case MenuConstants.SALE:
                 //byte[] cc = bb.getBytes();
@@ -134,6 +147,10 @@ public class OneFragment extends Fragment  {
                 startActivity(new Intent(HomeActivity.context, VoidFlow.class));
                 break;
 
+            case MenuConstants.REFUND:
+                TransactionDetails.trxType = Constants.TransType.ALIPAY_REFUND;
+                startActivity(new Intent(HomeActivity.context, RefundFlow.class));
+                break;
             case MenuConstants.PREAUTH:
                 break;
 
@@ -218,6 +235,9 @@ public class OneFragment extends Fragment  {
             }else if(itemData.equalsIgnoreCase(MenuConstants.VOID)){
                 holder.gridText.setText(MenuConstants.VOID);
                 holder.gridImg.setImageDrawable(getResources().getDrawable(R.drawable.void_icon));
+            }else if(itemData.equalsIgnoreCase(MenuConstants.REFUND)){
+                holder.gridText.setText(MenuConstants.REFUND);
+                holder.gridImg.setImageDrawable(getResources().getDrawable(R.drawable.ref_icon));
             }else if(itemData.equalsIgnoreCase(MenuConstants.PREAUTH)){
                 holder.gridText.setText(MenuConstants.PREAUTH);
                 holder.gridImg.setImageDrawable(getResources().getDrawable(R.drawable.preauth_icon));
@@ -253,6 +273,21 @@ public class OneFragment extends Fragment  {
             return rowView;
         }
 
+    }
+
+    int inCheckParamaters()
+    {
+        HostModel hostModel = new HostModel();
+        List<HostModel> hostModelList = databaseObj.getAllHostTableData();
+        for (int i = 0; i < hostModelList.size(); i++) {
+            hostModel = hostModelList.get(i);
+            if (!(hostModel == null || hostModel.equals(""))) {
+                if (hostModel.getHDT_HOST_ENABLED().equalsIgnoreCase("1")) {
+                    return Constants.ReturnValues.RETURN_OK;
+                }
+            }
+        }
+        return Constants.ReturnValues.RETURN_ERROR;
     }
 
 

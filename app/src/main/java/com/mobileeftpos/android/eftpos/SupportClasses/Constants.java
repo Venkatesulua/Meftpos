@@ -16,6 +16,7 @@ public class Constants {
 	//ERROR
 	public static String TRANSCATION_NOT_SUPPORTED = "TRANSCATION_NOT_SUPPORTED";
 	public static String ALREADY_VOIDED = "ALREADY_VOIDED";
+
 	public class TransMode {
 		public static final int SWIPE = 0;
 		public static final int ICC = 1;
@@ -44,6 +45,8 @@ public class Constants {
 
 	public class ResponseCodes {
 		public static final String DEF_DE39_V_APPROVE = "00";
+		public static final String BATCH_TRANSFER = "95";
+		public static final String DO_NOT_HONOR = "05";
 	}
 
 	public class ReturnValues {
@@ -55,6 +58,10 @@ public class Constants {
 		public static final int RETURN_UNKNOWN = 5;
 		public static final int NO_TRANSCATION = 6;
 		public static final int TRANSACTION_NOT_SUPPORTED = 7;
+		public static final int RETURN_NOTIFICATION  = 8;
+		public static final int RETURN_SETTLEMENT_NEEDED  = 9;
+		public static final int RETURN_CONNECTION_ERROR  = 10;
+		public static final int RETURN_SEND_RECV_FAILED  = 11;
 	}
 
 	public class TMSReturnValues {
@@ -84,6 +91,7 @@ public class Constants {
 		public static final String stVoid = "020000";
 		public static final String initsettrequest = "920000";
 		public static final String finalsettrequest = "960000";
+		public static final String pcRefund = "200000";
 	}
 
 	public class PaymentStatus{
