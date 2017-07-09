@@ -11,15 +11,22 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.activity.AlipayActivity;
+import com.mobileeftpos.android.eftpos.activity.BaseScannerActivity;
+import com.mobileeftpos.android.eftpos.activity.FullScannerActivity;
 import com.sunmi.scan.Config;
 import com.sunmi.scan.Image;
 import com.sunmi.scan.ImageScanner;
@@ -27,7 +34,7 @@ import com.sunmi.scan.Symbol;
 import com.sunmi.scan.SymbolSet;
 
 
-public class SunmiScanner extends Activity implements SurfaceHolder.Callback {
+public class SunmiScanner extends BaseScannerActivity implements SurfaceHolder.Callback {
 	private Camera mCamera;
 	private SurfaceHolder mHolder;
 	private SurfaceView surface_view;
@@ -37,13 +44,24 @@ public class SunmiScanner extends Activity implements SurfaceHolder.Callback {
 	SoundUtils soundUtils;
 	private boolean vibrate;
 	public int decode_count = 0;
-
+    private TextView txtManualentry;
 	private FinderView finder_view;
+    EditText alertinputField;
+    AlertDialog alertDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.ac_sunmi_scan_finder);
+        setupToolbar();
+        txtManualentry=(TextView)findViewById(R.id.manual_txtview);
+        txtManualentry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showCustomDialog();
+            }
+        });
+
 		init();
 	}
 
@@ -64,6 +82,35 @@ public class SunmiScanner extends Activity implements SurfaceHolder.Callback {
 		asyncDecode = new AsyncDecode();
 		decode_count = 0;
 	}
+
+    public void showCustomDialog(){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this,R.style.full_screen_dialog);
+// ...Irrelevant code for customizing the buttons and title
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.custom_layout, null);
+        dialogBuilder.setView(dialogView);
+
+        alertinputField = (EditText) dialogView.findViewById(R.id.alert_et);
+        Button alertButton = (Button) dialogView.findViewById(R.id.alert_btn);
+        alertButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(alertinputField.getText().toString()!=null && alertinputField.getText().toString().length()>0){
+
+                    Intent i = new Intent(SunmiScanner.this, AlipayActivity.class);
+                    i.putExtra(Constants.QRCODE.BARCODE_INTENT_RESULT_KEY, alertinputField.getText().toString());
+                    setResult(111, i);
+                    alertDialog.dismiss();
+                    finish();
+                }
+            }
+        });
+
+        alertDialog = dialogBuilder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
+    }
+
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,int height) {
