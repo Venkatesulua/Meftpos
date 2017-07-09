@@ -35,6 +35,9 @@
             android:name=".activity.SaleActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".scan.SunmiScanner"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activity.ScannerActivity"
             android:screenOrientation="portrait" />
         <activity

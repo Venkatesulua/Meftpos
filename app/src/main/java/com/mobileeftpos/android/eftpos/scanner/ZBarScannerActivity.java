@@ -12,11 +12,11 @@ import android.text.TextUtils;
 import android.view.Window;
 import android.view.WindowManager;
 
-import net.sourceforge.zbar.Config;
-import net.sourceforge.zbar.Image;
-import net.sourceforge.zbar.ImageScanner;
-import net.sourceforge.zbar.Symbol;
-import net.sourceforge.zbar.SymbolSet;
+import com.sunmi.scan.Config;
+import com.sunmi.scan.Image;
+import com.sunmi.scan.ImageScanner;
+import com.sunmi.scan.Symbol;
+import com.sunmi.scan.SymbolSet;
 
 
 /**

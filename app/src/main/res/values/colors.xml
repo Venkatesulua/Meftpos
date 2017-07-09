@@ -11,7 +11,8 @@
     <color name="sky_blue">#004A8F</color>
     <color name="blue">#004A8F</color>
 
-
+    <color name="finder_mask">#60000000</color>
+    <color name="rea">#ffff0000</color>
 
 
 </resources>

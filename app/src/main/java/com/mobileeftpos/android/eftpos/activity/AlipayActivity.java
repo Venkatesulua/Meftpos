@@ -1,16 +1,20 @@
 package com.mobileeftpos.android.eftpos.activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -43,6 +47,7 @@ import com.mobileeftpos.android.eftpos.model.CommsModel;
 import com.mobileeftpos.android.eftpos.model.CurrencyModel;
 import com.mobileeftpos.android.eftpos.model.HostModel;
 import com.mobileeftpos.android.eftpos.model.MerchantModel;
+import com.mobileeftpos.android.eftpos.scan.SunmiScanner;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 import com.mobileeftpos.android.eftpos.utils.JSONUtil;
 
@@ -58,7 +63,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class AlipayActivity extends AppCompatActivity {
@@ -69,7 +76,9 @@ public class AlipayActivity extends AppCompatActivity {
     public static String barCodeValue=null;
     public static boolean isFromBarcodeScanner;
     private final String TAG = "my_custom_msg";
-
+    public static int ALIPAY_CONSTANT=111;
+    public static String ALIPAY_SCANRESULT="scanResult";
+    public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
     public TransactionDetails trDetails = new TransactionDetails();
     public PacketCreation isoPacket = new PacketCreation();
     public RemoteHost remoteHost = new RemoteHost();
@@ -94,11 +103,12 @@ public class AlipayActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alipay);
-
         //databaseObj = new DBHelper(AlipayActivity.this);
         context = AlipayActivity.this;
 
-
+        if(checkAndRequestPermissions()) {
+            // carry on the normal flow, as the case of  permissions  granted.
+        }
 
         barCodeValue=null;
         isFromBarcodeScanner=false;
@@ -106,9 +116,9 @@ public class AlipayActivity extends AppCompatActivity {
         //String ReversalString = KeyValueDB.getReversal(context);
 
         Log.i(TransactionDetails.TAG,"AlipayActivity::Alipay_onCreate_1");
-        Intent i = new Intent(AlipayActivity.this, FullScannerActivity.class);
+        Intent i = new Intent(AlipayActivity.this, SunmiScanner.class);
         i.putExtra("FromAlipayActivity", true);
-        startActivityForResult(i, 111);
+        startActivityForResult(i, ALIPAY_CONSTANT);
 
         /*IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setPrompt("Scan a barcode or QRcode");
@@ -144,13 +154,26 @@ public class AlipayActivity extends AppCompatActivity {
     }*/
 
 
+    private  boolean checkAndRequestPermissions() {
 
+        int locationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (locationPermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.CAMERA);
+        }
+
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
-        if(requestCode==111 && intent!=null){
+        if(requestCode==ALIPAY_CONSTANT && intent!=null){
             String contents = intent.getStringExtra(Constants.QRCODE.BARCODE_INTENT_RESULT_KEY);
             processBarcode(contents);
 

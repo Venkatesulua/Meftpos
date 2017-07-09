@@ -29,8 +29,17 @@ android {
         multiDexEnabled = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         useLibrary 'org.apache.http.legacy'
-
         vectorDrawables.useSupportLibrary = true
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86"
+        }
+
+        externalNativeBuild {
+            cmake {
+                cppFlags "-frtti -fexceptions"
+                abiFilters "armeabi-v7a"
+            }
+        }
     }
 
     signingConfigs {
@@ -73,6 +82,12 @@ android {
 
 
     buildToolsVersion '25.0.0'
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
 }
 
 
@@ -80,7 +95,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
 
-    compile files('libs/zbar.jar')
+    compile files('libs/sunmiscan.jar')
     compile files('libs/jpos.jar')
 
 
@@ -104,6 +119,7 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;
     }
+
     compile 'com.android.support:appcompat-v7:25.3.1'
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:25.3.1'
@@ -118,6 +134,8 @@ dependencies {
     compile 'com.android.support:support-vector-drawable:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.journeyapps:zxing-android-embedded:3.4.0'
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile files('libs/sunmiscan.jar')
     testCompile 'junit:junit:4.12'
 }
 
