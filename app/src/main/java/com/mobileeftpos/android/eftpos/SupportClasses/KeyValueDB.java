@@ -11,9 +11,9 @@ import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
 
 public class KeyValueDB {
 
-    private SharedPreferences sharedPreferences;
-    private static String PREF_NAME = "prefs";
-    private String Reversal = "reversal";
+    //private SharedPreferences sharedPreferences;
+    //private static String PREF_NAME = "prefs";
+    //private String Reversal = "reversal";
 
     public KeyValueDB() {
         // Blank
@@ -24,30 +24,30 @@ public class KeyValueDB {
     //}
 
     public static String getReversal(Context context) {
-        return SharedPreferenceStore.getEncryptedSharedPref(SharedPreferenceStore.KEY_REVERSAL);
+        return SharedPreferenceStore.getEncryptedSharedPref(SharedPreferenceStore.KEY_REVERSAL+Integer.toString(TransactionDetails.inGHDT));
         //return getPrefs(context).getString("Reversal", "");
     }
 
     public static void setReversal(Context context, String input) {
-        SharedPreferenceStore.setEncryptedSharedPref(SharedPreferenceStore.KEY_REVERSAL,input);
+        SharedPreferenceStore.setEncryptedSharedPref(SharedPreferenceStore.KEY_REVERSAL+Integer.toString(TransactionDetails.inGHDT),input);
         //SharedPreferences.Editor editor = getPrefs(context).edit();
        // editor.putString("Reversal", input);
         //editor.commit();
     }
     public static void removeReversal(Context context) {
-        SharedPreferenceStore.deleteSharedPreference(SharedPreferenceStore.KEY_REVERSAL);
+        SharedPreferenceStore.deleteSharedPreference(SharedPreferenceStore.KEY_REVERSAL+Integer.toString(TransactionDetails.inGHDT));
         //SharedPreferences.Editor editor = getPrefs(context).edit();
         //editor.remove("Reversal");
         //editor.apply();
     }
 
     public static String getUpload(Context context) {
-        return SharedPreferenceStore.getEncryptedSharedPref(SharedPreferenceStore.KEY_UPLOAD);
+        return SharedPreferenceStore.getEncryptedSharedPref(SharedPreferenceStore.KEY_UPLOAD+Integer.toString(TransactionDetails.inGHDT));
         //return getPrefs(context).getString("Upload", "");
     }
 
     public static void setUpload(Context context, String input) {
-        SharedPreferenceStore.setEncryptedSharedPref(SharedPreferenceStore.KEY_UPLOAD,input);
+        SharedPreferenceStore.setEncryptedSharedPref(SharedPreferenceStore.KEY_UPLOAD+Integer.toString(TransactionDetails.inGHDT),input);
         //SharedPreferences.Editor editor = getPrefs(context).edit();
         //editor.putString("Upload", input);
         //editor.commit();
@@ -56,7 +56,7 @@ public class KeyValueDB {
         //SharedPreferences.Editor editor = getPrefs(context).edit();
         //editor.remove("Upload");
         //editor.apply();
-        SharedPreferenceStore.deleteSharedPreference(SharedPreferenceStore.KEY_UPLOAD);
+        SharedPreferenceStore.deleteSharedPreference(SharedPreferenceStore.KEY_UPLOAD+Integer.toString(TransactionDetails.inGHDT));
     }
 
     public static String getLastReceipt(Context context) {

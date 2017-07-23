@@ -52,4 +52,8 @@ public class PaymentFailure extends AppCompatActivity {
         mHandler.postDelayed(mRunnable, TIME_OUT);
     }
 
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+    }
 }

@@ -8,8 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.mobileeftpos.android.eftpos.Ezlink.EzlBalance;
+import com.mobileeftpos.android.eftpos.Ezlink.EzlBlacklist;
 import com.mobileeftpos.android.eftpos.R;
-import com.mobileeftpos.android.eftpos.model.ReportsModel;
 
 
 /**
@@ -68,9 +69,12 @@ public class TwoFragment extends Fragment implements View.OnClickListener{
                 break;
 
             case R.id.blacklistItem:
+                startActivity( new Intent(getActivity(), EzlBlacklist.class));
                 break;
 
             case R.id.balanceItem:
+                Intent mIntent = new Intent(getActivity(), EzlBalance.class);
+                startActivity(mIntent);
                 break;
 
 

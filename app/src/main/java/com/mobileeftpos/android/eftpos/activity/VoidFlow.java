@@ -49,7 +49,7 @@ public class VoidFlow extends AppCompatActivity {
     private RemoteHost remoteHost = new RemoteHost();
     public byte[] FinalData = new byte[1512];
     //private int TransactionDetails.inFinalLength = 0;
-    private AsyncTaskRequestResponse ASTask = new AsyncTaskRequestResponse();
+   // private AsyncTaskRequestResponse ASTask = new AsyncTaskRequestResponse();
     public static Context context;
 
     @Override

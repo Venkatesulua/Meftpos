@@ -56,13 +56,28 @@ public class RemoteHost {
 
                 os.write(FinalData, 0, TransactionDetails.inFinalLength);
                 FinalData = new byte[1512];
+                byte[] recvData = new byte[1512];
                 TransactionDetails.inFinalLength = 0;
-                long timeNow = System.currentTimeMillis();
-                do {
+                //long timeNow = System.currentTimeMillis();
+
+                if(TransactionDetails.ConnectionTimeout != null && TransactionDetails.ConnectionTimeout.isEmpty() && TransactionDetails.ConnectionTimeout=="")
+                    smtpSocket.setSoTimeout ((Integer.parseInt(TransactionDetails.ConnectionTimeout )*1000));
+                else
+                    smtpSocket.setSoTimeout(45000);
+                //do {
                     TransactionDetails.inFinalLength = is.read(FinalData, 0, 2);
                     TransactionDetails.inFinalLength = is.read(FinalData, 0, 5);
                     TransactionDetails.inFinalLength = is.read(FinalData);
-                } while (TransactionDetails.inFinalLength <= 0 && (System.currentTimeMillis() - timeNow <= 60000));
+                //} while (TransactionDetails.inFinalLength <= 0);
+
+                if(TransactionDetails.inFinalLength <= 0)
+                    return null;
+                //TransactionDetails.inFinalLength = recvData[0] *256;
+                //TransactionDetails.inFinalLength = TransactionDetails.inFinalLength + (recvData[1]);
+                //TransactionDetails.inFinalLength = TransactionDetails.inFinalLength -5;
+                //for (int k = 0; k < TransactionDetails.inFinalLength-7; k++) {
+                    //FinalData[k]  = recvData[k+7];
+                //}
 
                 result = "";
                 for (int k = 0; k < TransactionDetails.inFinalLength; k++) {

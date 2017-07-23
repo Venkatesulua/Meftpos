@@ -177,6 +177,7 @@ public class AlipayCheckPrompt extends AppCompatActivity {
             // execution of result of Long time consuming operation
             super.onPostExecute(result);
 
+
             if (result != null && Integer.parseInt(result) == Constants.ReturnValues.RETURN_OK) {
                 printReceipt.inPrintReceipt(databaseObj,context);
                 //Redirect to Success Activity
@@ -186,7 +187,7 @@ public class AlipayCheckPrompt extends AppCompatActivity {
                         Intent intent = new Intent(AlipayCheckPrompt.this, PaymentSuccess.class);
                         startActivity(intent);
 
-                        progressDialog.dismiss();
+                        //progressDialog.dismiss();
                     }
                 }, TIME_OUT);
             } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_ERROR) {
@@ -195,14 +196,15 @@ public class AlipayCheckPrompt extends AppCompatActivity {
                     public void run() {
                         Intent intent = new Intent(AlipayCheckPrompt.this, PaymentFailure.class);
                         startActivity(intent);
-                        progressDialog.dismiss();
+
                     }
                 }, TIME_OUT);
             } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN) {
                 startActivity(new Intent(AlipayCheckPrompt.this, AlipayCheckPrompt.class));
             }
             payServices.vdUpdateSystemTrace(databaseObj);
-            //progressDialog.dismiss();
+            //finish();
+            progressDialog.dismiss();
 
 
         }

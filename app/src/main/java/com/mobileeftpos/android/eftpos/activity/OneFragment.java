@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mobileeftpos.android.eftpos.Ezlink.CepasPayment;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
@@ -96,11 +97,14 @@ public class OneFragment extends Fragment  {
         if(controlModel.getCASH_ADVANCE_CTRL() != null && controlModel.getCASH_ADVANCE_CTRL().equalsIgnoreCase("1")){
             homeListData.add(MenuConstants.CASH_ADV);
         }
+        if(controlModel.getSETTLEMENT_CTRL() != null && controlModel.getSETTLEMENT_CTRL().equalsIgnoreCase("1")){
+            homeListData.add(MenuConstants.SETTLEMENT);
+        }
 
         //if(controlModel.get.equalsIgnoreCase("8")){
             //homeListData.add(MenuConstants.EZLINK_TOPUP);
         //}
-        homeListData.add(MenuConstants.SETTLEMENT);
+        //homeListData.add(MenuConstants.SETTLEMENT);
         //if("9".equalsIgnoreCase("9")){
             homeListData.add(MenuConstants.CEPAS_SALE);
        // }
@@ -167,7 +171,10 @@ public class OneFragment extends Fragment  {
                 break;
 
             case MenuConstants.CEPAS_SALE:
+                TransactionDetails.trxType = Constants.TransType.EZLINK_SALE;
+                startActivity(new Intent(HomeActivity.context, SaleActivity.class));
                 break;
+
             case MenuConstants.ALIPAY_SALE:
                 TransactionDetails.trxType = Constants.TransType.ALIPAY_SALE;
                 startActivity(new Intent(HomeActivity.context, SaleActivity.class));

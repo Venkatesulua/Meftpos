@@ -1108,6 +1108,7 @@ public class DBHelper {
         SQLiteDatabase db = DBHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBStaticField.HDT_BATCH_NUMBER, model.getHDT_BATCH_NUMBER());
+        contentValues.put(DBStaticField.HDT_PAY_TERM, model.getHDT_PAY_TERM());
         Log.i(TAG,"DBHELPER::UpdateTraceNumberData::"+model.getHDT_BATCH_NUMBER());
         Log.i(TAG,"DBHELPER::UpdateTraceNumberData:getTRACE_UNIQUE_ID::"+model.getHDT_HOST_ID());
         db.update(DBStaticField.TABLE_HOST,contentValues,"HDT_HOST_ID="+model.getHDT_HOST_ID(),null);
@@ -1638,15 +1639,25 @@ public class DBHelper {
 
     public boolean UpdateBatchData(BatchModel model) {
 
-        SQLiteDatabase db = DBHelper.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(DBStaticField.VOIDED, model.getVOIDED());
-        contentValues.put(DBStaticField.UPLOADED, model.getUPLOADED());
-        Log.i(TAG,"DBHELPER::UpdateTraceNumberData::"+model.getRETR_REF_NUM());
-        Log.i(TAG,"DBHELPER::UpdateTraceNumberData:getTRACE_UNIQUE_ID::"+model.getRETR_REF_NUM());
-        db.update(DBStaticField.TABLE_BATCH,contentValues,"retr_ref_num="+model.getRETR_REF_NUM(),null);
+        try {
+            SQLiteDatabase db = DBHelper.getWritableDatabase();
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(DBStaticField.VOIDED, model.getVOIDED());
+            contentValues.put(DBStaticField.UPLOADED, model.getUPLOADED());
+            Log.i(TAG, "DBHELPER::UpdateTraceNumberData::" + model.getRETR_REF_NUM());
+            Log.i(TAG, "DBHELPER::UpdateTraceNumberData:getTRACE_UNIQUE_ID::" + model.getRETR_REF_NUM());
+            //int result = db.update(DBStaticField.TABLE_BATCH, contentValues, "retr_ref_num=" + model.getRETR_REF_NUM(), null);
+            int result =db.update(DBStaticField.TABLE_BATCH, contentValues, "retr_ref_num = ?", new String[] {model.getRETR_REF_NUM()});
+            if (result > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }catch (SQLException e) {
+            System.out.println("Exception "+e.getMessage());
+        }
 
-        return true;
+        return false;
     }
 
     public ArrayList<BatchModel> getBatchData(String inRecord_Num) {

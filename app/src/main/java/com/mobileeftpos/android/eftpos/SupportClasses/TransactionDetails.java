@@ -50,37 +50,49 @@ public class TransactionDetails {
     public static String responseMessge;
     public static String AlipayTag72;
 
+    public static String ConnectionTimeout;
+
     // public static int inGHDT ;
     int inGNoOfValidHosts;
+    //Ezlink Parameters
+    public static byte[] CEPASver= new byte[1];// = CardResponse[0];
+    public static byte[] LastPruseStatus= new byte[1];// = CardResponse[1];
+    public static byte[] bOrigBal= new byte[3];//, CardResponse + 2, 3);
+    //lnCardBalance = (CardResponse[2]*256*256) + (CardResponse[3]*256) + CardResponse[4];
+    public static byte[]  AutoLoadAmt= new byte[3];//, CardResponse + 5, 3);
+    public static byte[] CAN= new byte[8];//, CardResponse + 8, 8);
+    public static byte[] CSN= new byte[8];//, CardResponse + 16, 8);
+    public static byte[] PurseExpiryDate= new byte[2];//, CardResponse + 24, 2);
+    public static byte[] PurseCreationDate= new byte[2];//, CardResponse + 26, 2);
+    public static byte[] LastCreditTRP= new byte[4];//, CardResponse + 28, 4);
+    public static byte[] LastCreditHeader= new byte[8];//, CardResponse + 32, 8);
+    public static byte[] TransLogCount= new byte[1];
+    public static byte[] IssuerSpecificdataLength= new byte[1];// = CardResponse[41];
+    public static byte[] LastTRP= new byte[4];//, CardResponse + 42, 4);
+    public static byte[] LastHeader= new byte[16];//, CardResponse + 46, 16);
+    public static byte[] IssuerSpecificdata= new byte[32];//, CardResponse + 62, 32);
+    public static byte[] LastOptions= new byte[1];
+    public static byte[] SignCert= new byte[8];//, &CardResponse[63 + 32], 8);
+    public static byte[] CounterData= new byte[8];//, &CardResponse[71 + 32], 8);
+    public static byte[] IsoCrc_b= new byte[2];//, &CardResponse[79 + 32], 2);
+    public static byte[] bBDC= new byte[1];
+    public static byte[] bRefund= new byte[1];
+    public static byte[] PurseBalance= new byte[3];
+    public static byte[] LastSignCert= new byte[8];//, &CardResponse[63 + 32], 8);
+    public static byte[] LastCounterData= new byte[8];//, &CardResponse[71 + 32], 8);
+
+    //transaction
+    public static byte[]  TerminalRandomNumber  = new byte[8];
+    public static byte[]  CardNumberRandomNumber= new byte[8];
+    public static byte[]  SAMSerialNumber= new byte[8];
+    public static byte[]  SessionKey= new byte[16];
+    public static byte[]  PaymentTRP= new byte[4];
+    public static byte[]  EzlinkPaymentAmt= new byte[3];
+    public static byte[]  JulianDate=new byte[4];
+    public static byte[]  GtxnCRC=new byte[2];
 
 
-
-   /* //private String messagetype;
-    //private String processingcode;
-
-    private String partnerid;
-    private String sellerid;
-    private String partnertransid;
-    private String buyerid;
-
-
-    private String quantity;
-    private String transactionname;
-    private String userid;
-    private String uiqueappid;
-    private String androidserialid;
-    private String responsecode;
-    private String responsemesage;
-    private String alipaytransid;*/
-    //public static String EntryMode;
-    //private DBHelper databaseObj;
-    //public Context context;
-    //ALIPAy response
-
-   // public static String PartnerTransID;
-
-
-    public void vdCleanFields(){
+    public static void vdCleanFields(){
         trxAmount="";
         tipAmount="";
         trxDateTime="";//yyyyMMddHHmmssSS
@@ -104,7 +116,7 @@ public class TransactionDetails {
         POSEntryMode="";
         NII="";
         POS_COND_CODE="";
-        inGNoOfValidHosts=0;
+
         AlipayTag72="";
         refundid="";
         //PartnerTransID="";
@@ -126,8 +138,13 @@ public class TransactionDetails {
         if(TransactionDetails.PAN.isEmpty()|| TransactionDetails.PAN==null )
             return Constants.ReturnValues.TRANSACTION_NOT_SUPPORTED;
 
+        if(databaseObj == null){
+            return Constants.ReturnValues.RETURN_ERROR;
+        }
+
 
         Log.i(TAG,"TransDetails::inSortPAN:");
+        TransactionDetails.responseMessge = "Case 401";
         while (true)
         {
 		/* get the index */
@@ -143,14 +160,22 @@ public class TransactionDetails {
             Log.i(TAG,"TransDetails::High Value:"+cardbinModeldata.getCDT_HI_RANGE());
             Log.i(TAG,"TransDetails::PAN:"+this.PAN);
 
-            if(cardbinModeldata==null)
+            TransactionDetails.responseMessge = "Case 402";
+            if(cardbinModeldata==null) {
+                TransactionDetails.responseMessge = "Case 408";
                 break;
+            }
 
+            TransactionDetails.responseMessge = "Case 403"+"\n";
+            TransactionDetails.responseMessge = TransactionDetails.responseMessge+"LOW "+cardbinModeldata.getCDT_LO_RANGE()+"\n";
+            TransactionDetails.responseMessge = TransactionDetails.responseMessge+"HIGH "+cardbinModeldata.getCDT_HI_RANGE()+"\n";
+            TransactionDetails.responseMessge = TransactionDetails.responseMessge+"PAN "+this.PAN+"\n";
             Log.i(TAG,"TransDetails::LLow Value_2:"+cardbinModeldata.getCDT_LO_RANGE());
             Log.i(TAG,"TransDetails::High Value_2:"+cardbinModeldata.getCDT_HI_RANGE());
             Log.i(TAG,"TransDetails::getCDT_HDT_REFERENCE:"+cardbinModeldata.getCDT_HDT_REFERENCE());
             Log.i(TAG,"TransDetails::getCDT_CARD_TYPE_ARRAY:"+cardbinModeldata.getCDT_CARD_TYPE_ARRAY());
             Log.i(TAG,"TransDetails::PAN_2:"+this.PAN);
+
 
 
             Log.i(TAG,"TransDetails::Checking Loop");
@@ -161,6 +186,8 @@ public class TransactionDetails {
                     //Integer.parseInt(cardbinModeldata.getCDT_LO_RANGE()) != 0 &&
                     //Integer.parseInt(cardbinModeldata.getCDT_HI_RANGE())!=0)
             {
+                TransactionDetails.responseMessge = TransactionDetails.responseMessge + "Case 4033"+"\n";
+                TransactionDetails.responseMessge = "Case 404";
                 Log.i(TAG,"TransDetails::Inside the Loop:");
                 inGNoOfValidHosts = vecGetValidCurrVsHDTList( 1
                         , cardbinModeldata.getCDT_HDT_REFERENCE()
@@ -182,20 +209,27 @@ public class TransactionDetails {
 
                 Log.i(TAG,"TransDetails::inGCDT:"+inGCDT);
 
+                TransactionDetails.responseMessge = "Case 409";
                break;
             }
 
+            TransactionDetails.responseMessge = TransactionDetails.responseMessge + "Case 4032"+"\n";
             Log.i(TAG,"TransDetails::come out of loop");
             if(cardbinModeldata.getCDT_LO_RANGE().length() == 0 || cardbinModeldata.getCDT_HI_RANGE().length() == 0) {
+                TransactionDetails.responseMessge = TransactionDetails.responseMessge + "Case 4033"+"\n";
+                TransactionDetails.responseMessge = "Case 405";
                 Log.i(TAG,"TransDetails::cardbinModeldata.getCDT_LO_RANGE().length()");
                 return Constants.ReturnValues.TRANSACTION_NOT_SUPPORTED;
             }
+            TransactionDetails.responseMessge = TransactionDetails.responseMessge + "Case 4034"+"\n";
         }
 
+        TransactionDetails.responseMessge = TransactionDetails.responseMessge + "Case 4035"+"\n";
         Log.i(TAG,"TransDetails::Find Valid:inGNoOfValidHosts "+inGNoOfValidHosts);
         HostModel hostdata = new HostModel();
         //inGHDT = inSelectHost();
         for (i = 0; i < inGNoOfValidHosts; i++) {
+            TransactionDetails.responseMessge = TransactionDetails.responseMessge + "Case 4036"+"\n";
 
             String localHdtIndex=ui8GlistOfValidHosts[i];
             Log.i(TAG,"TransDetails::localHdtIndex:"+localHdtIndex);
@@ -208,7 +242,7 @@ public class TransactionDetails {
                 Log.i(TAG,"TransDetails::Continue...");
                 continue;
             }
-            if(hostdata.getHDT_DESCRIPTION().contains("ALI"))
+            //if(hostdata.getHDT_DESCRIPTION().contains("ALI"))
             {
                 Log.i(TAG,"TransDetails::ALIPAY FOUND ...");
                 inGHDT = Integer.parseInt(hostdata.getHDT_HOST_ID());
@@ -218,16 +252,27 @@ public class TransactionDetails {
                 Log.i(TAG,"TransDetails::inGCOM..."+inGCOM);
                 Log.i(TAG,"TransDetails::inGCURR..."+inGCURR);
                 inFindGetCTT(inGHDT, databaseObj);
+                TransactionDetails.responseMessge = "Case 4101";
                 return Constants.ReturnValues.RETURN_OK;
 
-            }else {
+            }
+            /*else {
                 Log.i(TAG, "inlocalHdtIndex2..." + inlocalHdtIndex);
                 inGHDT = Integer.parseInt(hostdata.getHDT_HOST_ID());
-            }
-            Log.i(TAG,"TransDetails::inGHDT..."+inGHDT);
+                inGHDT = Integer.parseInt(hostdata.getHDT_HOST_ID());
+                inGCOM = Integer.parseInt(hostdata.getHDT_COM_INDEX());
+                inGCURR = Integer.parseInt(hostdata.getHDT_CURR_INDEX());
+                Log.i(TAG,"TransDetails::inGHDT1..."+inGHDT);
+                Log.i(TAG,"TransDetails::inGCOM..."+inGCOM);
+                Log.i(TAG,"TransDetails::inGCURR..."+inGCURR);
+                inFindGetCTT(inGHDT, databaseObj);
+                return Constants.ReturnValues.RETURN_OK;
+            }*/
+            //Log.i(TAG,"TransDetails::inGHDT..."+inGHDT);
 
         }
 
+        TransactionDetails.responseMessge = TransactionDetails.responseMessge + "Case 4037"+"\n";
     return Constants.ReturnValues.TRANSACTION_NOT_SUPPORTED;
     }
 
@@ -347,6 +392,7 @@ public class TransactionDetails {
 
         //early exit
         if(inTotalValidInvalidHosts == 0){
+            TransactionDetails.responseMessge = "Case 407";
             return 0;
         }
 

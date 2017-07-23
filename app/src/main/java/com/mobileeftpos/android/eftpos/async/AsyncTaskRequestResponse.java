@@ -27,6 +27,7 @@ import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.model.BatchModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
 import com.mobileeftpos.android.eftpos.model.HostModel;
+import com.mobileeftpos.android.eftpos.model.HostTransmissionModel;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -60,9 +61,17 @@ public class AsyncTaskRequestResponse {
     private String ServerIP="";
     private String Port="";
 
+    HostTransmissionModel connectionTimeout =new HostTransmissionModel();
+    //public AsyncTaskRequestResponse(Context context){
+        //loContext = context;
+        //databaseObj = new DBHelper(context);
+    //}
     public int AsyncTaskCreation(Context context) {
         loContext = context;
         databaseObj = new DBHelper(loContext);
+
+        connectionTimeout = databaseObj.getHostTransmissionModelData(0);
+        TransactionDetails.ConnectionTimeout = connectionTimeout.getCONNECTION_TIMEOUT();
 
         new AsyncTaskRunner().execute();
         return 0;
@@ -93,8 +102,12 @@ public class AsyncTaskRequestResponse {
             // execution of result of Long time consuming operation
             super.onPostExecute(result);
 
+            progressDialog.dismiss();
             payServices.vdUpdateSystemTrace(databaseObj);
             if(result != null) {
+                if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN) {
+                    loContext.startActivity(new Intent(loContext, AlipayCheckPrompt.class));
+                }
                 if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_OK) {
                     //printReceipt.inPrintReceipt(databaseObj);
                     //Redirect to Success Activity
@@ -104,25 +117,44 @@ public class AsyncTaskRequestResponse {
                             Intent intent = new Intent(loContext, PaymentSuccess.class);
                             loContext.startActivity(intent);
 
-                            progressDialog.dismiss();
+                            //progressDialog.dismiss();
                         }
                     }, TIME_OUT);
-                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_ERROR) {
+                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_ERROR ||
+                        Integer.parseInt(result) == Constants.ReturnValues.RETURN_REVERSAL_FAILED ||
+                        Integer.parseInt(result) == Constants.ReturnValues.RETURN_REVERSAL_FAILED) {
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             Intent intent = new Intent(loContext, PaymentFailure.class);
                             loContext.startActivity(intent);
-                            progressDialog.dismiss();
+                            //progressDialog.dismiss();
                         }
                     }, TIME_OUT);
                 } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN) {
                     loContext.startActivity(new Intent(loContext, AlipayCheckPrompt.class));
-                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_NOTIFICATION) {
-                    //startActivity(new Intent(AlipayActivity.this,AlipayCheckPrompt.class));
+                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_SEND_RECV_FAILED) {
+
+                    TransactionDetails.responseMessge ="SEND RECV FAILED";
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(loContext, PaymentFailure.class);
+                            loContext.startActivity(intent);
+                            //progressDialog.dismiss();
+                        }
+                    }, TIME_OUT);
                 }else
                 {
-                    loContext.startActivity(new Intent(loContext, HomeActivity.class));
+                    //loContext.startActivity(new Intent(loContext, HomeActivity.class));
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(loContext, PaymentFailure.class);
+                            loContext.startActivity(intent);
+                            //progressDialog.dismiss();
+                        }
+                    }, TIME_OUT);
                 }
             }
         }
@@ -138,7 +170,7 @@ public class AsyncTaskRequestResponse {
         }
     }
 
-    private int inSearchAlipayHost() {
+    public int inSearchHost(String lstHostType) {
         //findout number of host available
         HostModel hostModel;
         List<HostModel> hostModelList = databaseObj.getAllHostTableData();
@@ -147,7 +179,7 @@ public class AsyncTaskRequestResponse {
             if (!(hostModel == null || hostModel.equals(""))) {
                 if (hostModel.getHDT_HOST_ENABLED().equalsIgnoreCase("1")) {
                     //Dynamically add buttons now with the name of hostModel.getHDT_HOST_LABEL();
-                    if(hostModel.getHDT_HOST_LABEL().contains("ALI")){
+                    if(hostModel.getHDT_HOST_TYPE().equals(lstHostType)){
                         TransactionDetails.inGHDT = Integer.parseInt(hostModel.getHDT_HOST_ID());
                         TransactionDetails.inGCOM = Integer.parseInt(hostModel.getHDT_COM_INDEX());
                         TransactionDetails.inGCURR = Integer.parseInt(hostModel.getHDT_CURR_INDEX());
@@ -175,6 +207,8 @@ public class AsyncTaskRequestResponse {
         String ReversalData = KeyValueDB.getReversal(loContext);
         if(!ReversalData.isEmpty())
         {
+            if(remoteHost.inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK)
+                return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
             //FinalData = UploadData.getBytes();
             byte[] FinalData = new BigInteger(ReversalData, 16).toByteArray();
             TransactionDetails.inFinalLength = FinalData[0] *256;
@@ -195,11 +229,9 @@ public class AsyncTaskRequestResponse {
                 return Constants.ReturnValues.RETURN_ERROR;
             }
 
-            if(remoteHost.inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK)
-                return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
         }
         //Store Reversal
-        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.REVERSAL);
+        /*TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.REVERSAL);
         if(TransactionDetails.inFinalLength == 0) {
             return Constants.ReturnValues.RETURN_ERROR;
         }
@@ -209,13 +241,15 @@ public class AsyncTaskRequestResponse {
         }
         Log.i(TAG,"\nSet Reversal:");
         Log.i(TAG,result);
-        KeyValueDB.setReversal(loContext,new String(result));
+        KeyValueDB.setReversal(loContext,new String(result));*/
         return Constants.ReturnValues.RETURN_OK;
     }
 
-    int inCheckUpload(int inConnectionRequired) {
+    int inCheckUpload() {
         String UploadData = KeyValueDB.getUpload(loContext);
         if (!UploadData.isEmpty()) {
+            if(remoteHost.inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK)
+                return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
             //FinalData = UploadData.getBytes();
             byte[] FinalData = new BigInteger(UploadData, 16).toByteArray();
             TransactionDetails.inFinalLength = FinalData[0] * 256;
@@ -235,12 +269,47 @@ public class AsyncTaskRequestResponse {
                 return Constants.ReturnValues.RETURN_ERROR;
             }
 
-            if(inConnectionRequired == Constants.TRUE) {
-                if (remoteHost.inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK)
-                    return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
-            }
+
         }
         return Constants.ReturnValues.RETURN_OK;
+    }
+
+    private int inTranactionSendRecv()
+    {
+        int inError=Constants.ReturnValues.RETURN_OK;
+        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, TransactionDetails.trxType);
+        if(TransactionDetails.inFinalLength == 0) {
+            inError = Constants.ReturnValues.RETURN_ERROR;
+        }
+        if(remoteHost.inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK)
+            return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
+        Log.i(TAG, "Aipay:inSendRecvPacket:");
+        if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
+            inError = Constants.ReturnValues.RETURN_SEND_RECV_FAILED;
+        }
+        if (remoteHost.inDisconnection() != 0) {
+            inError = Constants.ReturnValues.RETURN_ERROR;
+        }
+
+        return inError;
+    }
+
+    private int inConnectSendRecvPacket()
+    {
+        int inError;
+        inError = inCheckReversal();
+        if(inError != Constants.ReturnValues.RETURN_OK)
+            return inError;
+
+        inError = inCheckUpload();
+        if(inError != Constants.ReturnValues.RETURN_OK)
+            return inError;
+
+        inError = inTranactionSendRecv();
+        if(inError != Constants.ReturnValues.RETURN_OK)
+            return inError;
+        return inError;
+
     }
         private int processRequest()
         {
@@ -265,7 +334,13 @@ public class AsyncTaskRequestResponse {
                                 break;
                         }else
                         {
-                            inError = inSearchAlipayHost();
+                            if(TransactionDetails.trxType == Constants.TransType.REFUND) {
+                                inError = inSearchHost(Constants.HostType.ALIPAY_HOST);
+                            }else if(TransactionDetails.trxType ==  Constants.TransType.BLACKLIST_FIRST_DOWNLOAD ||
+                                    TransactionDetails.trxType ==  Constants.TransType.BLACKLIST_SUBSEQUENT_DOWNLOAD)
+                            {
+                                inError = inSearchHost(Constants.HostType.EZLINK_PAYMENT_HOST);
+                            }
                             if(inError != Constants.ReturnValues.RETURN_OK)
                                 break;
                         }
@@ -283,49 +358,82 @@ public class AsyncTaskRequestResponse {
                         Port = IP_Port.substring(indexOffset+1);
                         Log.i(TAG, "Aipay:ServerIP ::: "+ServerIP);
                         Log.i(TAG, "Aipay:Server PORT ::: "+Port);
-
                         String stTrace = payServices.pGetSystemTrace(databaseObj);
                         TransactionDetails.InvoiceNumber = stTrace;
-
                         Log.i(TAG, "Aipay:inCreatePacket:stTrace::"+stTrace);
 
-                        inError = remoteHost.inConnection(ServerIP, Port);
-                        if(inError != Constants.ReturnValues.RETURN_OK)
-                            break;
-
-                        inError = inCheckReversal();
-                        if(inError != Constants.ReturnValues.RETURN_OK)
-                            break;
-
-                        inError = inCheckUpload(Constants.TRUE);
-                        if(inError != Constants.ReturnValues.RETURN_OK)
-                            break;
                         break;
                     case 2://
                         //TransactionDetails.trxType = inTempTrxType;
-                    TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, TransactionDetails.trxType);
-                    if(TransactionDetails.inFinalLength == 0) {
-                        inError = Constants.ReturnValues.RETURN_ERROR;
-                        break;
-                    }
+                        inError = inCheckReversal();
+                        if(inError != Constants.ReturnValues.RETURN_OK) {
+                            TransactionDetails.responseMessge = "REVERSAL FAILED";
+                            return Constants.ReturnValues.RETURN_REVERSAL_FAILED;
+                        }
+
+                        inError = inCheckUpload();
+                        if(inError != Constants.ReturnValues.RETURN_OK) {
+                            TransactionDetails.responseMessge = "UPLOAD FAILED";
+                            return Constants.ReturnValues.RETURN_UPLOAD_FAILED;
+                        }
+
+
+
                     break;
                     case 3://
+                        /*TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.REVERSAL);
+                        if(TransactionDetails.inFinalLength == 0) {
+                            inError = 1;
+                            break;
+                        }
+
+                        if(remoteHost.inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK)
+                            return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
+
+                        result = "";
+                        for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
+                            result = result + String.format("%02x", FinalData[k]);
+                        }
+                        Log.i(TAG,"\nSet Reversal:");
+                        Log.i(TAG,result);
+                        KeyValueDB.setReversal(loContext,new String(result));*/
+
+                        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.ALIPAY_SALE);
+                        if(TransactionDetails.inFinalLength == 0) {
+                            inError = 1;
+                            break;
+                        }
+                        break;
+
+
+                    case 4:
                         Log.i(TAG, "Aipay:inSendRecvPacket:");
                         if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
-                            inError = Constants.ReturnValues.RETURN_SEND_RECV_FAILED;
-                            break;
+                            //inError = 1;
+                            //break;
+                            return Constants.ReturnValues.RETURN_UNKNOWN;
                         }
 
+                        int inRet = isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength);
+
+
+                        remoteHost.inDisconnection();
+
+                        if(inRet == Constants.ReturnValues.RETURN_UNKNOWN)
+                        {//PROMPT CHECK REVERSAL and ENQUIRY
+                            return Constants.ReturnValues.RETURN_UNKNOWN;
+                        }else if (inRet == Constants.ReturnValues.RETURN_OK) {
+                        //redirect to error
                         break;
-                    case 4:
-
-                        inError = isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength);
-
-                        if (remoteHost.inDisconnection() != 0) {
-                            inError = Constants.ReturnValues.RETURN_ERROR;
-                            break;
+                        }else{
+                            KeyValueDB.removeReversal(loContext);//Clear Reversal
+                            //inError = 1;
+                            //redirect to error
+                           //break;
+                            return Constants.ReturnValues.RETURN_ERROR;
                         }
-                        break;
+
+
                     case 5:
                         Log.i(TAG, "\nSave Record:");
                         //save Record
@@ -355,14 +463,12 @@ public class AsyncTaskRequestResponse {
                             Log.i(TAG,"\nUpload data store::");
                             Log.i(TAG,result);
                             KeyValueDB.setUpload(loContext,new String(result));
-                            inError = remoteHost.inConnection(ServerIP, Port);
-                            if(inError != Constants.ReturnValues.RETURN_OK)
-                                break;
-                            inError = inCheckUpload(Constants.FALSE);
+
+                            inError = inCheckUpload();
                             if(inError != Constants.ReturnValues.RETURN_OK)
                                 break;
                         }
-                        inError = inCheckUpload(Constants.FALSE);
+                        inError = inCheckUpload();
                         if(inError != Constants.ReturnValues.RETURN_OK)
                             break;
                         break;
@@ -382,6 +488,26 @@ public class AsyncTaskRequestResponse {
             return inError;
         }
 
+        int inProcessResponseAsPerTransaction(){
+            int inError=Constants.ReturnValues.RETURN_NETWORK_MESSAGE;
+            switch(TransactionDetails.trxType)
+            {
+                case Constants.TransType.BLACKLIST_FIRST_DOWNLOAD:
+                    vdProcessBackListResponse(Constants.TRUE);
 
+                    break;
+                case Constants.TransType.BLACKLIST_SUBSEQUENT_DOWNLOAD:
+                    vdProcessBackListResponse(Constants.FALSE);
+                    break;
+            }
+            return inError;
+        }
+    int vdProcessBackListResponse(int CreateFile) {
+
+        if (CreateFile == Constants.TRUE) {
+            return Constants.ReturnValues.RETURN_OK;
+        }
+        return 0;
+    }
 }
 

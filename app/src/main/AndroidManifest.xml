@@ -3,13 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.mobileeftpos.android.eftpos">
 
+    <uses-sdk android:minSdkVersion="10" />
+
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.NFC" />
-    <uses-sdk android:minSdkVersion="10"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".app.EftposApp"
@@ -104,7 +107,10 @@
             android:value="9ae83f84f38427891bbb8bedebf7172679eb24f6" />
 
         <activity android:name=".activity.RefundFlow" />
-        <activity android:name=".activity.ConfirmRefund"></activity>
+        <activity android:name=".activity.ConfirmRefund" />
+        <activity android:name=".Ezlink.EzlBalance" />
+        <activity android:name=".Ezlink.EzlBlacklist" />
+        <activity android:name=".Ezlink.CepasPayment"></activity>
     </application>
 
 </manifest>

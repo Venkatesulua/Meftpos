@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mobileeftpos.android.eftpos.Ezlink.CepasPayment;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
@@ -57,12 +58,14 @@ private Button submitBtn;
                     TransactionDetails.trxAmount = amount;
                     if(TransactionDetails.trxType == Constants.TransType.ALIPAY_SALE)
                         startActivity(new Intent(SaleActivity.this, AlipayActivity.class));
+                    else if(TransactionDetails.trxType == Constants.TransType.EZLINK_SALE){
+                        startActivity(new Intent(SaleActivity.this, CepasPayment.class));
+                    }
                     //startActivity(new Intent(SaleActivity.this, ScannerActivity.class));
                     //startActivity(new Intent(SaleActivity.this,FullScannerActivity.class));
-                }else{
-
+                }
+                else{
                     Toast.makeText(SaleActivity.this,"Please Enter Sale Amount", Toast.LENGTH_LONG).show();
-
                 }
             }
         });

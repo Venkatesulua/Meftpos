@@ -7,14 +7,17 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.mobileeftpos.android.eftpos.FileManagement.FileReadWrite;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.database.DBStaticField;
 import com.mobileeftpos.android.eftpos.model.BarcodeModel;
 import com.mobileeftpos.android.eftpos.model.BatchModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
 import com.mobileeftpos.android.eftpos.model.CurrencyModel;
+import com.mobileeftpos.android.eftpos.model.EzlinkModel;
 import com.mobileeftpos.android.eftpos.model.HostModel;
 import com.mobileeftpos.android.eftpos.model.MerchantModel;
+import com.mobileeftpos.android.eftpos.utils.StringByteUtils;
 
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
@@ -35,10 +38,11 @@ public class PacketCreation {
     private BarcodeModel barcode = new BarcodeModel();
     private CurrencyModel currModel = new CurrencyModel();
     private HostModel hostData = new HostModel();
+    private EzlinkModel EzlinkData = new EzlinkModel();
     private CommsModel commData = new CommsModel();
     private MerchantModel merchantData = new MerchantModel();
-    private ISOPackager1 packager = new ISOPackager1();
-    private ISOMsg isoMsg = new ISOMsg();
+    public ISOPackager1 packager = new ISOPackager1();
+    public ISOMsg isoMsg = new ISOMsg();
     private final String TAG = "my_custom_msg";
     //private int TransactionDetails.inFinalLength=0;
     private TransactionDetails trDetails = new TransactionDetails();
@@ -47,14 +51,12 @@ public class PacketCreation {
     Gson gson = new Gson();
     int inVoided=0;
     long SaleCount=0,SaleAmount=0,RefundCount=0,RefundAmount=0;
+    String Field47="";
 
 
     public BatchModel vdSaveRecord(DBHelper databaseObj){
-        barcode = databaseObj.getBarcodeData(0);
-        currModel = databaseObj.getCurrencyData(TransactionDetails.inGCURR);
-        hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
-        commData = databaseObj.getCommsData(TransactionDetails.inGCOM);
-        merchantData = databaseObj.getMerchantData(0);
+       // barcode = databaseObj.getBarcodeData(0);
+
         PayServices payServices= new PayServices();
         BatchModel batchModel = new BatchModel();
         //Save transaction
@@ -205,6 +207,11 @@ public class PacketCreation {
 
 
 
+        //currModel.setCURR_LABEL("MYR");
+        //currModel.setCURR_EXPONENT("2");
+        //currModel.setCURR_CODE("458");
+
+
         String stAlipayExtData="";
         isoMsg.setPackager(packager);
         try {
@@ -214,6 +221,23 @@ public class PacketCreation {
 
             String staddinfo="";
             switch (inTrxType) {
+                case Constants.TransType.EZLINK_SALE:
+                    isoMsg.setHeader(hostData.getHDT_TPDU().getBytes());
+                    isoMsg.setMTI(Constants.MTI.Financial);
+                    isoMsg.set(2, TransactionDetails.PAN);
+                    isoMsg.set(3, Constants.PROCESSINGCODE.EZLINK_PAYMENT_PROC);
+                    isoMsg.set(4, TransactionDetails.trxAmount);
+                    isoMsg.set(11, TransactionDetails.InvoiceNumber);
+                    isoMsg.set(12, TransactionDetails.trxDateTime.substring(8,14));
+                    isoMsg.set(13, TransactionDetails.trxDateTime.substring(4,8));
+                    isoMsg.set(24, hostData.getHDT_TPDU().substring(2,6));
+                    isoMsg.set(25, "00");
+                    isoMsg.set(37, TransactionDetails.RetrievalRefNumber);
+                    isoMsg.set(41, hostData.getHDT_TERMINAL_ID());
+                    isoMsg.set(42, hostData.getHDT_MERCHANT_ID());
+                    isoMsg.set(63, TransactionDetails.responseMessge);
+
+                    break;
                 case Constants.TransType.TMS_INITIAL_PACKET:
                     isoMsg.setHeader(globalVar.tmsParam.getTMS_TPDU().getBytes());
                     isoMsg.setMTI("0100");
@@ -263,12 +287,9 @@ public class PacketCreation {
                         TransactionDetails.messagetype = Constants.MTI.Financial_Repeat;
                         CreateTLVFields(1, Constants.MTI.Financial_Repeat,FinalData);
                     }
-
                     CreateTLVFields(3, Constants.PROCESSINGCODE.pcFinancialRequest,FinalData);
                     CreateTLVFields(4, barcode.getPARTNER_ID(),FinalData);
                     CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
-
-
                     //CreateTLVFields(8,(TransactionDetails.trxDateTime+"00"),FinalData);
                     CreateTLVFields(9,currModel.getCURR_LABEL(),FinalData);
                     CreateTLVFields(10,TransactionDetails.trxAmount,FinalData);
@@ -278,7 +299,6 @@ public class PacketCreation {
                     CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
                     break;
                 case Constants.TransType.ALIPAY_REFUND:
-
                     TransactionDetails.processingcode = Constants.PROCESSINGCODE.pcRefund;
                     if(inTrxType == Constants.TransType.ALIPAY_REFUND) {
                         TransactionDetails.messagetype = Constants.MTI.Financial;
@@ -287,20 +307,15 @@ public class PacketCreation {
                         TransactionDetails.messagetype = Constants.MTI.Financial_Repeat;
 
                     }
-
                     CreateTLVFields(1, TransactionDetails.messagetype,FinalData);
                     CreateTLVFields(2, TransactionDetails.stOriAmount,FinalData);
                     CreateTLVFields(3, TransactionDetails.processingcode,FinalData);
                     CreateTLVFields(4, barcode.getPARTNER_ID(),FinalData);
                     CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
-
-
                     CreateTLVFields(8,TransactionDetails.RetrievalRefNumber,FinalData);
                     CreateTLVFields(9,currModel.getCURR_LABEL(),FinalData);
                     CreateTLVFields(10,TransactionDetails.trxAmount,FinalData);
-                    //rCreateTLVFields(11,TransactionDetails.PAN,FinalData);
                     CreateTLVFields(41,hostData.getHDT_TERMINAL_ID(),FinalData);
-
                     CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
                     break;
 
@@ -352,7 +367,6 @@ public class PacketCreation {
 
                     break;
                 case Constants.TransType.VOID:
-
                    CreateTLVFields(1, Constants.MTI.Financial,FinalData);
                    CreateTLVFields(3, Constants.PROCESSINGCODE.stVoid,FinalData);
                     CreateTLVFields(4, barcode.getPARTNER_ID(),FinalData);
@@ -486,6 +500,41 @@ public class PacketCreation {
                     CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
 
                     break;
+                case Constants.TransType.BLACKLIST_FIRST_DOWNLOAD:
+                case Constants.TransType.BLACKLIST_SUBSEQUENT_DOWNLOAD:
+                    isoMsg.setHeader(hostData.getHDT_TPDU().getBytes());
+                    isoMsg.setMTI(Constants.MTI.NetworkManagement);
+                    if(TransactionDetails.trxType == Constants.TransType.BLACKLIST_FIRST_DOWNLOAD)
+                        isoMsg.set(3, Constants.PROCESSINGCODE.BLACKLIST_FIRST_PROC);
+                    else
+                        isoMsg.set(3, Constants.PROCESSINGCODE.BLACKLIST_NEXT_PROC);
+
+                    isoMsg.set(11, TransactionDetails.InvoiceNumber);
+                    String Bii =hostData.getHDT_TPDU().substring(2,6);
+                    isoMsg.set(24, Bii);
+                    isoMsg.set(25, "00");
+                    isoMsg.set(41, hostData.getHDT_TERMINAL_ID());
+                    isoMsg.set(42,hostData.getHDT_MERCHANT_ID());
+
+                    if(Field47.isEmpty())
+                        isoMsg.set(47,"FULL000000");
+                    else
+                        isoMsg.set(47,Field47);
+                   /* field_47[0] = 0x00; //Ezlink: ABL Changes
+                    field_47[1] = 0x10; //Ezlink: ABL Changes
+                    if (strlen(stGlobalex.chGAdditionalPrompt) > 0) {
+                        memcpy(field_47 + 2, stGlobalex.chGAdditionalPrompt, 10); //Ezlink: ABL Changes
+                    } else {
+                        if (field_47[2] == 'P' && field_47[3] == 'A' && field_47[4] == 'R' && field_47[5] == 'L') //Ezlink: ABL Changes
+                            strncpy((char*) field_47 + 2, "PARL", 4);
+			else
+                        strncpy((char*) field_47 + 2, "FULL", 4);
+                        strncpy((char*) field_47 + 6, "000000", 6);
+
+                    }*/
+
+                    break;
+
             }
 
             //String result;
@@ -494,10 +543,11 @@ public class PacketCreation {
             //  Log.i(TAG,"PacketCreation:::PACK:");
             // Get and print the output result
             try {
-                if(TransactionDetails.trxType != Constants.TransType.INIT_SETTLEMENT &&
+                /*if(TransactionDetails.trxType != Constants.TransType.INIT_SETTLEMENT &&
                         TransactionDetails.trxType != Constants.TransType.FINAL_SETTLEMENT&&
                         TransactionDetails.trxType !=  Constants.TransType.ALIPAY_REFUND && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_REFUND &&
-                        TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_SALE) {
+                        TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_SALE)*/
+                if(!(hostData.getHDT_HOST_TYPE().equals(Constants.HostType.ALIPAY_HOST))){
                     Log.i(TAG,"PacketCreation:::NOT ALIPAY SALES ");
                     Log.i(TAG,"PacketCreation:::NOT ALIPAY SALES ");
                     logISOMsg(isoMsg);
@@ -618,8 +668,19 @@ public class PacketCreation {
 		 * byLen[0]; FinalData[1] = byLen[1]; }
 		 */
         // Check the length in BCD or HEX
-        FinalData[0] = (byte) ((inPacLen + tpdu.length) / 256);
-        FinalData[1] = (byte) ((inPacLen + tpdu.length) % 256);
+        if(TransactionDetails.trxType == Constants.TransType.TMS_INITIAL_PACKET || TransactionDetails.trxType == Constants.TransType.TMS_SUBSEQUENT_PACKET ||
+                TransactionDetails.trxType == Constants.TransType.ALIPAY_SALE ||TransactionDetails.inOritrxType == Constants.TransType.ALIPAY_SALE ||
+                TransactionDetails.trxType == Constants.TransType.ALIPAY_REFUND ||TransactionDetails.inOritrxType == Constants.TransType.ALIPAY_REFUND
+                ) {
+            FinalData[0] = (byte) ((inPacLen + tpdu.length) / 256);
+            FinalData[1] = (byte) ((inPacLen + tpdu.length) % 256);
+        }else
+        {
+            String hexString = String.format("%04d",(inPacLen+tpdu.length));
+            byte[] value = StringByteUtils.HexString2Bytes(hexString);
+            FinalData[0] = value[0];
+            FinalData[1] = value[1];
+        }
 
         Log.i(TAG,"PacketCreation:::AddLength_Tpdu_5");
         for (int i = 0; i < inPacLen; i++) {
@@ -700,6 +761,80 @@ public class PacketCreation {
         }
         return Constants.ReturnValues.RETURN_OK;
     }
+
+    public int UploadOffline(DBHelper databaseObj,String ServerIP,String Port){
+
+        BatchModel batchModeldata = new BatchModel();
+        hostData=databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        byte[] FinalData = new byte[1512];
+        RemoteHost remoteHost = new RemoteHost();
+        int inUploaded=0;
+        List<BatchModel> batchModelList=databaseObj.getBatchData(hostData.getHDT_HOST_ID());
+
+        for(int i=0;i<batchModelList.size();i++) {
+            batchModeldata = batchModelList.get(i);
+            if( !(batchModeldata ==null || batchModeldata.equals(""))) {
+                TransactionDetails.trxType = Integer.parseInt(batchModeldata.getTRANS_TYPE());
+                inUploaded = Integer.parseInt(batchModeldata.getUPLOADED());
+
+                if(inUploaded == 1)
+                    continue;
+                //inUploaded = Integer.parseInt(batchModeldata.getVOIDED());
+                TransactionDetails.inOritrxType = Integer.parseInt(batchModeldata.getTRANS_TYPE());
+                TransactionDetails.inGTrxMode = Integer.parseInt(batchModeldata.getTRANS_MODE());
+                TransactionDetails.processingcode = batchModeldata.getPROC_CODE();
+                TransactionDetails.trxAmount = batchModeldata.getAMOUNT();
+                TransactionDetails.tipAmount = batchModeldata.getTIP_AMOUNT();
+                TransactionDetails.trxDateTime = batchModeldata.getYEAR();
+                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getDATE();
+                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getTIME();
+                TransactionDetails.messagetype = batchModeldata.getORG_MESS_ID();
+//        batchModeldata.getSYS_TRACE_NUM(payServices.pGetSystemTrace(databaseObj));
+                TransactionDetails.ExpDate = batchModeldata.getDATE_EXP();
+                TransactionDetails.RetrievalRefNumber = batchModeldata.getRETR_REF_NUM();
+                TransactionDetails.chApprovalCode = batchModeldata.getAUTH_ID_RESP();
+                TransactionDetails.ResponseCode = batchModeldata.getRESP_CODE();
+                TransactionDetails.PAN = batchModeldata.getACCT_NUMBER();
+                TransactionDetails.PersonName = batchModeldata.getPERSON_NAME();
+                TransactionDetails.trxAmount = batchModeldata.getORIGINAL_AMOUNT();
+                TransactionDetails.responseMessge = batchModeldata.getADDITIONAL_DATA();
+                //batchModeldata.getPAYMENT_TERM_INFO(res.getString(res.getColumnIndex(DBStaticField.PAYMENT_TERM_INFO)));
+                TransactionDetails.PAN = batchModeldata.getPRIMARY_ACC_NUM();
+                TransactionDetails.POSEntryMode = batchModeldata.getPOS_ENT_MODE();
+                TransactionDetails.NII = batchModeldata.getNII();
+                TransactionDetails.POS_COND_CODE = batchModeldata.getPOS_COND_CODE();
+
+                DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSS");
+                Date date = new Date();
+                String stDate = dateFormat.format(date);
+                TransactionDetails.trxDateTime=stDate;
+
+                TransactionDetails.inFinalLength = inCreatePacket(databaseObj,FinalData, TransactionDetails.trxType);
+                if(TransactionDetails.inFinalLength == 0)
+                    return Constants.ReturnValues.RETURN_ERROR;
+
+                if (remoteHost.inConnection(ServerIP, Port) != 0)
+                    return Constants.ReturnValues.RETURN_ERROR;
+
+                if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null)
+                    return Constants.ReturnValues.RETURN_ERROR;
+
+                int inRet = inProcessPacket(FinalData,TransactionDetails.inFinalLength);
+                if(inRet != Constants.ReturnValues.RETURN_OK) {
+                    return Constants.ReturnValues.RETURN_ERROR;
+                }
+                if (remoteHost.inDisconnection() != Constants.ReturnValues.RETURN_OK) {
+                    return Constants.ReturnValues.RETURN_ERROR;
+                }
+                batchModeldata.setUPLOADED(Integer.toString(Constants.TRUE));
+                databaseObj.UpdateBatchData(batchModeldata);
+
+            }
+        }
+
+        return Constants.ReturnValues.RETURN_OK;
+    }
+
     public int inProcessPacket(byte[] FinalData,int nFinalLength) {
         //String result="";
         try {
@@ -707,7 +842,10 @@ public class PacketCreation {
             if(TransactionDetails.trxType!= Constants.TransType.INIT_SETTLEMENT &&
                     TransactionDetails.trxType!= Constants.TransType.FINAL_SETTLEMENT &&
                     TransactionDetails.trxType !=  Constants.TransType.ALIPAY_REFUND && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_REFUND &&
-                    TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_SALE) {
+                    TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_SALE){
+
+            //if(!(hostData.getHDT_HOST_TYPE().equals(Constants.HostType.ALIPAY_HOST))){
+
                 isoMsg.unpack(FinalData);
                 // print the DE list
                 logISOMsg(isoMsg);
@@ -740,6 +878,46 @@ public class PacketCreation {
         } catch (ISOException ex) {
             Log.i(TAG, "PacketCreation:::ISO EXCEPTION");
             Log.i(TAG, ex.getMessage());
+        }
+
+        return Constants.ReturnValues.RETURN_OK;
+    }
+
+    public int inProcessResponseAsPerTransaction(){
+        int inError=Constants.ReturnValues.RETURN_NETWORK_MESSAGE;
+        switch(TransactionDetails.trxType)
+        {
+            case Constants.TransType.BLACKLIST_FIRST_DOWNLOAD:
+                vdProcessBackListResponse(Constants.TRUE);
+
+                break;
+            case Constants.TransType.BLACKLIST_SUBSEQUENT_DOWNLOAD:
+                vdProcessBackListResponse(Constants.FALSE);
+                break;
+        }
+        return inError;
+    }
+    int vdProcessBackListResponse(int CreateFile){
+
+        String tempField60="";
+        int inRangeFile =0;
+        try {
+            if (CreateFile == Constants.TRUE) {
+                if (isoMsg.getString(47).contains("FULL")) {
+                    FileReadWrite.DeleteFile(Constants.Ezlink.BLACKLIST_INFO_FILE);
+                    FileReadWrite.DeleteFile(Constants.Ezlink.BLACKLIST_IND_FILE);
+                    FileReadWrite.DeleteFile(Constants.Ezlink.BLACKLIST_RANGE_FILE);
+                } else {
+                    FileReadWrite.DeleteFile(Constants.Ezlink.BLACKLIST_PARL_INFO_FILE);
+                    FileReadWrite.DeleteFile(Constants.Ezlink.BLACKLIST_PARL_IIND_FILE);
+                    FileReadWrite.DeleteFile(Constants.Ezlink.BLACKLIST_PARL_IRANGE_FILE);
+                }
+                FileReadWrite.WriteIntoFile(Constants.Ezlink.BLACKLIST_INFO_FILE, isoMsg.getString(60).getBytes());
+                tempField60 = isoMsg.getString(60);
+                inRangeFile = Integer.parseInt(isoMsg.getString(60).substring(0,3));
+            }
+        }catch(Exception ex){
+            return Constants.ReturnValues.RETURN_ERROR;
         }
 
         return Constants.ReturnValues.RETURN_OK;

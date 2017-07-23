@@ -1,18 +1,18 @@
-buildscript {
-    repositories {
-        maven { url 'https://maven.fabric.io/public' }
-    }
+//buildscript {
+//repositories {
+// maven { url 'https://maven.fabric.io/public' }
+//}
 
-    dependencies {
-        classpath 'io.fabric.tools:gradle:1.+'
-    }
-}
+//dependencies {
+//    classpath 'io.fabric.tools:gradle:1.+'
+//}
+//}
 apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
+//apply plugin: 'io.fabric'
 
-repositories {
-    maven { url 'https://maven.fabric.io/public' }
-}
+//repositories {
+//    maven { url 'https://maven.fabric.io/public' }
+//}
 
 apply plugin: 'android-apt'
 
@@ -97,6 +97,7 @@ dependencies {
 
     compile files('libs/sunmiscan.jar')
     compile files('libs/jpos.jar')
+    compile files('libs/bcprov-1.45.jar')
 
 
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -115,11 +116,11 @@ dependencies {
     compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
     apt "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
 
+    //compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+    //transitive = true;
+    //}
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
-        transitive = true;
-    }
-
+    compile files('libs/sunmiscan.jar')
     compile 'com.android.support:appcompat-v7:25.3.1'
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:25.3.1'
@@ -134,8 +135,8 @@ dependencies {
     compile 'com.android.support:support-vector-drawable:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.journeyapps:zxing-android-embedded:3.4.0'
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile files('libs/sunmiscan.jar')
+    compile 'com.sunmi:sunmiui:1.1.22'
+    compile 'com.sunmi:PayLib:1.0.23'
     testCompile 'junit:junit:4.12'
 }
 

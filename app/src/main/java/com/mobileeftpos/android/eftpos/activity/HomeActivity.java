@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import sunmi.paylib.SunmiPayKernel;
+
+
 /**
  * Created by Prathap on 4/26/17.
  */
@@ -37,6 +40,7 @@ public class HomeActivity extends AppCompatActivity {
             R.drawable.user_settings
     };
     public static Context context;
+    private SunmiPayKernel mSunmiPayKernel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +63,37 @@ public class HomeActivity extends AppCompatActivity {
 
 
         TransactionDetails.deviceId = "" + tm.getDeviceId();
+        conn();
     }
+
+    private void conn() {
+        mSunmiPayKernel = SunmiPayKernel.getInstance();
+        mSunmiPayKernel.connectPayService(getApplicationContext(), mConnCallback);
+    }
+
+    private SunmiPayKernel.ConnCallback mConnCallback = new SunmiPayKernel.ConnCallback() {
+        @Override
+        public void onServiceConnected() {
+            try {
+                MyApplication.mPinPadOpt = mSunmiPayKernel.mPinPadOpt;
+                MyApplication.mBasicOpt = mSunmiPayKernel.mBasicOpt;
+                MyApplication.mReadCardOpt = mSunmiPayKernel.mReadCardOpt;
+                MyApplication.mEMVOpt = mSunmiPayKernel.mEMVOpt;
+                //存储KEK,TMK,PIK,MAK,TDK,各种默认的密钥
+                //MyApplication.initSecretKey();
+                //加载默认aid和capk
+                //MyApplication.loadaidcapk();
+                //MyApplication.mReadCardOpt.cancelCheckCard();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected() {
+        }
+    };
 
     private void setupTabIcons() {
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);

@@ -86,7 +86,7 @@ public class AdminActivity extends Activity {
     private static DBHelper databaseObj;
     public static Context context;
     String connectToStr;
-    int TIME_OUT = 5000;
+    int TIME_OUT = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,42 +105,49 @@ public class AdminActivity extends Activity {
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (((appName.getText().toString().length() > 0) && (terminalId.getText().toString().length() > 0) &&
-                        (connectionType.getSelectedItem().toString().length() > 0) && (!connectionTo.getSelectedItem().toString().equalsIgnoreCase("No Options")) && (connectionTo.getSelectedItem().toString().length() > 0))) {
-                    int BatchPresent=0;
-                    BatchModel batchdata = new BatchModel();
-                    HostModel hostModel = new HostModel();
-                    List<HostModel> hostModelList = databaseObj.getAllHostTableData();
-                    for (int i = 0; i < hostModelList.size(); i++) {
-                        hostModel = hostModelList.get(i);
-                        if (!(hostModel == null || hostModel.equals(""))) {
-                            if (hostModel.getHDT_HOST_ENABLED().equalsIgnoreCase("1")) {
+                if (connectionTo.getSelectedItem().toString().equals("DIRECT 8585") && (connectionType.getSelectedItem().toString().equals("3G/GPRS") || connectionType.getSelectedItem().toString().equals("WIFI"))) {
+                    if (((appName.getText().toString().length() > 0) && (terminalId.getText().toString().length() > 0) &&
+                            (connectionType.getSelectedItem().toString().length() > 0) && (!connectionTo.getSelectedItem().toString().equalsIgnoreCase("No Options")) && (connectionTo.getSelectedItem().toString().length() > 0))) {
+                        int BatchPresent = 0;
+                        //BatchModel batchdata = new BatchModel();
+                        HostModel hostModel = new HostModel();
+                        List<HostModel> hostModelList = databaseObj.getAllHostTableData();
+                        for (int i = 0; i < hostModelList.size(); i++) {
+                            hostModel = hostModelList.get(i);
+                            if (!(hostModel == null || hostModel.equals(""))) {
+                                if (hostModel.getHDT_HOST_ENABLED().equalsIgnoreCase("1")) {
 
-                                //Dynamically add buttons now with the name of hostModel.getHDT_HOST_LABEL();
-                                //Increment Batch Number
-                                TransactionDetails.inGHDT=Integer.parseInt(hostModel.getHDT_HOST_ID());
-                                if(batchdata.getHDT_INDEX() != null)
-                                {
-                                        BatchPresent =1;
+                                    //Dynamically add buttons now with the name of hostModel.getHDT_HOST_LABEL();
+                                    //Increment Batch Number
+                                    TransactionDetails.inGHDT = Integer.parseInt(hostModel.getHDT_HOST_ID());
+                                    List<BatchModel>  batchdataList= databaseObj.getBatchData(Integer.toString(TransactionDetails.inGHDT));
+                                    if (batchdataList.size() >0) {
+                                        BatchPresent = 1;
+                                        break;
+                                    }
+
                                 }
-
                             }
                         }
+                        if (BatchPresent == 1) {
+                            TransactionDetails.responseMessge = "PLZ SETTLE FIRST";
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Intent intent = new Intent(AdminActivity.this, PaymentFailure.class);
+                                    startActivity(intent);
+                                }
+                            }, TIME_OUT);
+                        } else
+                            new AsyncTaskRunner().execute();
+                    } else {
+                        Toast.makeText(AdminActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
                     }
-                    if(BatchPresent == 1) {
-                        TransactionDetails.responseMessge = "PLZ SETTLE FIRST";
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Intent intent = new Intent(AdminActivity.this, PaymentFailure.class);
-                                startActivity(intent);
-                            }
-                        }, TIME_OUT);
-                    }else
-                        new AsyncTaskRunner().execute();
-                } else {
-                    Toast.makeText(AdminActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
                 }
+                else{
+                    Toast.makeText(AdminActivity.this,"COMM NOT SUPPORTED",Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
         backBtn = (TextView) findViewById(R.id.backBtn);
@@ -1060,6 +1067,16 @@ public class AdminActivity extends Activity {
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
+                    ezlinkModel.setEZLINK_PAYMENT_MAC_KEY(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    ezlinkModel.setEZLINK_TOPUP_MAC_KEY(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
                     ezlinkModel.setEZLINK_SAM_KEY(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
@@ -1235,6 +1252,15 @@ public class AdminActivity extends Activity {
     private int inSendRecvPacket() {
         OutputStream os = null;
         InputStream is = null;
+
+        String result;
+        result = "";
+        for (int k = 0; k < inFinalLength; k++) {
+            result = result + String.format("%02x", FinalData[k]);
+        }
+        Log.i(TAG,"\nSendings:");
+        Log.i(TAG,result);
+
         try {
             os = smtpSocket.getOutputStream();
             is = smtpSocket.getInputStream();
@@ -1288,7 +1314,7 @@ public class AdminActivity extends Activity {
                     isoMsg.setMTI("0100");
                     isoMsg.set(3, Constants.PROCESSINGCODE.pcTmsInitial);
                     isoMsg.set(11, "000001");
-                    isoMsg.set(24, "700");
+                    isoMsg.set(24, "0700");
                     isoMsg.set(26, globalVar.tmsParam.getTMS_FILENAME());
                     stde27 = Constants.TMS_DEFAULT_MMS_FAMILY + "\\" + globalVar.tmsParam.getTMS_APPLICATION();
                     isoMsg.set(27, stde27);
@@ -1304,7 +1330,7 @@ public class AdminActivity extends Activity {
                     isoMsg.setMTI("0200");
                     isoMsg.set(3, Constants.PROCESSINGCODE.pcTmsSubsequent);
                     isoMsg.set(11, "000001");
-                    isoMsg.set(24, "700");
+                    isoMsg.set(24, "0700");
                     isoMsg.set(26, globalVar.tmsParam.getTMS_FILENAME());
                     stde27 = Constants.TMS_DEFAULT_MMS_FAMILY + "\\" + globalVar.tmsParam.getTMS_APPLICATION();
                     isoMsg.set(27, stde27);
