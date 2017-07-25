@@ -9,9 +9,13 @@ import android.util.Log;
 
 //import com.crashlytics.android.Crashlytics;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
+import com.mobileeftpos.android.eftpos.db.DaoMaster;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
 import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
 
 //import io.fabric.sdk.android.Fabric;
+import org.greenrobot.greendao.database.Database;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -28,7 +32,8 @@ public class EftposApp extends MultiDexApplication {
 
     private static String testDeviceId = "";
 
-
+    public static final boolean ENCRYPTED = true;
+    private DaoSession daoSession;
     /**
      * Get Application instance.
      *
@@ -44,6 +49,16 @@ public class EftposApp extends MultiDexApplication {
 
         super.onCreate();
         mInstance = this;
+
+//        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this,"users-db"); //The users-db here is the name of our database.
+//        Database db = helper.getWritableDb();
+//        daoSession = new DaoMaster(db).newSession();
+
+        ///// Using the below lines of code we can toggle ENCRYPTED to true or false in other to use either an encrypted database or not.
+      DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, ENCRYPTED ? "users-db-encrypted" : "ANDROID_EFTPOS-db");
+      Database greenDaodb = ENCRYPTED ? helper.getEncryptedWritableDb("super-secret") : helper.getWritableDb();
+      daoSession = new DaoMaster(greenDaodb).newSession();
+
         db = new DBHelper(this);
         db.open();
         SharedPreferenceStore.setEncryptedSharedPref("NotiFicationEnabled", true + "");
@@ -56,6 +71,9 @@ public class EftposApp extends MultiDexApplication {
 
     }
 
+    public DaoSession getDaoSession() {
+        return daoSession;
+    }
 
     private static void generateTestDeviceIdAdmob(Context context) {
         String android_id = Settings.Secure.getString(context.getContentResolver(), Settings.Secure
