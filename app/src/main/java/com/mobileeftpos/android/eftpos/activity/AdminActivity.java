@@ -24,8 +24,10 @@ import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
 import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
 import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.app.EftposApp;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.database.DBStaticField;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
 import com.mobileeftpos.android.eftpos.model.BarcodeModel;
 import com.mobileeftpos.android.eftpos.model.BatchModel;
 import com.mobileeftpos.android.eftpos.model.CardBinModel;
@@ -87,13 +89,13 @@ public class AdminActivity extends Activity {
     public static Context context;
     String connectToStr;
     int TIME_OUT = 1000;
-
+    private DaoSession daoSession;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.activity_adminlayout);
-
+        daoSession = ((EftposApp) getApplication()).getDaoSession();
         databaseObj = new DBHelper(AdminActivity.this);
         context = AdminActivity.this;
         appName = (EditText) findViewById(R.id.etappname);

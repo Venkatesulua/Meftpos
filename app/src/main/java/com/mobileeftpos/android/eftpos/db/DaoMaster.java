@@ -21,48 +21,48 @@ public class DaoMaster extends AbstractDaoMaster {
 
     /** Creates underlying database table using DAOs. */
     public static void createAllTables(Database db, boolean ifNotExists) {
-        HostTableDao.createTable(db, ifNotExists);
-        CardBinTableDao.createTable(db, ifNotExists);
-        CardTypeTableDao.createTable(db, ifNotExists);
-        PasswordTableDao.createTable(db, ifNotExists);
-        BatchDao.createTable(db, ifNotExists);
-        ALIPAYDao.createTable(db, ifNotExists);
-        ReceiptTableDao.createTable(db, ifNotExists);
-        UtilityTableDao.createTable(db, ifNotExists);
-        MaskingTableDao.createTable(db, ifNotExists);
-        LimitTableDao.createTable(db, ifNotExists);
-        EthernetTableDao.createTable(db, ifNotExists);
-        CurrencyTableDao.createTable(db, ifNotExists);
-        TransactionControlTableDao.createTable(db, ifNotExists);
-        EZLINK_TABLEDao.createTable(db, ifNotExists);
-        COMMS_TABLEDao.createTable(db, ifNotExists);
-        TraceDao.createTable(db, ifNotExists);
-        TABLE_HTTDao.createTable(db, ifNotExists);
-        MerchantTableDao.createTable(db, ifNotExists);
-        TABLE_REPORTDao.createTable(db, ifNotExists);
+        HostModelDao.createTable(db, ifNotExists);
+        CardBinModelDao.createTable(db, ifNotExists);
+        CardTypeModelDao.createTable(db, ifNotExists);
+        PasswordModelDao.createTable(db, ifNotExists);
+        BatchModelDao.createTable(db, ifNotExists);
+        AlipayModelDao.createTable(db, ifNotExists);
+        ReceiptModelDao.createTable(db, ifNotExists);
+        UtilityModelDao.createTable(db, ifNotExists);
+        MaskingModelDao.createTable(db, ifNotExists);
+        LimitModelDao.createTable(db, ifNotExists);
+        EthernetModelDao.createTable(db, ifNotExists);
+        CurrencyModelDao.createTable(db, ifNotExists);
+        TransactionControlModelDao.createTable(db, ifNotExists);
+        EzlinkModelDao.createTable(db, ifNotExists);
+        CommsModelDao.createTable(db, ifNotExists);
+        TraceModelDao.createTable(db, ifNotExists);
+        HTTModelDao.createTable(db, ifNotExists);
+        MerchantModelDao.createTable(db, ifNotExists);
+        ReportModelDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
     public static void dropAllTables(Database db, boolean ifExists) {
-        HostTableDao.dropTable(db, ifExists);
-        CardBinTableDao.dropTable(db, ifExists);
-        CardTypeTableDao.dropTable(db, ifExists);
-        PasswordTableDao.dropTable(db, ifExists);
-        BatchDao.dropTable(db, ifExists);
-        ALIPAYDao.dropTable(db, ifExists);
-        ReceiptTableDao.dropTable(db, ifExists);
-        UtilityTableDao.dropTable(db, ifExists);
-        MaskingTableDao.dropTable(db, ifExists);
-        LimitTableDao.dropTable(db, ifExists);
-        EthernetTableDao.dropTable(db, ifExists);
-        CurrencyTableDao.dropTable(db, ifExists);
-        TransactionControlTableDao.dropTable(db, ifExists);
-        EZLINK_TABLEDao.dropTable(db, ifExists);
-        COMMS_TABLEDao.dropTable(db, ifExists);
-        TraceDao.dropTable(db, ifExists);
-        TABLE_HTTDao.dropTable(db, ifExists);
-        MerchantTableDao.dropTable(db, ifExists);
-        TABLE_REPORTDao.dropTable(db, ifExists);
+        HostModelDao.dropTable(db, ifExists);
+        CardBinModelDao.dropTable(db, ifExists);
+        CardTypeModelDao.dropTable(db, ifExists);
+        PasswordModelDao.dropTable(db, ifExists);
+        BatchModelDao.dropTable(db, ifExists);
+        AlipayModelDao.dropTable(db, ifExists);
+        ReceiptModelDao.dropTable(db, ifExists);
+        UtilityModelDao.dropTable(db, ifExists);
+        MaskingModelDao.dropTable(db, ifExists);
+        LimitModelDao.dropTable(db, ifExists);
+        EthernetModelDao.dropTable(db, ifExists);
+        CurrencyModelDao.dropTable(db, ifExists);
+        TransactionControlModelDao.dropTable(db, ifExists);
+        EzlinkModelDao.dropTable(db, ifExists);
+        CommsModelDao.dropTable(db, ifExists);
+        TraceModelDao.dropTable(db, ifExists);
+        HTTModelDao.dropTable(db, ifExists);
+        MerchantModelDao.dropTable(db, ifExists);
+        ReportModelDao.dropTable(db, ifExists);
     }
 
     /**
@@ -81,25 +81,25 @@ public class DaoMaster extends AbstractDaoMaster {
 
     public DaoMaster(Database db) {
         super(db, SCHEMA_VERSION);
-        registerDaoClass(HostTableDao.class);
-        registerDaoClass(CardBinTableDao.class);
-        registerDaoClass(CardTypeTableDao.class);
-        registerDaoClass(PasswordTableDao.class);
-        registerDaoClass(BatchDao.class);
-        registerDaoClass(ALIPAYDao.class);
-        registerDaoClass(ReceiptTableDao.class);
-        registerDaoClass(UtilityTableDao.class);
-        registerDaoClass(MaskingTableDao.class);
-        registerDaoClass(LimitTableDao.class);
-        registerDaoClass(EthernetTableDao.class);
-        registerDaoClass(CurrencyTableDao.class);
-        registerDaoClass(TransactionControlTableDao.class);
-        registerDaoClass(EZLINK_TABLEDao.class);
-        registerDaoClass(COMMS_TABLEDao.class);
-        registerDaoClass(TraceDao.class);
-        registerDaoClass(TABLE_HTTDao.class);
-        registerDaoClass(MerchantTableDao.class);
-        registerDaoClass(TABLE_REPORTDao.class);
+        registerDaoClass(HostModelDao.class);
+        registerDaoClass(CardBinModelDao.class);
+        registerDaoClass(CardTypeModelDao.class);
+        registerDaoClass(PasswordModelDao.class);
+        registerDaoClass(BatchModelDao.class);
+        registerDaoClass(AlipayModelDao.class);
+        registerDaoClass(ReceiptModelDao.class);
+        registerDaoClass(UtilityModelDao.class);
+        registerDaoClass(MaskingModelDao.class);
+        registerDaoClass(LimitModelDao.class);
+        registerDaoClass(EthernetModelDao.class);
+        registerDaoClass(CurrencyModelDao.class);
+        registerDaoClass(TransactionControlModelDao.class);
+        registerDaoClass(EzlinkModelDao.class);
+        registerDaoClass(CommsModelDao.class);
+        registerDaoClass(TraceModelDao.class);
+        registerDaoClass(HTTModelDao.class);
+        registerDaoClass(MerchantModelDao.class);
+        registerDaoClass(ReportModelDao.class);
     }
 
     public DaoSession newSession() {

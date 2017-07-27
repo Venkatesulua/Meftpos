@@ -1,11 +1,8 @@
 package com.mobileeftpos.android.eftpos.app;
 
 import android.content.Context;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.provider.Settings;
 import android.support.multidex.MultiDexApplication;
-import android.util.Log;
 
 //import com.crashlytics.android.Crashlytics;
 import com.mobileeftpos.android.eftpos.database.DBHelper;

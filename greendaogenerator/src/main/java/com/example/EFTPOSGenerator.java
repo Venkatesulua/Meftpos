@@ -6,25 +6,25 @@ import org.greenrobot.greendao.generator.Schema;
 
 public class EFTPOSGenerator {
 
-    public static final String TABLE_HOST ="HostTable";
-    public static final String TABLE_CBT ="CardBinTable";
-    public static final String TABLE_CTT ="CardTypeTable";
-    public static final String TABLE_PWD ="PasswordTable";
-    public static final String TABLE_TCT="TransactionControlTable";
-    public static final String TABLE_ETHERNET="EthernetTable";
-    public static final String TABLE_CURRENCY="CurrencyTable";
-    public static final String TABLE_LIMIT="LimitTable";
-    public static final String TABLE_MASKING="MaskingTable";
-    public static final String TABLE_MERCHANT="MerchantTable";
-    public static final String TABLE_HTT="TABLE_HTT";
-    public static final String TABLE_REPORT="TABLE_REPORT";
-    public static final String COMMS_TABLE="COMMS_TABLE";
-    public static final String TABLE_TRACE="Trace";
-    public static final String EZLINK_TABLE="EZLINK_TABLE";
-    public static final String ALIPAY_TABLE="ALIPAY";
-    public static final String TABLE_BATCH="Batch";
-    public static final String TABLE_RECEIPT="ReceiptTable";
-    public static final String TABLE_UTILITY="UtilityTable";
+    public static final String TABLE_HOST ="HostModel";
+    public static final String TABLE_CBT ="CardBinModel";
+    public static final String TABLE_CTT ="CardTypeModel";
+    public static final String TABLE_PWD ="PasswordModel";
+    public static final String TABLE_TCT="TransactionControlModel";
+    public static final String TABLE_ETHERNET="EthernetModel";
+    public static final String TABLE_CURRENCY="CurrencyModel";
+    public static final String TABLE_LIMIT="LimitModel";
+    public static final String TABLE_MASKING="MaskingModel";
+    public static final String TABLE_MERCHANT="MerchantModel";
+    public static final String TABLE_HTT="HTTModel";
+    public static final String TABLE_REPORT="ReportModel";
+    public static final String COMMS_TABLE="CommsModel";
+    public static final String TABLE_TRACE="TraceModel";
+    public static final String EZLINK_TABLE="EzlinkModel";
+    public static final String ALIPAY_TABLE="AlipayModel";
+    public static final String TABLE_BATCH="BatchModel";
+    public static final String TABLE_RECEIPT="ReceiptModel";
+    public static final String TABLE_UTILITY="UtilityModel";
 
     public static void main(String[] args) {
         Schema schema = new Schema(1, "com.mobileeftpos.android.eftpos.db"); // Your app package name and the (.db) is the folder where the DAO files will be generated into.
