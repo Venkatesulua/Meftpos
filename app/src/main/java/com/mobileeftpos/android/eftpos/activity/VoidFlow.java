@@ -4,14 +4,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
@@ -23,10 +22,10 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.Review_Transaction;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
-import com.mobileeftpos.android.eftpos.async.AsyncTaskRequestResponse;
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.model.BatchModel;
-import com.mobileeftpos.android.eftpos.model.CommsModel;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
+import com.mobileeftpos.android.eftpos.db.BatchModel;
+import com.mobileeftpos.android.eftpos.db.CommsModel;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 
 public class VoidFlow extends AppCompatActivity {
@@ -34,7 +33,7 @@ public class VoidFlow extends AppCompatActivity {
     private TransactionDetails transDetails = new TransactionDetails();
     private EditText editInvoice;
     private Button submitButton;
-    private DBHelper databaseObj;
+    //private DBHelper databaseObj;
     private Constants constants = new Constants();
     private Review_Transaction reviewTrans = new Review_Transaction();
     private BatchModel batchModeldata = new BatchModel();
@@ -51,6 +50,7 @@ public class VoidFlow extends AppCompatActivity {
     //private int TransactionDetails.inFinalLength = 0;
    // private AsyncTaskRequestResponse ASTask = new AsyncTaskRequestResponse();
     public static Context context;
+    private DaoSession daoSession;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +60,7 @@ public class VoidFlow extends AppCompatActivity {
         editInvoice = (EditText) findViewById(R.id.invoice_et);
         submitButton = (Button) findViewById(R.id.invoice_btn);
         submitButton.setOnClickListener(new ClickLIstener());
-        databaseObj = new DBHelper(VoidFlow.this);
+        daoSession = GreenDaoSupport.getInstance(VoidFlow.this);
         context = VoidFlow.this;
 
     }
@@ -86,7 +86,7 @@ public class VoidFlow extends AppCompatActivity {
             stInvoice = String.format("%06d",Integer.parseInt(stInvoice));
         }
         TransactionDetails.InvoiceNumber = stInvoice;
-        batchModeldata = reviewTrans.lgReviewAllTrans(databaseObj,stInvoice,batchModeldata);
+        batchModeldata = reviewTrans.lgReviewAllTrans(VoidFlow.this,stInvoice,batchModeldata);
 
         if(batchModeldata == null) {
             TransactionDetails.responseMessge = "ALREADY VOIDED OR TRANS NOT FOUND";
@@ -109,7 +109,7 @@ public class VoidFlow extends AppCompatActivity {
         ;
         }*/
         /* PREPARING TO TRANSMIT MESSAGE TO HOST */
-        payService.vdUpdateSystemTrace(databaseObj);
+        payService.vdUpdateSystemTrace(daoSession);
         return Constants.TRUE;
     }
     
@@ -153,7 +153,7 @@ public class VoidFlow extends AppCompatActivity {
             // execution of result of Long time consuming operation
             super.onPostExecute(result);
             Log.i(TAG,"GetInvoice::Alipay:onPostExecute");
-            payService.vdUpdateSystemTrace(databaseObj);
+            payService.vdUpdateSystemTrace(daoSession);
             if(result!=null && result.equals("0"))
             {
                 Log.i(TAG, "GetInvoice:onPostExecute:SUCCESS");
@@ -218,7 +218,7 @@ public class VoidFlow extends AppCompatActivity {
             {
                 case 0://Validation; in force settlement;
                     Log.i(TAG,"GetInvoice::processRequest_2");
-                    if (trDetails.inSortPAN(databaseObj) == 1) {
+                    if (trDetails.inSortPAN(daoSession) == 1) {
                         Log.i(TAG,"GetInvoice::ERROR in SORTPAN");
                         inError = 1;
                     }
@@ -227,7 +227,8 @@ public class VoidFlow extends AppCompatActivity {
                 case 1://
 
                     Log.i(TAG,"GetInvoice::Alipay::COMMUNICATION PARAMS...");
-                    comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
+                   // comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
+                    comModel=GreenDaoSupport.getCommsModelOBJ(VoidFlow.this);
                     Log.i(TAG,"GetInvoice::Alipay::COMMUNICATION PARAMS2...");
                     String IP_Port = comModel.getCOM_PRIMARY_IP_PORT();
                     Log.i(TAG,"GetInvoice::Alipay::IP_Port::"+IP_Port);
@@ -242,7 +243,7 @@ public class VoidFlow extends AppCompatActivity {
                     Log.i(TAG, "GetInvoice:ServerIP ::: "+ServerIP);
                     Log.i(TAG, "GetInvoice:Server PORT ::: "+Port);
 
-                    String stTrace = payService.pGetSystemTrace(databaseObj);
+                    String stTrace = payService.pGetSystemTrace(VoidFlow.this);
 
                     Log.i(TAG, "GetInvoice:inCreatePacket:stTrace::"+stTrace);
                     Log.i(TAG, "GetInvoice:inCreatePacket:stTrace::"+stTrace);
@@ -286,7 +287,7 @@ public class VoidFlow extends AppCompatActivity {
 
                     FinalData=null;
                     FinalData = new byte[1512];
-                    TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.VOID);
+                    TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants.TransType.VOID,VoidFlow.this);
                     if(TransactionDetails.inFinalLength == 0)
                         inError = 1;
                     break;
@@ -331,25 +332,27 @@ public class VoidFlow extends AppCompatActivity {
                     Log.i(TAG, "\nSave Record:");
                     //save Record
                    // isoPacket.vdSaveRecord(databaseObj);
-                    batchModeldata.setVOIDED(Integer.toString(Constants.TRUE));
-                    databaseObj.UpdateBatchData(batchModeldata);
+                    batchModeldata.setVoided(Integer.toString(Constants.TRUE));
+                    GreenDaoSupport.insertBatchModelOBJ(VoidFlow.this,batchModeldata);
+                   // databaseObj.UpdateBatchData(batchModeldata);
                     break;
                 case 6://
                     //Print receipt
                     Log.i(TAG, "\nPrinting Receipt");
                     TransactionDetails.trxType = Constants.TransType.VOID;
-                    printReceipt.inPrintReceipt(databaseObj,VoidFlow.this);
+                    printReceipt.inPrintReceipt(daoSession,VoidFlow.this);
                     break;
                 case 7://Show the receipt in the display and give option to print or email
                     //startActivity(new Intent(GetInvoice.this, HomeActivity.class));
                     //Upload void transaction
                     //whLoop=false;
-                    stTrace = payService.pGetSystemTrace(databaseObj);
+                    stTrace = payService.pGetSystemTrace(VoidFlow.this);
                     FinalData=null;
                     FinalData = new byte[1512];
 
                     TransactionDetails.trxType=Constants.TransType.ALIPAY_UPLOAD;
-                    TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.ALIPAY_UPLOAD);
+                    TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants.TransType
+                            .ALIPAY_UPLOAD,VoidFlow.this);
                     //String result;
                     result = "";
                     for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
@@ -376,8 +379,9 @@ public class VoidFlow extends AppCompatActivity {
                     if (remoteHost.inDisconnection() != 0) {
                         break;
                     }
-                    batchModeldata.setUPLOADED(Integer.toString(Constants.TRUE));
-                databaseObj.UpdateBatchData(batchModeldata);
+                    batchModeldata.setUploaded(Integer.toString(Constants.TRUE));
+                //databaseObj.UpdateBatchData(batchModeldata);
+                    GreenDaoSupport.insertBatchModelOBJ(VoidFlow.this,batchModeldata);
                 KeyValueDB.removeUpload(VoidFlow.this);
 
                 break;

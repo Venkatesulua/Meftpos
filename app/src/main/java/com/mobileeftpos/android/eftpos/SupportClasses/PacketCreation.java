@@ -1,22 +1,18 @@
 package com.mobileeftpos.android.eftpos.SupportClasses;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.SharedPreferences;
-import android.provider.SyncStateContract;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.mobileeftpos.android.eftpos.FileManagement.FileReadWrite;
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.database.DBStaticField;
-import com.mobileeftpos.android.eftpos.model.BarcodeModel;
-import com.mobileeftpos.android.eftpos.model.BatchModel;
-import com.mobileeftpos.android.eftpos.model.CommsModel;
-import com.mobileeftpos.android.eftpos.model.CurrencyModel;
-import com.mobileeftpos.android.eftpos.model.EzlinkModel;
-import com.mobileeftpos.android.eftpos.model.HostModel;
-import com.mobileeftpos.android.eftpos.model.MerchantModel;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
+import com.mobileeftpos.android.eftpos.db.AlipayModel;
+import com.mobileeftpos.android.eftpos.db.BatchModel;
+import com.mobileeftpos.android.eftpos.db.CommsModel;
+import com.mobileeftpos.android.eftpos.db.CurrencyModel;
+import com.mobileeftpos.android.eftpos.db.HostModel;
+import com.mobileeftpos.android.eftpos.db.MerchantModel;
 import com.mobileeftpos.android.eftpos.utils.StringByteUtils;
 
 import org.jpos.iso.ISOException;
@@ -25,7 +21,6 @@ import org.jpos.iso.ISOMsg;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -35,12 +30,6 @@ import java.util.List;
 public class PacketCreation {
 
     private GlobalVar globalVar = new GlobalVar();
-    private BarcodeModel barcode = new BarcodeModel();
-    private CurrencyModel currModel = new CurrencyModel();
-    private HostModel hostData = new HostModel();
-    private EzlinkModel EzlinkData = new EzlinkModel();
-    private CommsModel commData = new CommsModel();
-    private MerchantModel merchantData = new MerchantModel();
     public ISOPackager1 packager = new ISOPackager1();
     public ISOMsg isoMsg = new ISOMsg();
     private final String TAG = "my_custom_msg";
@@ -52,45 +41,49 @@ public class PacketCreation {
     int inVoided=0;
     long SaleCount=0,SaleAmount=0,RefundCount=0,RefundAmount=0;
     String Field47="";
+    AlipayModel barcode ;
+    CurrencyModel currModel;
+    HostModel hostData ;
+    CommsModel commData;
+    MerchantModel merchantData;
 
-
-    public BatchModel vdSaveRecord(DBHelper databaseObj){
-       // barcode = databaseObj.getBarcodeData(0);
+    public BatchModel vdSaveRecord(Activity context){
+        // barcode = databaseObj.getBarcodeData(0);
 
         PayServices payServices= new PayServices();
         BatchModel batchModel = new BatchModel();
         //Save transaction
         if(TransactionDetails.trxType != Constants.TransType.VOID) {
-            batchModel.setHDT_INDEX(Integer.toString(TransactionDetails.inGHDT));
-            batchModel.setTRANS_TYPE(Integer.toString(TransactionDetails.trxType));
-            batchModel.setTRANS_MODE(Integer.toString(TransactionDetails.inGTrxMode));
-            batchModel.setVOIDED(Integer.toString(Constants.FALSE));
-            batchModel.setUPLOADED(Integer.toString(Constants.FALSE));
-            batchModel.setPROC_CODE(TransactionDetails.processingcode);
+            batchModel.setHdt_index(Integer.toString(TransactionDetails.inGHDT));
+            batchModel.setTrans_type(Integer.toString(TransactionDetails.trxType));
+            batchModel.setTrans_mode(Integer.toString(TransactionDetails.inGTrxMode));
+            batchModel.setVoided(Integer.toString(Constants.FALSE));
+            batchModel.setUploaded(Integer.toString(Constants.FALSE));
+            batchModel.setProc_code(TransactionDetails.processingcode);
 
-            String aa = payServices.pGetSystemTrace(databaseObj);
-            batchModel.setINVOICE_NUMBER(payServices.pGetSystemTrace(databaseObj));
-            batchModel.setAMOUNT(TransactionDetails.trxAmount);
-            batchModel.setTIP_AMOUNT(TransactionDetails.tipAmount);
-            batchModel.setTIME(TransactionDetails.trxDateTime.substring(8, 14));
-            batchModel.setDATE(TransactionDetails.trxDateTime.substring(4, 8));
-            batchModel.setYEAR(TransactionDetails.trxDateTime.substring(0, 4));
-            batchModel.setORG_MESS_ID(TransactionDetails.messagetype);
-            batchModel.setSYS_TRACE_NUM(payServices.pGetSystemTrace(databaseObj));
-            batchModel.setDATE_EXP(TransactionDetails.ExpDate);
+            String aa = payServices.pGetSystemTrace(context);
+            batchModel.setInvoice_number(payServices.pGetSystemTrace(context));
+            batchModel.setAmount(TransactionDetails.trxAmount);
+            batchModel.setTip_amount(TransactionDetails.tipAmount);
+            batchModel.setTime(TransactionDetails.trxDateTime.substring(8, 14));
+            batchModel.setDate(TransactionDetails.trxDateTime.substring(4, 8));
+            batchModel.setYear(TransactionDetails.trxDateTime.substring(0, 4));
+            batchModel.setOrg_mess_id(TransactionDetails.messagetype);
+            batchModel.setSys_trace_num(payServices.pGetSystemTrace(context));
+            batchModel.setDate_exp(TransactionDetails.ExpDate);
 
-            batchModel.setRETR_REF_NUM(TransactionDetails.RetrievalRefNumber);
-            batchModel.setAUTH_ID_RESP(TransactionDetails.chApprovalCode);
-            batchModel.setRESP_CODE(TransactionDetails.ResponseCode);
-            batchModel.setACCT_NUMBER(TransactionDetails.PAN);
-            batchModel.setPERSON_NAME(TransactionDetails.PersonName);
-            batchModel.setORIGINAL_AMOUNT(TransactionDetails.trxAmount);
-            batchModel.setADDITIONAL_DATA(TransactionDetails.responseMessge);
+            batchModel.setRetr_ref_num(TransactionDetails.RetrievalRefNumber);
+            batchModel.setAuth_id_resp(TransactionDetails.chApprovalCode);
+            batchModel.setResp_code(TransactionDetails.ResponseCode);
+            batchModel.setAcct_number(TransactionDetails.PAN);
+            batchModel.setPerson_name(TransactionDetails.PersonName);
+            batchModel.setOriginal_amount(TransactionDetails.trxAmount);
+            batchModel.setAdditional_data(TransactionDetails.responseMessge);
             //batchModel.setPAYMENT_TERM_INFO(res.getString(res.getColumnIndex(DBStaticField.PAYMENT_TERM_INFO)));
-            batchModel.setPRIMARY_ACC_NUM(TransactionDetails.PAN);
-            batchModel.setPOS_ENT_MODE(TransactionDetails.POSEntryMode);
+            batchModel.setPri_acct_num(TransactionDetails.PAN);
+            batchModel.setPos_ent_mode(TransactionDetails.POSEntryMode);
             batchModel.setNII(TransactionDetails.NII);
-            batchModel.setPOS_COND_CODE(TransactionDetails.POS_COND_CODE);
+            batchModel.setPos_cond_code(TransactionDetails.POS_COND_CODE);
         /*batchModel.setADD_AMOUNT(res.getString(res.getColumnIndex(DBStaticField.ADD_AMOUNT)));
         batchModel.setCARD_TYPE(res.getString(res.getColumnIndex(DBStaticField.CARD_TYPE)));
         batchModel.setCARD_EQUENCE(res.getString(res.getColumnIndex(DBStaticField.CARD_EQUENCE)));
@@ -107,28 +100,32 @@ public class PacketCreation {
         batchModel.setCLS_SCHEME_ID(res.getString(res.getColumnIndex(DBStaticField.CLS_SCHEME_ID)));
         batchModel.setSIGNATURE_REQ(res.getString(res.getColumnIndex(DBStaticField.SIGNATURE_REQ)));*/
         }
-       if(TransactionDetails.trxType == Constants.TransType.VOID)
+        if(TransactionDetails.trxType == Constants.TransType.VOID)
         {
-            batchModel.setVOIDED(Integer.toString(Constants.TRUE));
-            databaseObj.UpdateBatchData(batchModel);
+            batchModel.setVoided(Integer.toString(Constants.TRUE));
+            GreenDaoSupport.insertBatchModelOBJ(context,batchModel);
+            //databaseObj.UpdateBatchData(batchModel);
             if(TransactionDetails.inOritrxType == Constants.TransType.ALIPAY_SALE) {
                 //Create a update table since Alipay ned to send upload transaction
-                databaseObj.insertBatchData(batchModel);
+                GreenDaoSupport.insertBatchModelOBJ(context,batchModel);
+                // databaseObj.insertBatchData(batchModel);
             }
 
         }else
             //databaseObj.
-        databaseObj.insertBatchData(batchModel);
+            GreenDaoSupport.insertBatchModelOBJ(context, batchModel);//.insertBatchData(batchModel);
 
         return batchModel;
     }
 
-    public int vdScanRecord(DBHelper databaseObj){
+    public int vdScanRecord(Activity activity){
         //hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
         BatchModel batchData;
         SaleCount=SaleAmount=RefundCount=RefundAmount=0;
-        HostModel hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
-        List<BatchModel> batchModelList=databaseObj.getBatchData(hostData.getHDT_HOST_ID());
+        HostModel hostData = GreenDaoSupport.getHostTableModelOBJ(activity);
+        //databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        List<BatchModel> batchModelList=GreenDaoSupport.getBatchModelOBJList(activity,hostData.getHDT_HOST_ID());
+        //databaseObj.getBatchData(hostData.getHDT_HOST_ID());
         if(batchModelList.size() ==0 )
         {
             return Constants.ReturnValues.NO_TRANSCATION;
@@ -136,26 +133,28 @@ public class PacketCreation {
         for(int i=0;i<batchModelList.size();i++) {
             batchData = batchModelList.get(i);
             if( !(batchData ==null || batchData.equals(""))){
-                int trxType = Integer.parseInt(batchData.getTRANS_TYPE());
-                inVoided = Integer.parseInt(batchData.getVOIDED());
+                int trxType = Integer.parseInt(batchData.getTrans_type());
+                inVoided = Integer.parseInt(batchData.getVoided());
                 if(trxType == Constants.TransType.ALIPAY_SALE && inVoided != Constants.TRUE)
                 {
                     SaleCount = SaleCount+1;
-                    SaleAmount = SaleAmount + Long.parseLong(batchData.getAMOUNT());
+                    SaleAmount = SaleAmount + Long.parseLong(batchData.getAmount());
                 }else if(trxType == Constants.TransType.ALIPAY_REFUND && inVoided != Constants.TRUE){
                     RefundCount = RefundCount+1;
-                    RefundAmount = RefundAmount + Long.parseLong(batchData.getAMOUNT());
+                    RefundAmount = RefundAmount + Long.parseLong(batchData.getAmount());
                 }
             }
 
-            }
+        }
 
         return Constants.ReturnValues.RETURN_OK;
     }
+
+
     String AlipayExtendedData(String staddinfo)
     {
         staddinfo ="merchant_name:";
-        staddinfo = staddinfo + merchantData.getMERCHANT_NAME();
+        staddinfo = staddinfo + merchantData.getADDITIONAL_PROMPT();
         staddinfo = staddinfo + ",merchant_no:";
         staddinfo = staddinfo + hostData.getHDT_MERCHANT_ID();
         staddinfo = staddinfo + ",business_no:";
@@ -190,22 +189,21 @@ public class PacketCreation {
         return staddinfo;
 
     }
-    public int inCreatePacket(DBHelper databaseObj,byte[] FinalData,int inTrxType) {
+    public int inCreatePacket( byte[] FinalData, int inTrxType, Activity activity) {
         String stde27 = "";
         String stde29 = "";
 
-
-
-
         TransactionDetails.inFinalLength=0;
 
-        barcode = databaseObj.getBarcodeData(0);
-        currModel = databaseObj.getCurrencyData(TransactionDetails.inGCURR);
-        hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
-        commData = databaseObj.getCommsData(TransactionDetails.inGCOM);
-        merchantData = databaseObj.getMerchantData(0);
-
-
+          barcode =GreenDaoSupport.getAlipayModelOBJ(activity); //databaseObj.getBarcodeData(0);
+          currModel = GreenDaoSupport.getCurrencyTableModelOBJ(activity);
+        //databaseObj.getCurrencyData(TransactionDetails.inGCURR);
+          hostData = GreenDaoSupport.getHostTableModelOBJ(activity);
+        //databaseObj.getHostTableData(TransactionDetails.inGHDT);
+          commData = GreenDaoSupport.getCommsModelOBJ(activity);
+        //databaseObj.getCommsData(TransactionDetails.inGCOM);
+          merchantData = GreenDaoSupport.getMerchantModelOBJ(activity);
+        //databaseObj.getMerchantData(0);
 
         //currModel.setCURR_LABEL("MYR");
         //currModel.setCURR_EXPONENT("2");
@@ -276,7 +274,7 @@ public class PacketCreation {
 
                     Log.i(TAG,"PacketCreation:::TransactionDetails.trxAmount::"+TransactionDetails.trxAmount);
                     Log.i(TAG,"PacketCreation:::getHDT_TERMINAL_ID::"+hostData.getHDT_TERMINAL_ID());
-                    Log.i(TAG,"PacketCreation:::getMERCHANT_NAME::"+merchantData.getMERCHANT_NAME());
+                    Log.i(TAG,"PacketCreation:::getMERCHANT_NAME::"+merchantData.getADDITIONAL_PROMPT());
 
                     TransactionDetails.processingcode = Constants.PROCESSINGCODE.pcFinancialRequest;
                     if(inTrxType == Constants.TransType.ALIPAY_SALE) {
@@ -367,8 +365,8 @@ public class PacketCreation {
 
                     break;
                 case Constants.TransType.VOID:
-                   CreateTLVFields(1, Constants.MTI.Financial,FinalData);
-                   CreateTLVFields(3, Constants.PROCESSINGCODE.stVoid,FinalData);
+                    CreateTLVFields(1, Constants.MTI.Financial,FinalData);
+                    CreateTLVFields(3, Constants.PROCESSINGCODE.stVoid,FinalData);
                     CreateTLVFields(4, barcode.getPARTNER_ID(),FinalData);
                     CreateTLVFields(5,barcode.getSELLER_ID(),FinalData);
                     CreateTLVFields(8,TransactionDetails.RetrievalRefNumber,FinalData);
@@ -379,9 +377,9 @@ public class PacketCreation {
                     CreateTLVFields(47,AlipayExtendedData(stAlipayExtData),FinalData);
 
                     break;
-               // case Constants.TransType.REVERSAL:
+                // case Constants.TransType.REVERSAL:
 
-                    //break;
+                //break;
                 case Constants.TransType.REFUND:
                     break;
                 case Constants.TransType.INIT_SETTLEMENT:
@@ -403,7 +401,7 @@ public class PacketCreation {
 
 
 
-                    vdScanRecord(databaseObj);
+                    vdScanRecord(activity);
 
 
                     if(SaleCount!=0)
@@ -449,7 +447,7 @@ public class PacketCreation {
 
 
 
-                    vdScanRecord(databaseObj);
+                    vdScanRecord(activity);
 
                     if(SaleCount!=0)
                         CreateTLVFields(42,String.format("%03d", SaleCount),FinalData);
@@ -594,9 +592,9 @@ public class PacketCreation {
         byValue[1] = (byte) (inTag % 256);
         //Log.i(TAG,"PacketCreation:::CreateTLVFields_3: ");
         inposition = inposition + 2;
-       // Log.i(TAG,"PacketCreation:::CreateTLVFields_4 : ");
+        // Log.i(TAG,"PacketCreation:::CreateTLVFields_4 : ");
         byValue[2] = (byte) (stValue.length() / 256);
-       // Log.i(TAG,"PacketCreation:::CreateTLVFields_5 : ");
+        // Log.i(TAG,"PacketCreation:::CreateTLVFields_5 : ");
         byValue[3] = (byte) (stValue.length() % 256);
         //Log.i(TAG,"PacketCreation:::CreateTLVFields_6 : ");
         inposition = inposition + 2;
@@ -637,8 +635,8 @@ public class PacketCreation {
 
     }
 
-   // public int unsignedToBytes(byte b) {
-     //   return b & 0xFF;
+    // public int unsignedToBytes(byte b) {
+    //   return b & 0xFF;
     //}
 
     public int AddLength_Tpdu(byte[] data, byte[] FinalData) {
@@ -699,117 +697,48 @@ public class PacketCreation {
         return inOffset;
     }
 
-    public int BatchTranfer(DBHelper databaseObj,String ServerIP,String Port){
+    public int BatchTranfer(String ServerIP,String Port,Activity context){
 
         BatchModel batchModeldata;
         byte[] FinalData = new byte[1512];
         RemoteHost remoteHost = new RemoteHost();
-        List<BatchModel> batchModelList=databaseObj.getBatchData(hostData.getHDT_HOST_ID());
+        List<BatchModel> batchModelList=GreenDaoSupport.getBatchModelOBJList(context);//databaseObj.getBatchData(hostData.getHDT_HOST_ID());
+
         for(int i=0;i<batchModelList.size();i++) {
             batchModeldata = batchModelList.get(i);
             if( !(batchModeldata ==null || batchModeldata.equals(""))) {
-                TransactionDetails.trxType = Integer.parseInt(batchModeldata.getTRANS_TYPE());
-                inVoided = Integer.parseInt(batchModeldata.getVOIDED());
-                TransactionDetails.inOritrxType = Integer.parseInt(batchModeldata.getTRANS_TYPE());
-                TransactionDetails.inGTrxMode = Integer.parseInt(batchModeldata.getTRANS_MODE());
-                TransactionDetails.processingcode = batchModeldata.getPROC_CODE();
-                TransactionDetails.trxAmount = batchModeldata.getAMOUNT();
-                TransactionDetails.tipAmount = batchModeldata.getTIP_AMOUNT();
-                TransactionDetails.trxDateTime = batchModeldata.getYEAR();
-                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getDATE();
-                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getTIME();
-                TransactionDetails.messagetype = batchModeldata.getORG_MESS_ID();
+                TransactionDetails.trxType = Integer.parseInt(batchModeldata.getTrans_type());
+                inVoided = Integer.parseInt(batchModeldata.getVoided());
+                TransactionDetails.inOritrxType = Integer.parseInt(batchModeldata.getTrans_type());
+                TransactionDetails.inGTrxMode = Integer.parseInt(batchModeldata.getTrans_mode());
+                TransactionDetails.processingcode = batchModeldata.getProc_code();
+                TransactionDetails.trxAmount = batchModeldata.getAmount();
+                TransactionDetails.tipAmount = batchModeldata.getTip_amount();
+                TransactionDetails.trxDateTime = batchModeldata.getYear();
+                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getDate();
+                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getTime();
+                TransactionDetails.messagetype = batchModeldata.getOrg_mess_id();
 //        batchModeldata.getSYS_TRACE_NUM(payServices.pGetSystemTrace(databaseObj));
-                TransactionDetails.ExpDate = batchModeldata.getDATE_EXP();
-                TransactionDetails.RetrievalRefNumber = batchModeldata.getRETR_REF_NUM();
-                TransactionDetails.chApprovalCode = batchModeldata.getAUTH_ID_RESP();
-                TransactionDetails.ResponseCode = batchModeldata.getRESP_CODE();
-                TransactionDetails.PAN = batchModeldata.getACCT_NUMBER();
-                TransactionDetails.PersonName = batchModeldata.getPERSON_NAME();
-                TransactionDetails.trxAmount = batchModeldata.getORIGINAL_AMOUNT();
-                TransactionDetails.responseMessge = batchModeldata.getADDITIONAL_DATA();
+                TransactionDetails.ExpDate = batchModeldata.getDate_exp();
+                TransactionDetails.RetrievalRefNumber = batchModeldata.getRetr_ref_num();
+                TransactionDetails.chApprovalCode = batchModeldata.getAuth_id_resp();
+                TransactionDetails.ResponseCode = batchModeldata.getResp_code();
+                TransactionDetails.PAN = batchModeldata.getAcct_number();
+                TransactionDetails.PersonName = batchModeldata.getPerson_name();
+                TransactionDetails.trxAmount = batchModeldata.getOriginal_amount();
+                TransactionDetails.responseMessge = batchModeldata.getAdditional_data();
                 //batchModeldata.getPAYMENT_TERM_INFO(res.getString(res.getColumnIndex(DBStaticField.PAYMENT_TERM_INFO)));
-                TransactionDetails.PAN = batchModeldata.getPRIMARY_ACC_NUM();
-                TransactionDetails.POSEntryMode = batchModeldata.getPOS_ENT_MODE();
+                TransactionDetails.PAN = batchModeldata.getPri_acct_num();
+                TransactionDetails.POSEntryMode = batchModeldata.getPos_ent_mode();
                 TransactionDetails.NII = batchModeldata.getNII();
-                TransactionDetails.POS_COND_CODE = batchModeldata.getPOS_COND_CODE();
+                TransactionDetails.POS_COND_CODE = batchModeldata.getPos_cond_code();
 
                 DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSS");
                 Date date = new Date();
                 String stDate = dateFormat.format(date);
                 TransactionDetails.trxDateTime=stDate;
 
-                TransactionDetails.inFinalLength = inCreatePacket(databaseObj,FinalData, Constants.TransType.BATCH_TRANSFER);
-                if(TransactionDetails.inFinalLength == 0)
-                    return Constants.ReturnValues.RETURN_ERROR;
-
-                if (remoteHost.inConnection(ServerIP, Port) != 0)
-                        return Constants.ReturnValues.RETURN_ERROR;
-
-                if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null)
-                    return Constants.ReturnValues.RETURN_ERROR;
-
-                int inRet = inProcessPacket(FinalData,TransactionDetails.inFinalLength);
-                 if(inRet != Constants.ReturnValues.RETURN_OK) {
-                     return Constants.ReturnValues.RETURN_ERROR;
-                }
-                if (remoteHost.inDisconnection() != Constants.ReturnValues.RETURN_OK) {
-                    return Constants.ReturnValues.RETURN_ERROR;
-                }
-
-            }
-        }
-        return Constants.ReturnValues.RETURN_OK;
-    }
-
-    public int UploadOffline(DBHelper databaseObj,String ServerIP,String Port){
-
-        BatchModel batchModeldata = new BatchModel();
-        hostData=databaseObj.getHostTableData(TransactionDetails.inGHDT);
-        byte[] FinalData = new byte[1512];
-        RemoteHost remoteHost = new RemoteHost();
-        int inUploaded=0;
-        List<BatchModel> batchModelList=databaseObj.getBatchData(hostData.getHDT_HOST_ID());
-
-        for(int i=0;i<batchModelList.size();i++) {
-            batchModeldata = batchModelList.get(i);
-            if( !(batchModeldata ==null || batchModeldata.equals(""))) {
-                TransactionDetails.trxType = Integer.parseInt(batchModeldata.getTRANS_TYPE());
-                inUploaded = Integer.parseInt(batchModeldata.getUPLOADED());
-
-                if(inUploaded == 1)
-                    continue;
-                //inUploaded = Integer.parseInt(batchModeldata.getVOIDED());
-                TransactionDetails.inOritrxType = Integer.parseInt(batchModeldata.getTRANS_TYPE());
-                TransactionDetails.inGTrxMode = Integer.parseInt(batchModeldata.getTRANS_MODE());
-                TransactionDetails.processingcode = batchModeldata.getPROC_CODE();
-                TransactionDetails.trxAmount = batchModeldata.getAMOUNT();
-                TransactionDetails.tipAmount = batchModeldata.getTIP_AMOUNT();
-                TransactionDetails.trxDateTime = batchModeldata.getYEAR();
-                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getDATE();
-                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getTIME();
-                TransactionDetails.messagetype = batchModeldata.getORG_MESS_ID();
-//        batchModeldata.getSYS_TRACE_NUM(payServices.pGetSystemTrace(databaseObj));
-                TransactionDetails.ExpDate = batchModeldata.getDATE_EXP();
-                TransactionDetails.RetrievalRefNumber = batchModeldata.getRETR_REF_NUM();
-                TransactionDetails.chApprovalCode = batchModeldata.getAUTH_ID_RESP();
-                TransactionDetails.ResponseCode = batchModeldata.getRESP_CODE();
-                TransactionDetails.PAN = batchModeldata.getACCT_NUMBER();
-                TransactionDetails.PersonName = batchModeldata.getPERSON_NAME();
-                TransactionDetails.trxAmount = batchModeldata.getORIGINAL_AMOUNT();
-                TransactionDetails.responseMessge = batchModeldata.getADDITIONAL_DATA();
-                //batchModeldata.getPAYMENT_TERM_INFO(res.getString(res.getColumnIndex(DBStaticField.PAYMENT_TERM_INFO)));
-                TransactionDetails.PAN = batchModeldata.getPRIMARY_ACC_NUM();
-                TransactionDetails.POSEntryMode = batchModeldata.getPOS_ENT_MODE();
-                TransactionDetails.NII = batchModeldata.getNII();
-                TransactionDetails.POS_COND_CODE = batchModeldata.getPOS_COND_CODE();
-
-                DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSS");
-                Date date = new Date();
-                String stDate = dateFormat.format(date);
-                TransactionDetails.trxDateTime=stDate;
-
-                TransactionDetails.inFinalLength = inCreatePacket(databaseObj,FinalData, TransactionDetails.trxType);
+                TransactionDetails.inFinalLength = inCreatePacket(FinalData, Constants.TransType.BATCH_TRANSFER,context);
                 if(TransactionDetails.inFinalLength == 0)
                     return Constants.ReturnValues.RETURN_ERROR;
 
@@ -826,9 +755,80 @@ public class PacketCreation {
                 if (remoteHost.inDisconnection() != Constants.ReturnValues.RETURN_OK) {
                     return Constants.ReturnValues.RETURN_ERROR;
                 }
-                batchModeldata.setUPLOADED(Integer.toString(Constants.TRUE));
-                databaseObj.UpdateBatchData(batchModeldata);
 
+            }
+        }
+        return Constants.ReturnValues.RETURN_OK;
+    }
+
+    public int UploadOffline(String ServerIP,String Port,Activity activity){
+
+        BatchModel batchModeldata = new BatchModel();
+        com.mobileeftpos.android.eftpos.db.HostModel hostData= GreenDaoSupport.getHostTableModelOBJ(activity);
+        byte[] FinalData = new byte[1512];
+        RemoteHost remoteHost = new RemoteHost();
+        int inUploaded=0;
+        List<BatchModel> batchModelList=GreenDaoSupport.getBatchModelOBJList(activity,hostData
+                .getHDT_HOST_ID());//databaseObj.getBatchData(hostData.getHDT_HOST_ID());
+
+        for(int i=0;i<batchModelList.size();i++) {
+            batchModeldata = batchModelList.get(i);
+            if( !(batchModeldata ==null || batchModeldata.equals(""))) {
+                TransactionDetails.trxType = Integer.parseInt(batchModeldata.getTrans_type());
+                inUploaded = Integer.parseInt(batchModeldata.getUploaded());
+
+                if(inUploaded == 1)
+                    continue;
+                //inUploaded = Integer.parseInt(batchModeldata.getVOIDED());
+                TransactionDetails.inOritrxType = Integer.parseInt(batchModeldata.getTrans_type());
+                TransactionDetails.inGTrxMode = Integer.parseInt(batchModeldata.getTrans_mode());
+                TransactionDetails.processingcode = batchModeldata.getProc_code();
+                TransactionDetails.trxAmount = batchModeldata.getAmount();
+                TransactionDetails.tipAmount = batchModeldata.getTip_amount();
+                TransactionDetails.trxDateTime = batchModeldata.getYear();
+                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getDate();
+                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getTime();
+                TransactionDetails.messagetype = batchModeldata.getOrg_mess_id();
+//        batchModeldata.getSYS_TRACE_NUM(payServices.pGetSystemTrace(databaseObj));
+                TransactionDetails.ExpDate = batchModeldata.getDate_exp();
+                TransactionDetails.RetrievalRefNumber = batchModeldata.getRetr_ref_num();
+                TransactionDetails.chApprovalCode = batchModeldata.getAuth_id_resp();
+                TransactionDetails.ResponseCode = batchModeldata.getResp_code();
+                TransactionDetails.PAN = batchModeldata.getAcct_number();
+                TransactionDetails.PersonName = batchModeldata.getPerson_name();
+                TransactionDetails.trxAmount = batchModeldata.getOriginal_amount();
+                TransactionDetails.responseMessge = batchModeldata.getAdditional_data();
+                //batchModeldata.getPAYMENT_TERM_INFO(res.getString(res.getColumnIndex(DBStaticField.PAYMENT_TERM_INFO)));
+                TransactionDetails.PAN = batchModeldata.getPri_acct_num();
+                TransactionDetails.POSEntryMode = batchModeldata.getPos_ent_mode();
+                TransactionDetails.NII = batchModeldata.getNII();
+                TransactionDetails.POS_COND_CODE = batchModeldata.getPos_cond_code();
+
+                DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSS");
+                Date date = new Date();
+                String stDate = dateFormat.format(date);
+                TransactionDetails.trxDateTime=stDate;
+
+                TransactionDetails.inFinalLength = inCreatePacket(FinalData, TransactionDetails.trxType,activity);
+                if(TransactionDetails.inFinalLength == 0)
+                    return Constants.ReturnValues.RETURN_ERROR;
+
+                if (remoteHost.inConnection(ServerIP, Port) != 0)
+                    return Constants.ReturnValues.RETURN_ERROR;
+
+                if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null)
+                    return Constants.ReturnValues.RETURN_ERROR;
+
+                int inRet = inProcessPacket(FinalData,TransactionDetails.inFinalLength);
+                if(inRet != Constants.ReturnValues.RETURN_OK) {
+                    return Constants.ReturnValues.RETURN_ERROR;
+                }
+                if (remoteHost.inDisconnection() != Constants.ReturnValues.RETURN_OK) {
+                    return Constants.ReturnValues.RETURN_ERROR;
+                }
+                batchModeldata.setUploaded(Integer.toString(Constants.TRUE));
+                //databaseObj.UpdateBatchData(batchModeldata);
+                GreenDaoSupport.insertBatchModelOBJ(activity,batchModeldata);
             }
         }
 
@@ -844,7 +844,7 @@ public class PacketCreation {
                     TransactionDetails.trxType !=  Constants.TransType.ALIPAY_REFUND && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_REFUND &&
                     TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_SALE){
 
-            //if(!(hostData.getHDT_HOST_TYPE().equals(Constants.HostType.ALIPAY_HOST))){
+                //if(!(hostData.getHDT_HOST_TYPE().equals(Constants.HostType.ALIPAY_HOST))){
 
                 isoMsg.unpack(FinalData);
                 // print the DE list
@@ -996,7 +996,7 @@ public class PacketCreation {
                     break;
                 case 0x0d:// refundreason
                     TransactionDetails.refundreason=new String(chtemp);
-                   // trDetails.setRefundReason( new String(chtemp));
+                    // trDetails.setRefundReason( new String(chtemp));
                     break;
                 case 0x26:// alipaytransid
                     //trDetails.setAlipayTransId( new String(chtemp));
@@ -1007,7 +1007,7 @@ public class PacketCreation {
                     TransactionDetails.ResponseCode=new String(chtemp);
                     break;
                 case 0x28:// responsemesage
-                   // trDetails.setResponseMesage( new String(chtemp));
+                    // trDetails.setResponseMesage( new String(chtemp));
                     TransactionDetails.responseMessge=new String(chtemp);
                     break;
                 case 0x29:// terminalid

@@ -1,6 +1,7 @@
 package com.mobileeftpos.android.eftpos.async;
 
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -16,23 +17,19 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
-import com.mobileeftpos.android.eftpos.activity.AlipayActivity;
 import com.mobileeftpos.android.eftpos.activity.AlipayCheckPrompt;
-import com.mobileeftpos.android.eftpos.activity.HomeActivity;
 import com.mobileeftpos.android.eftpos.activity.PaymentFailure;
 import com.mobileeftpos.android.eftpos.activity.PaymentSuccess;
-import com.mobileeftpos.android.eftpos.activity.SettlementFlow;
-import com.mobileeftpos.android.eftpos.activity.VoidFlow;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.model.BatchModel;
-import com.mobileeftpos.android.eftpos.model.CommsModel;
-import com.mobileeftpos.android.eftpos.model.HostModel;
-import com.mobileeftpos.android.eftpos.model.HostTransmissionModel;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
+import com.mobileeftpos.android.eftpos.db.BatchModel;
+import com.mobileeftpos.android.eftpos.db.CommsModel;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
+import com.mobileeftpos.android.eftpos.db.HTTModel;
+import com.mobileeftpos.android.eftpos.db.HostModel;
 
 import java.math.BigInteger;
 import java.util.List;
-
-import android.support.v7.app.AppCompatActivity;
 
 /**
  * Created by venkat on 7/4/2017.
@@ -60,17 +57,20 @@ public class AsyncTaskRequestResponse {
     private static String BASE_URL="https://devapi.prayapay.com/v2?";
     private String ServerIP="";
     private String Port="";
+    private Activity activity;
+    private DaoSession daoSession;
 
-    HostTransmissionModel connectionTimeout =new HostTransmissionModel();
+    HTTModel connectionTimeout =new HTTModel();
     //public AsyncTaskRequestResponse(Context context){
         //loContext = context;
         //databaseObj = new DBHelper(context);
     //}
-    public int AsyncTaskCreation(Context context) {
+    public int AsyncTaskCreation(Context context, Activity mactivity,DaoSession mDaosession) {
         loContext = context;
-        databaseObj = new DBHelper(loContext);
-
-        connectionTimeout = databaseObj.getHostTransmissionModelData(0);
+        activity=mactivity;
+        daoSession=mDaosession;
+        //connectionTimeout = databaseObj.getHostTransmissionModelData(0);
+        connectionTimeout =GreenDaoSupport.getHTTModelOBJ(activity);
         TransactionDetails.ConnectionTimeout = connectionTimeout.getCONNECTION_TIMEOUT();
 
         new AsyncTaskRunner().execute();
@@ -103,7 +103,7 @@ public class AsyncTaskRequestResponse {
             super.onPostExecute(result);
 
             progressDialog.dismiss();
-            payServices.vdUpdateSystemTrace(databaseObj);
+            payServices.vdUpdateSystemTrace(daoSession);
             if(result != null) {
                 if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN) {
                     loContext.startActivity(new Intent(loContext, AlipayCheckPrompt.class));
@@ -173,7 +173,7 @@ public class AsyncTaskRequestResponse {
     public int inSearchHost(String lstHostType) {
         //findout number of host available
         HostModel hostModel;
-        List<HostModel> hostModelList = databaseObj.getAllHostTableData();
+        List<HostModel> hostModelList = GreenDaoSupport.getHostModelOBJList(activity);
         for (int i = 0; i < hostModelList.size(); i++) {
             hostModel = hostModelList.get(i);
             if (!(hostModel == null || hostModel.equals(""))) {
@@ -195,7 +195,8 @@ public class AsyncTaskRequestResponse {
     int inCheckSettlementFlag()
     {
         HostModel hostModel = new HostModel();
-        hostModel = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+       // hostModel = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        hostModel=GreenDaoSupport.getHostTableModelOBJ(activity);
         if(hostModel.getHDT_SETTLEMENT_FLAG().equals("1")){
             return Constants.ReturnValues.RETURN_SETTLEMENT_NEEDED;
         }
@@ -277,7 +278,7 @@ public class AsyncTaskRequestResponse {
     private int inTranactionSendRecv()
     {
         int inError=Constants.ReturnValues.RETURN_OK;
-        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, TransactionDetails.trxType);
+        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, TransactionDetails.trxType,activity);
         if(TransactionDetails.inFinalLength == 0) {
             inError = Constants.ReturnValues.RETURN_ERROR;
         }
@@ -329,7 +330,7 @@ public class AsyncTaskRequestResponse {
                 {
                     case 0://Validation; in force settlement;
                         if(TransactionDetails.trxType == Constants.TransType.ALIPAY_SALE || TransactionDetails.trxType == Constants.TransType.VOID) {
-                            inError = trDetails.inSortPAN(databaseObj);
+                            inError = trDetails.inSortPAN(daoSession);
                             if(inError != Constants.ReturnValues.RETURN_OK)
                                 break;
                         }else
@@ -351,14 +352,15 @@ public class AsyncTaskRequestResponse {
                         break;
                     case 1://
 
-                        comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
+//                        comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
+                        comModel=GreenDaoSupport.getCommsModelOBJ(activity);
                         String IP_Port = comModel.getCOM_PRIMARY_IP_PORT();
                         int indexOffset = IP_Port.indexOf("|");
                         ServerIP = IP_Port.substring(0,indexOffset);
                         Port = IP_Port.substring(indexOffset+1);
                         Log.i(TAG, "Aipay:ServerIP ::: "+ServerIP);
                         Log.i(TAG, "Aipay:Server PORT ::: "+Port);
-                        String stTrace = payServices.pGetSystemTrace(databaseObj);
+                        String stTrace = payServices.pGetSystemTrace(activity);
                         TransactionDetails.InvoiceNumber = stTrace;
                         Log.i(TAG, "Aipay:inCreatePacket:stTrace::"+stTrace);
 
@@ -398,7 +400,8 @@ public class AsyncTaskRequestResponse {
                         Log.i(TAG,result);
                         KeyValueDB.setReversal(loContext,new String(result));*/
 
-                        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.ALIPAY_SALE);
+                        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants.TransType
+                                .ALIPAY_SALE,activity);
                         if(TransactionDetails.inFinalLength == 0) {
                             inError = 1;
                             break;
@@ -437,25 +440,26 @@ public class AsyncTaskRequestResponse {
                     case 5:
                         Log.i(TAG, "\nSave Record:");
                         //save Record
-                        isoPacket.vdSaveRecord(databaseObj);
+                        isoPacket.vdSaveRecord(activity);
                         KeyValueDB.removeReversal(loContext);//Clear Reversal
                         break;
                     case 6://
                         //Print receipt
                         Log.i(TAG, "\nPrinting Receipt");
-                        printReceipt.inPrintReceipt(databaseObj,loContext);
+                        printReceipt.inPrintReceipt(daoSession,activity);
                         break;
                     case 7:
                         //Increment STAN NUMBER
-                        payServices.vdUpdateSystemTrace(databaseObj);
+                        payServices.vdUpdateSystemTrace(daoSession);
                         break;
                     case 8:
                         //Keep Upload Transcation On
                         if(TransactionDetails.trxType == Constants.TransType.VOID || TransactionDetails.trxType == Constants.TransType.ALIPAY_REFUND){
-                            stTrace = payServices.pGetSystemTrace(databaseObj);
+                            stTrace = payServices.pGetSystemTrace(activity);
                             FinalData=null;
                             FinalData = new byte[1512];
-                            TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.ALIPAY_UPLOAD);
+                            TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants
+                                    .TransType.ALIPAY_UPLOAD,activity);
                             result = "";
                             for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
                                 result = result + String.format("%02x", FinalData[k]);

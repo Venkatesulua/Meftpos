@@ -1,27 +1,25 @@
 package com.mobileeftpos.android.eftpos.Ezlink;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
-import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.PacketCreation;
 import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
-import com.mobileeftpos.android.eftpos.activity.AdminActivity;
 import com.mobileeftpos.android.eftpos.activity.AlipayCheckPrompt;
 import com.mobileeftpos.android.eftpos.activity.HomeActivity;
 import com.mobileeftpos.android.eftpos.activity.MyApplication;
@@ -29,20 +27,20 @@ import com.mobileeftpos.android.eftpos.activity.PaymentFailure;
 import com.mobileeftpos.android.eftpos.activity.PaymentSuccess;
 import com.mobileeftpos.android.eftpos.async.AsyncTaskRequestResponse;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.model.BarcodeModel;
-import com.mobileeftpos.android.eftpos.model.CommsModel;
-import com.mobileeftpos.android.eftpos.model.CurrencyModel;
-import com.mobileeftpos.android.eftpos.model.EzlinkModel;
-import com.mobileeftpos.android.eftpos.model.HostModel;
-import com.mobileeftpos.android.eftpos.model.MerchantModel;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
+import com.mobileeftpos.android.eftpos.db.AlipayModel;
+import com.mobileeftpos.android.eftpos.db.CommsModel;
+import com.mobileeftpos.android.eftpos.db.CurrencyModel;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
+import com.mobileeftpos.android.eftpos.db.EzlinkModel;
+import com.mobileeftpos.android.eftpos.db.HostModel;
+import com.mobileeftpos.android.eftpos.db.MerchantModel;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 import com.mobileeftpos.android.eftpos.utils.StringByteUtils;
 import com.sunmi.pay.hardware.aidl.AidlConstants;
 import com.sunmi.pay.hardware.aidl.bean.CardInfo;
 import com.sunmi.pay.hardware.aidl.readcard.ReadCardCallback;
 import com.sunmi.pay.hardware.aidl.readcard.ReadCardOpt;
-
-import java.util.List;
 
 import sunmi.sunmiui.utils.LogUtil;
 
@@ -58,7 +56,7 @@ public class CepasPayment extends AppCompatActivity {
     AsyncTaskRequestResponse TaskReqRes;
     private DBHelper databaseObj;
     public TransactionDetails trDetails = new TransactionDetails();
-    private BarcodeModel barcode = new BarcodeModel();
+    private AlipayModel barcode = new AlipayModel();
     private CurrencyModel currModel = new CurrencyModel();
     private HostModel hostData = new HostModel();
     private CommsModel commData = new CommsModel();
@@ -66,6 +64,8 @@ public class CepasPayment extends AppCompatActivity {
     public PacketCreation isoPacket = new PacketCreation();
     private PrintReceipt printReceipt = new PrintReceipt();
     private PayServices payServices = new PayServices();
+    private Activity activity;
+    private DaoSession daoSession;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,14 +76,14 @@ public class CepasPayment extends AppCompatActivity {
         TvCurBal =(TextView)findViewById(R.id.currentBalance);
         TvNewBal =(TextView)findViewById(R.id.newBalance);
         TvStatus = (TextView)findViewById(R.id.payStatus);
-
-        databaseObj = new DBHelper(CepasPayment.this);
         TaskReqRes=new AsyncTaskRequestResponse();
         int inAmount = Integer.parseInt(TransactionDetails.trxAmount);
         String inAmtDisplay = "AMOUNT SGD: "+String.format("%01d",(inAmount/100))+"."+String.format("%02d",(inAmount%100));
         TvTransAmt.setText(inAmtDisplay);
-        //Salect SAM CARd
+        daoSession = GreenDaoSupport.getInstance(CepasPayment.this);
 
+        //Salect SAM CARd
+        activity = CepasPayment.this;
         int inError = TaskReqRes.inSearchHost(Constants.HostType.EZLINK_PAYMENT_HOST);
         if(inError != Constants.ReturnValues.RETURN_OK)
         {
@@ -133,7 +133,8 @@ public class CepasPayment extends AppCompatActivity {
         String Time = TransactionDetails.trxDateTime.substring(8,14);
         samRelated.ulGetJulianSeconds(Date.getBytes(),Time.getBytes(),TransactionDetails.JulianDate);
 
-        EzlinkModel EzlinkData = databaseObj.getEzlinkData(0);
+        //EzlinkModel EzlinkData = databaseObj.getEzlinkData(0);
+        EzlinkModel EzlinkData = GreenDaoSupport.getEzlinkTableModelOBJ(activity);
         TransactionDetails.PaymentTRP = StringByteUtils.HexString2Bytes(EzlinkData.getEZLINK_PAYMENT_TRP());
         //Host Enabled or not
         checkCard();
@@ -233,7 +234,7 @@ public class CepasPayment extends AppCompatActivity {
             //cardRelated.cancelCheckCard();
             cancelCheckCard();
 
-            payServices.vdUpdateSystemTrace(databaseObj);
+            payServices.vdUpdateSystemTrace(daoSession);
             if(result != null) {
                 if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_OK) {
                     //printReceipt.inPrintReceipt(databaseObj);
@@ -312,7 +313,7 @@ public class CepasPayment extends AppCompatActivity {
 
             //Sort PAN
             TransactionDetails.PAN = StringByteUtils.bytesToHexString(TransactionDetails.CAN);
-            int inError = trDetails.inSortPAN(databaseObj);
+            int inError = trDetails.inSortPAN(daoSession);
             if(inError != Constants.ReturnValues.RETURN_OK) {
                 //Toast.makeText(CepasPayment.this,"CARD NOT SUPPORTED",Toast.LENGTH_LONG).show();
                 TransactionDetails.responseMessge="CARD NOT SUPPORTED";
@@ -358,7 +359,8 @@ public class CepasPayment extends AppCompatActivity {
             int inRet = cardRelated.DeductAmount(mReadCardOpt,keytype);
             if(inRet == Constants.ReturnValues.RETURN_OK)
             {
-                hostData  = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+               // hostData  = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+                hostData=GreenDaoSupport.getHostTableModelOBJ(activity);
                 int inN = inBal - Integer.parseInt(TransactionDetails.trxAmount);
                 stN = "NEW BALANCE SGD: " + String.format("%01d", inN / 100) + "." + String.format("%02d", inN % 100);
                 //TvNewBal.setText(stN);
@@ -370,10 +372,10 @@ public class CepasPayment extends AppCompatActivity {
             }
             TransactionDetails.RetrievalRefNumber = TransactionDetails.trxDateTime.substring(4,8) + TransactionDetails.trxDateTime.substring(8,14);
 
-            TransactionDetails.responseMessge = StringByteUtils.bytesToHexString(samRelated.inCreateField63(databaseObj));
-            String stTrace = payServices.pGetSystemTrace(databaseObj);
+            TransactionDetails.responseMessge = StringByteUtils.bytesToHexString(samRelated.inCreateField63(activity));
+            String stTrace = payServices.pGetSystemTrace(activity);
             TransactionDetails.InvoiceNumber = stTrace;
-            isoPacket.vdSaveRecord(databaseObj);
+            isoPacket.vdSaveRecord(activity);
             //TaskReqRes.inStoreReversal();
             String stNum =hostData.getHDT_PAY_TERM();
             if(stNum==null || stNum.isEmpty() || stNum=="") {
@@ -382,9 +384,10 @@ public class CepasPayment extends AppCompatActivity {
             int inNum = Integer.parseInt(stNum) + 1;
             stNum = Integer.toString(inNum);
             hostData.setHDT_PAY_TERM(stNum);
-            databaseObj.UpdateHostData(hostData);
+            daoSession.getHostModelDao().delete(hostData);
+            //databaseObj.UpdateHostData(hostData);
 
-            printReceipt.inPrintReceipt(databaseObj,CepasPayment.this);
+            printReceipt.inPrintReceipt(daoSession,CepasPayment.this);
             //Check Need to send to host
             stNum = hostData.getHDT_CUSTOM_OPTIONS();
             String stNoofOfflineAllowed = stNum.substring(1,4);
@@ -395,12 +398,13 @@ public class CepasPayment extends AppCompatActivity {
                 TransactionDetails.inGTrxMode=Constants.TransMode.BARCODE;
 
                 //Connect & send recv
-                commData = databaseObj.getCommsData(TransactionDetails.inGCOM);
+                //commData = databaseObj.getCommsData(TransactionDetails.inGCOM);
+                commData=GreenDaoSupport.getCommsModelOBJ(activity);
                 String IP_Port = commData.getCOM_PRIMARY_IP_PORT();
                 int indexOffset = IP_Port.indexOf("|");
                 String ServerIP = IP_Port.substring(0,indexOffset);
                 String Port = IP_Port.substring(indexOffset+1);
-                if(isoPacket.UploadOffline(databaseObj,ServerIP,Port) != Constants.ReturnValues.RETURN_OK)
+                if(isoPacket.UploadOffline(ServerIP,Port,activity) != Constants.ReturnValues.RETURN_OK)
                 {
                    // Toast.makeText(CepasPayment.this,"PAYMENT UPLOAD FAILED",Toast.LENGTH_LONG).show();
 

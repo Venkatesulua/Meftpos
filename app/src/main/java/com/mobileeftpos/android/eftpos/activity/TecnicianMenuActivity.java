@@ -1,48 +1,41 @@
 package com.mobileeftpos.android.eftpos.activity;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
-import com.mobileeftpos.android.eftpos.SupportClasses.BluetoothUtil;
-import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.ESCUtil;
 import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.database.DBStaticField;
-import com.mobileeftpos.android.eftpos.model.BarcodeModel;
-import com.mobileeftpos.android.eftpos.model.BatchModel;
-import com.mobileeftpos.android.eftpos.model.CardBinModel;
-import com.mobileeftpos.android.eftpos.model.CardTypeModel;
-import com.mobileeftpos.android.eftpos.model.CommsModel;
-import com.mobileeftpos.android.eftpos.model.CurrencyModel;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
+import com.mobileeftpos.android.eftpos.db.AlipayModel;
+import com.mobileeftpos.android.eftpos.db.BatchModel;
+import com.mobileeftpos.android.eftpos.db.CardBinModel;
+import com.mobileeftpos.android.eftpos.db.CardTypeModel;
+import com.mobileeftpos.android.eftpos.db.CommsModel;
+import com.mobileeftpos.android.eftpos.db.CurrencyModel;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
+import com.mobileeftpos.android.eftpos.db.EzlinkModel;
+import com.mobileeftpos.android.eftpos.db.HostModel;
+import com.mobileeftpos.android.eftpos.db.LimitModel;
+import com.mobileeftpos.android.eftpos.db.MaskingModel;
+import com.mobileeftpos.android.eftpos.db.MerchantModel;
+import com.mobileeftpos.android.eftpos.db.PasswordModel;
+import com.mobileeftpos.android.eftpos.db.ReceiptModel;
+import com.mobileeftpos.android.eftpos.db.TraceModel;
+import com.mobileeftpos.android.eftpos.db.TransactionControlModel;
 import com.mobileeftpos.android.eftpos.model.EthernetLabel;
-import com.mobileeftpos.android.eftpos.model.EzlinkModel;
-import com.mobileeftpos.android.eftpos.model.HostModel;
 import com.mobileeftpos.android.eftpos.model.HostTransmissionModel;
-import com.mobileeftpos.android.eftpos.model.LimitModel;
-import com.mobileeftpos.android.eftpos.model.MaskingModel;
-import com.mobileeftpos.android.eftpos.model.MerchantModel;
-import com.mobileeftpos.android.eftpos.model.PasswordModel;
-import com.mobileeftpos.android.eftpos.model.ReceiptModel;
 import com.mobileeftpos.android.eftpos.model.ReportsModel;
-import com.mobileeftpos.android.eftpos.model.TraceNumberModel;
-import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
 import com.mobileeftpos.android.eftpos.model.UtilityTable;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -53,16 +46,17 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
     private final String TAG = "my_custom_msg";
     private LinearLayout reversalBtn, batchBtn, printConfigBtn, mmsBtn, secureBtn, KeyManagementBtn,LoadDefaultBtn;
 
-    private static DBHelper databaseObj;
     public static Context context;
     private PayServices payService = new PayServices();
     HostModel hostModel = new HostModel();
+    private DaoSession daoSession;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_three);
+        daoSession = GreenDaoSupport.getInstance(TecnicianMenuActivity.this);
 
-        databaseObj = new DBHelper(TecnicianMenuActivity.this);
+        //databaseObj = new DBHelper(TecnicianMenuActivity.this);
         context = TecnicianMenuActivity.this;
 
         reversalBtn = (LinearLayout) findViewById(R.id.clrreverseItem);
@@ -97,7 +91,8 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
 
                 int BatchPresent=0;
                 BatchModel batchdata = new BatchModel();
-                List<HostModel> hostModelList = databaseObj.getAllHostTableData();
+                List<HostModel> hostModelList = GreenDaoSupport.getHostModelOBJList(TecnicianMenuActivity.this);
+	            // databaseObj.getAllHostTableData();
                 for (int i = 0; i < hostModelList.size(); i++) {
                     hostModel = hostModelList.get(i);
                     if (!(hostModel == null || hostModel.equals(""))) {
@@ -106,15 +101,15 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 //Dynamically add buttons now with the name of hostModel.getHDT_HOST_LABEL();
                 //Increment Batch Number
                 TransactionDetails.inGHDT=Integer.parseInt(hostModel.getHDT_HOST_ID());
-                            if(batchdata.getHDT_INDEX() != null)
+                            if(batchdata.getHdt_index() != null)
                             {
                                 BatchPresent =1;
                             }
-                payService.vdUpdateSystemBatch(databaseObj);
+                payService.vdUpdateSystemBatch(TecnicianMenuActivity.this);
                     }
                 }
             }
-                databaseObj.deleteallvalues(DBStaticField.TABLE_BATCH);
+                daoSession.getBatchModelDao().deleteAll();
                 KeyValueDB.removeReversal(context);
                 KeyValueDB.removeUpload(context);
                 //ALL BATCH DELETED
@@ -140,23 +135,8 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
 
             case R.id.loaddefaultitem:
                 Log.i(TAG, "DELETE ALL THE CONTENT FROM  THE FILE");
-                databaseObj.deleteallvalues(DBStaticField.TABLE_HOST);//="HostTable";
-                databaseObj.deleteallvalues(DBStaticField.TABLE_CBT);//="CardBinTable";
-                databaseObj.deleteallvalues(DBStaticField.TABLE_CTT);//CardTypeTable";
-                databaseObj.deleteallvalues(DBStaticField.TABLE_PWD);//PasswordTable";
-                databaseObj.deleteallvalues(DBStaticField.TABLE_TCT);//TransactionControlTable";
-                databaseObj.deleteallvalues(DBStaticField.TABLE_ETHERNET);//EthernetTable";
-                databaseObj.deleteallvalues(DBStaticField.TABLE_CURRENCY);//CurrencyTable";
-                databaseObj.deleteallvalues(DBStaticField.TABLE_LIMIT);//LimitTable";
-                databaseObj.deleteallvalues(DBStaticField.TABLE_MASKING);//MaskingTable";
-                databaseObj.deleteallvalues(DBStaticField.TABLE_RECEIPT);//ReceiptTable";
-                databaseObj.deleteallvalues(DBStaticField.TABLE_UTILITY);//UtilityTable";
-                databaseObj.deleteallvalues(DBStaticField.TABLE_MERCHANT);//MerchantTable";
-                databaseObj.deleteallvalues(DBStaticField.TABLE_HTT);//TABLE_HTT";
-                databaseObj.deleteallvalues(DBStaticField.TABLE_REPORT);//TABLE_REPORT";
-                databaseObj.deleteallvalues(DBStaticField.EZLINK_TABLE);//EZLINK_TABLE";
-                databaseObj.deleteallvalues(DBStaticField.COMMS_TABLE);//COMMS_TABLE";
-                databaseObj.deleteallvalues(DBStaticField.ALIPAY_TABLE);//COMMS_TABLE";
+                GreenDaoSupport.deleteAllTablesData(TecnicianMenuActivity.this);
+
                 PasswordModel pwdModel = new PasswordModel();
                 CardBinModel cbinModel = new CardBinModel();
                 CardTypeModel cttModel = new CardTypeModel();
@@ -173,8 +153,8 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 ReportsModel reportModel = new ReportsModel();
                 TransactionControlModel transctrlModel = new TransactionControlModel();
                 UtilityTable utilModel = new UtilityTable();
-                BarcodeModel barcodeModel = new BarcodeModel();
-                TraceNumberModel traceNumber = new TraceNumberModel();
+                AlipayModel barcodeModel = new AlipayModel();
+                TraceModel traceNumber = new TraceModel();
                 //Trace number
                 traceNumber.setSYSTEM_TRACE("000001");
                 //Password Values
@@ -261,24 +241,24 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 barcodeModel.setREGION_CODE("RETAIL");
                 //Merchant
                 merchantModel.setMERCHANT_ID("1");
-                merchantModel.setMERCHANT_NAME("TEST TRANSACTION");
-                merchantModel.setMERCHANT_HEADER1("HEADER1");
-                merchantModel.setMERCHANT_HEADER2("HEADER2");
-                merchantModel.setADDRESS_LINE1("ADDRESSLINE1");
-                merchantModel.setADDRESS_LINE2("ADDRESSLINE2");
-                merchantModel.setADDRESS_LINE3("ADDRESSLINE3");
-                merchantModel.setADDRESS_LINE4("ADDRESSLINE4");
+                merchantModel.setADDITIONAL_PROMPT("TEST TRANSACTION");
+                merchantModel.setDAILY_SETTLEMENT_FLAG("HEADER1");
+                merchantModel.setLAST_4_DIGIT_PROMPT_FLAG("HEADER2");
+                merchantModel.setINSERT_2_SWIPE("ADDRESSLINE1");
+                merchantModel.setPIGGYBACK_FLAG("ADDRESSLINE2");
+                merchantModel.setPINBYPASS("ADDRESSLINE3");
+                merchantModel.setAUTO_SETTLE_TIME("ADDRESSLINE4");
 
 
-                databaseObj.InsertHostTablelData(hostModel);
-                databaseObj.InsertCurrencyData(currModel);
-                databaseObj.InsertCardBinData(cbinModel);
-                databaseObj.InsertCardTypeData(cttModel);
-                databaseObj.InsertCommsData(comModel);
-                databaseObj.insertPasswordData(pwdModel);
-                databaseObj.insertBarocdeData(barcodeModel);
-                databaseObj.insertMerchantData(merchantModel);
-                databaseObj.InsertTraceNumberData(traceNumber);
+                daoSession.getHostModelDao().insert(hostModel);
+	            daoSession.getCurrencyModelDao().insert(currModel);
+	            daoSession.getCardBinModelDao().insert(cbinModel);
+	            daoSession.getCardTypeModelDao().insert(cttModel);
+	            daoSession.getCommsModelDao().insert(comModel);
+	            daoSession.getPasswordModelDao().insert(pwdModel);
+	            daoSession.getAlipayModelDao().insert(barcodeModel);
+	            daoSession.getMerchantModelDao().insert(merchantModel);
+	            daoSession.getTraceModelDao().insert(traceNumber);
 
                 Toast.makeText(TecnicianMenuActivity.this,"LOADED DEFAULT SETTINGS",Toast.LENGTH_SHORT).show();
                 this.finish();

@@ -22,33 +22,50 @@ import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
 import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
-import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.app.EftposApp;
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.database.DBStaticField;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
+import com.mobileeftpos.android.eftpos.db.AlipayModel;
+import com.mobileeftpos.android.eftpos.db.AlipayModelDao;
+import com.mobileeftpos.android.eftpos.db.BatchModel;
+import com.mobileeftpos.android.eftpos.db.BatchModelDao;
+import com.mobileeftpos.android.eftpos.db.CardBinModel;
+import com.mobileeftpos.android.eftpos.db.CardBinModelDao;
+import com.mobileeftpos.android.eftpos.db.CardTypeModel;
+import com.mobileeftpos.android.eftpos.db.CardTypeModelDao;
+import com.mobileeftpos.android.eftpos.db.CommsModel;
+import com.mobileeftpos.android.eftpos.db.CommsModelDao;
+import com.mobileeftpos.android.eftpos.db.CurrencyModel;
+import com.mobileeftpos.android.eftpos.db.CurrencyModelDao;
 import com.mobileeftpos.android.eftpos.db.DaoSession;
-import com.mobileeftpos.android.eftpos.model.BarcodeModel;
-import com.mobileeftpos.android.eftpos.model.BatchModel;
-import com.mobileeftpos.android.eftpos.model.CardBinModel;
-import com.mobileeftpos.android.eftpos.model.CardTypeModel;
-import com.mobileeftpos.android.eftpos.model.CommsModel;
-import com.mobileeftpos.android.eftpos.model.CurrencyModel;
-import com.mobileeftpos.android.eftpos.model.EthernetLabel;
-import com.mobileeftpos.android.eftpos.model.EzlinkModel;
-import com.mobileeftpos.android.eftpos.model.HostModel;
-import com.mobileeftpos.android.eftpos.model.HostTransmissionModel;
-import com.mobileeftpos.android.eftpos.model.LimitModel;
-import com.mobileeftpos.android.eftpos.model.MaskingModel;
-import com.mobileeftpos.android.eftpos.model.MerchantModel;
-import com.mobileeftpos.android.eftpos.model.PasswordModel;
-import com.mobileeftpos.android.eftpos.model.ReceiptModel;
-import com.mobileeftpos.android.eftpos.model.ReportsModel;
-import com.mobileeftpos.android.eftpos.model.TraceNumberModel;
-import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
-import com.mobileeftpos.android.eftpos.model.UtilityTable;
+import com.mobileeftpos.android.eftpos.db.EthernetModel;
+import com.mobileeftpos.android.eftpos.db.EthernetModelDao;
+import com.mobileeftpos.android.eftpos.db.EzlinkModel;
+import com.mobileeftpos.android.eftpos.db.EzlinkModelDao;
+import com.mobileeftpos.android.eftpos.db.HTTModel;
+import com.mobileeftpos.android.eftpos.db.HTTModelDao;
+import com.mobileeftpos.android.eftpos.db.HostModel;
+import com.mobileeftpos.android.eftpos.db.HostModelDao;
+import com.mobileeftpos.android.eftpos.db.LimitModel;
+import com.mobileeftpos.android.eftpos.db.LimitModelDao;
+import com.mobileeftpos.android.eftpos.db.MaskingModel;
+import com.mobileeftpos.android.eftpos.db.MaskingModelDao;
+import com.mobileeftpos.android.eftpos.db.MerchantModel;
+import com.mobileeftpos.android.eftpos.db.MerchantModelDao;
+import com.mobileeftpos.android.eftpos.db.PasswordModel;
+import com.mobileeftpos.android.eftpos.db.PasswordModelDao;
+import com.mobileeftpos.android.eftpos.db.ReceiptModel;
+import com.mobileeftpos.android.eftpos.db.ReceiptModelDao;
+import com.mobileeftpos.android.eftpos.db.ReportModel;
+import com.mobileeftpos.android.eftpos.db.ReportModelDao;
+import com.mobileeftpos.android.eftpos.db.TraceModel;
+import com.mobileeftpos.android.eftpos.db.TraceModelDao;
+import com.mobileeftpos.android.eftpos.db.TransactionControlModel;
+import com.mobileeftpos.android.eftpos.db.TransactionControlModelDao;
+import com.mobileeftpos.android.eftpos.db.UtilityModel;
+import com.mobileeftpos.android.eftpos.db.UtilityModelDao;
 
-
+import org.greenrobot.greendao.query.QueryBuilder;
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 
@@ -85,18 +102,38 @@ public class AdminActivity extends Activity {
     public Socket smtpSocket = null;
     ISOPackager1 packager = new ISOPackager1();
     ISOMsg isoMsg = new ISOMsg();
-    private static DBHelper databaseObj;
+    //private static DBHelper databaseObj;
     public static Context context;
     String connectToStr;
     int TIME_OUT = 1000;
     private DaoSession daoSession;
+    private List<HostModel> hostModelList;
+    private  List<BatchModel> batchModelList;
+    HostModelDao hostModelDao;
+    BatchModelDao batchModelDao;
+    CardTypeModelDao cttModelDao;
+    CommsModelDao comModelDao;
+    CurrencyModelDao currModelDao ;
+    EthernetModelDao ethernetModelDao ;
+    EzlinkModelDao ezlinkModelDao ;
+    HTTModelDao hostTransModelDao ;
+    LimitModelDao limitModelDao;
+    MaskingModelDao maskModelDao ;
+    AlipayModelDao alipayModelDao ;
+    MerchantModelDao merchantModelDao ;
+    ReceiptModelDao receiptModelDao ;
+    ReportModelDao reportModelDao ;
+    TransactionControlModelDao transctrlModelDao ;
+    UtilityModelDao utilityModelDao ;
+    TraceModelDao traceModelDao;
+    PasswordModelDao pwdModelDao;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.activity_adminlayout);
         daoSession = ((EftposApp) getApplication()).getDaoSession();
-        databaseObj = new DBHelper(AdminActivity.this);
         context = AdminActivity.this;
         appName = (EditText) findViewById(R.id.etappname);
         terminalId = (EditText) findViewById(R.id.etterminalid);
@@ -113,7 +150,10 @@ public class AdminActivity extends Activity {
                         int BatchPresent = 0;
                         //BatchModel batchdata = new BatchModel();
                         HostModel hostModel = new HostModel();
-                        List<HostModel> hostModelList = databaseObj.getAllHostTableData();
+                        hostModelList = new ArrayList<>();
+                        hostModelDao = daoSession.getHostModelDao();
+                        batchModelDao = daoSession.getBatchModelDao();
+                        hostModelList.addAll(hostModelDao.loadAll());
                         for (int i = 0; i < hostModelList.size(); i++) {
                             hostModel = hostModelList.get(i);
                             if (!(hostModel == null || hostModel.equals(""))) {
@@ -122,8 +162,10 @@ public class AdminActivity extends Activity {
                                     //Dynamically add buttons now with the name of hostModel.getHDT_HOST_LABEL();
                                     //Increment Batch Number
                                     TransactionDetails.inGHDT = Integer.parseInt(hostModel.getHDT_HOST_ID());
-                                    List<BatchModel>  batchdataList= databaseObj.getBatchData(Integer.toString(TransactionDetails.inGHDT));
-                                    if (batchdataList.size() >0) {
+                                    QueryBuilder<BatchModel> qb = batchModelDao.queryBuilder();
+                                    qb.where(BatchModelDao.Properties.Hdt_index.eq(Integer.toString(TransactionDetails.inGHDT)));
+                                    batchModelList = qb.list();
+                                    if (batchModelList.size() >0) {
                                         BatchPresent = 1;
                                         break;
                                     }
@@ -387,48 +429,52 @@ public class AdminActivity extends Activity {
                 Toast.makeText(context, passwordModelObjList.size() + " Number of records exist", Toast.LENGTH_LONG).show();
             }*/
 
-        PasswordModel pwdModel = new PasswordModel();
-        CardBinModel cbinModel = new CardBinModel();
-        CardTypeModel cttModel = new CardTypeModel();
-        CommsModel comModel = new CommsModel();
-        CurrencyModel currModel = new CurrencyModel();
-        EthernetLabel ethernetModel = new EthernetLabel();
-        EzlinkModel ezlinkModel = new EzlinkModel();
-        HostModel hostModel = new HostModel();
-        HostTransmissionModel hostTransModel = new HostTransmissionModel();
+          pwdModelDao = daoSession.getPasswordModelDao();
+          cttModelDao = daoSession.getCardTypeModelDao();
+          comModelDao = daoSession.getCommsModelDao();
+          currModelDao = daoSession.getCurrencyModelDao();
+          ethernetModelDao = daoSession.getEthernetModelDao();
+          ezlinkModelDao = daoSession.getEzlinkModelDao();
+          hostTransModelDao = daoSession.getHTTModelDao();
+          limitModelDao = daoSession.getLimitModelDao();
+          maskModelDao = daoSession.getMaskingModelDao();
+          alipayModelDao = daoSession.getAlipayModelDao();
+          merchantModelDao = daoSession.getMerchantModelDao();
+          receiptModelDao =daoSession.getReceiptModelDao();
+          reportModelDao = daoSession.getReportModelDao();
+          transctrlModelDao = daoSession.getTransactionControlModelDao();
+          utilityModelDao = daoSession.getUtilityModelDao();
+          traceModelDao=daoSession.getTraceModelDao();
+          GreenDaoSupport.deleteAllTablesData(AdminActivity.this);
+
+         PasswordModel pwdModel = new PasswordModel();
+         HTTModel hostTransModel = new HTTModel();
         LimitModel limitModel = new LimitModel();
         MaskingModel maskModel = new MaskingModel();
-        MerchantModel merchantModel = new MerchantModel();
+         MerchantModel merchantModel = new MerchantModel();
         ReceiptModel receiptModel = new ReceiptModel();
-        ReportsModel reportModel = new ReportsModel();
+        ReportModel reportModel = new ReportModel();
         TransactionControlModel transctrlModel = new TransactionControlModel();
-        UtilityTable utilModel = new UtilityTable();
-        BarcodeModel barcodeModel = new BarcodeModel();
-        TraceNumberModel traceModel = new TraceNumberModel();
+        UtilityModel utilModel = new UtilityModel();
+
 
 
         Log.i(TAG, "DELETE ALL THE CONTENT FROM  THE FILE");
 
-        databaseObj.deleteallvalues(DBStaticField.TABLE_HOST);//="HostTable";
-        databaseObj.deleteallvalues(DBStaticField.TABLE_CBT);//="CardBinTable";
-        databaseObj.deleteallvalues(DBStaticField.TABLE_CTT);//CardTypeTable";
-        databaseObj.deleteallvalues(DBStaticField.TABLE_PWD);//PasswordTable";
-        databaseObj.deleteallvalues(DBStaticField.TABLE_TCT);//TransactionControlTable";
-        databaseObj.deleteallvalues(DBStaticField.TABLE_ETHERNET);//EthernetTable";
-        databaseObj.deleteallvalues(DBStaticField.TABLE_CURRENCY);//CurrencyTable";
-        databaseObj.deleteallvalues(DBStaticField.TABLE_LIMIT);//LimitTable";
-        databaseObj.deleteallvalues(DBStaticField.TABLE_MASKING);//MaskingTable";
-        databaseObj.deleteallvalues(DBStaticField.TABLE_RECEIPT);//ReceiptTable";
-        databaseObj.deleteallvalues(DBStaticField.TABLE_UTILITY);//UtilityTable";
-        databaseObj.deleteallvalues(DBStaticField.TABLE_MERCHANT);//MerchantTable";
-        databaseObj.deleteallvalues(DBStaticField.TABLE_HTT);//TABLE_HTT";
-        databaseObj.deleteallvalues(DBStaticField.TABLE_REPORT);//TABLE_REPORT";
-        databaseObj.deleteallvalues(DBStaticField.EZLINK_TABLE);//EZLINK_TABLE";
-        databaseObj.deleteallvalues(DBStaticField.COMMS_TABLE);//COMMS_TABLE";
-        databaseObj.deleteallvalues(DBStaticField.ALIPAY_TABLE);//COMMS_TABLE";
-        databaseObj.CreateTables();
+
 
         for (inCounter = 0; inCounter < l_iNumParams; inCounter++) {
+            CardBinModel cbinModel = new CardBinModel();
+            CardTypeModel cttModel = new CardTypeModel();
+            CommsModel comModel = new CommsModel();
+            CurrencyModel currModel = new CurrencyModel();
+            EthernetModel ethernetModel = new EthernetModel();
+            EzlinkModel ezlinkModel = new EzlinkModel();
+            HostModel hostModel = new HostModel();
+            AlipayModel alipayModel =new AlipayModel();
+            TraceModel traceModel = new TraceModel();
+
+            CardBinModelDao cbinModelDao = daoSession.getCardBinModelDao();
             globalVar.TmsData = globalVar.TmsData.substring(tms_offset);
             param = globalVar.TmsData.indexOf('=');
             value = globalVar.TmsData.indexOf(0x0A);
@@ -444,23 +490,23 @@ public class AdminActivity extends Activity {
 
             }
             if (stParam.equals("TON"))
-                merchantModel.setMERCHANT_NAME(stValue);
+                merchantModel.setADDITIONAL_PROMPT(stValue);
             else if (stParam.equals("HDRA"))
-                merchantModel.setMERCHANT_HEADER1(stValue);
+                merchantModel.setDAILY_SETTLEMENT_FLAG(stValue);
             else if (stParam.equals("HDRB"))
-                merchantModel.setMERCHANT_HEADER2(stValue);
+                merchantModel.setLAST_4_DIGIT_PROMPT_FLAG(stValue);
             else if (stParam.equals("HDR1"))
-                merchantModel.setADDRESS_LINE1(stValue);
+                merchantModel.setINSERT_2_SWIPE(stValue);
             else if (stParam.equals("HDR2"))
-                merchantModel.setADDRESS_LINE2(stValue);
+                merchantModel.setPIGGYBACK_FLAG(stValue);
             else if (stParam.equals("HDR3"))
-                merchantModel.setADDRESS_LINE3(stValue);
+                merchantModel.setPINBYPASS(stValue);
             else if (stParam.equals("HDR4"))
-                merchantModel.setADDRESS_LINE4(stValue);
+                merchantModel.setAUTO_SETTLE_TIME(stValue);
             else if (stParam.equals("FTR1"))
-                merchantModel.setMERCHANT_FOOTER1(stValue);
+                merchantModel.setLAST_AUTO_SETTLEMENT_DATETIME(stValue);
             else if (stParam.equals("FTR2"))
-                merchantModel.setMERCHANT_FOOTER2(stValue);
+                merchantModel.setUTRN_PREFIX(stValue);
             else if (stParam.equals("DPW")) {
                 pwdModel.setDEFAULT_PASSWORD(stValue);
             } else if (stParam.equals("RPW")) {
@@ -567,13 +613,13 @@ public class AdminActivity extends Activity {
                 utilModel.setUTRN_PREFIX(stValue);
             } else if (stParam.equals("ST")) {
                 traceModel.setSYSTEM_TRACE(stValue);
-                databaseObj.InsertTraceNumberData(traceModel);
+                traceModelDao.insert(traceModel);
             } else if (stParam.equals("DAPP")) {
                 utilModel.setDEFAULT_APPROVAL_CODE(stValue);
             } else if (stParam.contains("HDT")) {
 
                 Log.i(TAG, "HOST ID::" + stParam.substring(3, 5));
-                hostModel.setHDT_HOST_ID(stParam.substring(3, 5));
+                hostModel.setHDT_HOST_ID(stParam.substring(3, 5)+"");
 
 
                 inindex = stValue.indexOf(' ');
@@ -589,11 +635,11 @@ public class AdminActivity extends Activity {
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-                hostModel.setHDT_TERMINAL_ID(stValue.substring(0, inindex));
+                hostModel.setHDT_TERMINAL_ID(stValue.substring(0, inindex)+"");
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-                hostModel.setHDT_MERCHANT_ID(stValue.substring(0, inindex));
+                hostModel.setHDT_MERCHANT_ID(stValue.substring(0, inindex)+"");
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
@@ -743,11 +789,11 @@ public class AdminActivity extends Activity {
                         hostModel.setHDT_BATCH_GROUP_NUMBER(stValue.substring(0, inindex));
                     // stValue = stValue.substring(inindex + 1);
                 }
-                databaseObj.InsertHostTablelData(hostModel);
+                hostModelDao.insert(hostModel);
             } else if (stParam.contains("CDT")) {
 
                 Log.i(TAG, "CDT ID::" + stParam.substring(3, 5));
-                cbinModel.setCDT_ID(stParam.substring(3, 5));
+                cbinModel.setCDT_ID(stParam.substring(3, 5)+"");
 
                 inindex = stValue.indexOf(' ');
                 cbinModel.setCDT_LO_RANGE(stValue.substring(0, inindex));
@@ -778,11 +824,11 @@ public class AdminActivity extends Activity {
                     stValue = stValue.substring(inindex + 1);
                 }
 
-                databaseObj.InsertCardBinData(cbinModel);
+                cbinModelDao.insert(cbinModel);
             } else if (stParam.contains("CTT")) {
 
                 Log.i(TAG, "CTT ID::" + stParam.substring(3, 5));
-                cttModel.setCTT_ID(stParam.substring(3, 5));
+                cttModel.setCTT_ID(stParam.substring(3, 5)+"");
 
                 inindex = stValue.indexOf(' ');
                 cttModel.setCTT_CARD_TYPE(stValue.substring(0, inindex));
@@ -871,11 +917,11 @@ public class AdminActivity extends Activity {
                     //stValue = stValue.substring(inindex + 1);
                 }
 
-                databaseObj.InsertCardTypeData(cttModel);
+                cttModelDao.insert(cttModel);
             } else if (stParam.contains("COM")) {
 
                 Log.i(TAG, "COM ID::" + stParam.substring(3, 5));
-                comModel.setCOMMOS_ID(stParam.substring(3, 5));
+                comModel.setCOMMOS_ID(stParam.substring(3, 5)+"");
 
                 inindex = stValue.indexOf(' ');
                 comModel.setCOM_DESCRIPTION(stValue.substring(0, inindex));
@@ -960,9 +1006,9 @@ public class AdminActivity extends Activity {
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
                     if (inindex == -1)
-                        comModel.setCOM_PPP_USER_ID(stValue);
+                        comModel.setCOM_PPP_USER_ID(stValue+"");
                     else
-                        comModel.setCOM_PPP_USER_ID(stValue.substring(0, inindex));
+                        comModel.setCOM_PPP_USER_ID(stValue.substring(0, inindex)+"");
                     stValue = stValue.substring(inindex + 1);
                 }
 
@@ -993,7 +1039,7 @@ public class AdminActivity extends Activity {
                     //stValue = stValue.substring(inindex + 1);
                 }
 
-                databaseObj.InsertCommsData(comModel);
+                comModelDao.insert(comModel);
 
             } else if (stParam.contains("ETH")) {
                 if (!stValue.isEmpty()) {
@@ -1030,11 +1076,11 @@ public class AdminActivity extends Activity {
                         ethernetModel.setDNS2(stValue.substring(0, inindex));
                     //stValue = stValue.substring(inindex + 1);
                 }
-                databaseObj.InsertEthernetData(ethernetModel);
+                ethernetModelDao.insert(ethernetModel);
 
             } else if (stParam.contains("CUR")) {
                 Log.i(TAG, "CURR ID::" + stParam.substring(4, 6));
-                currModel.setCURRENCY_ID(stParam.substring(4, 6));
+                currModel.setCURRENCY_ID(stParam.substring(4, 6)+"");
 
                 inindex = stValue.indexOf(' ');
                 currModel.setCURR_LABEL(stValue.substring(0, inindex));
@@ -1059,7 +1105,7 @@ public class AdminActivity extends Activity {
                         currModel.setCURR_CODE(stValue.substring(0, inindex));
                 }
                 //stValue = stValue.substring(inindex + 1);
-                databaseObj.InsertCurrencyData(currModel);
+                currModelDao.insert(currModel);
 
             } else if (stParam.contains("EZL")) {
                 if (!stValue.isEmpty()) {
@@ -1125,69 +1171,48 @@ public class AdminActivity extends Activity {
                     stValue = stValue.substring(inindex + 1);
                 }
 
-                databaseObj.InsertEzlinkData(ezlinkModel);
+                ezlinkModelDao.insert(ezlinkModel);
             } else if (stParam.contains("BARCODE")) {
 
                 Log.i(TAG, "BAR DOCDE::" + stValue);
                 inindex = stValue.indexOf(' ');
-                barcodeModel.setPARTNER_ID(stValue.substring(0, inindex));
+                alipayModel.setPARTNER_ID(stValue.substring(0, inindex)+"");
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-                barcodeModel.setSELLER_ID(stValue.substring(0, inindex));
+                alipayModel.setSELLER_ID(stValue.substring(0, inindex)+"");
                 stValue = stValue.substring(inindex + 1);
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
                     if (inindex == -1)
-                        barcodeModel.setREGION_CODE(stValue);
+                        alipayModel.setREGION_CODE(stValue);
                     else
-                        barcodeModel.setREGION_CODE(stValue.substring(0, inindex));
+                        alipayModel.setREGION_CODE(stValue.substring(0, inindex));
                 }
                 //stValue = stValue.substring(inindex + 1);
-                databaseObj.insertBarocdeData(barcodeModel);
+                alipayModelDao.insert(alipayModel);
             }
         }
 
-        databaseObj.insertMerchantData(merchantModel);
-        databaseObj.insertPasswordData(pwdModel);
-        databaseObj.InsertTransactionCtrlData(transctrlModel);
-        databaseObj.InsertReportCtrlData(reportModel);
-        databaseObj.InsertHostTransmissionModelData(hostTransModel);
-        databaseObj.InsertReceiptModelData(receiptModel);
-        databaseObj.InsertMaskingModelData(maskModel);
-        databaseObj.InsertLimitModelData(limitModel);
-        databaseObj.InsertUtilityTablelData(utilModel);
+        merchantModelDao.insert(merchantModel);
+        pwdModelDao.insert(pwdModel);
+        transctrlModelDao.insert(transctrlModel);
+        reportModelDao.insert(reportModel);
+        hostTransModelDao.insert(hostTransModel);
+        receiptModelDao.insert(receiptModel);
+        maskModelDao.insert(maskModel);
+        limitModelDao.insert(limitModel);
+        utilityModelDao.insert(utilModel);
 
-        MerchantModel merchantModeldata = new MerchantModel();
-        merchantModeldata = databaseObj.getMerchantData(0);
-        Log.i(TAG, "Merchant NAme" + merchantModeldata.getMERCHANT_NAME());
-
-
-
-
-
-
-        // if (merchantModeldata.equals(null)) {
-
-
-
-        // }
-
+         List<MerchantModel> merchantModelList = daoSession.getMerchantModelDao().loadAll();
+        Log.i(TAG, "Merchant NAme" + merchantModelList.get(0).getADDITIONAL_PROMPT());
 
     }
 
     private int inProcessPacket() {
-        // keep basic.xml in assets folder
-        //  Log.i(TAG,"AdminActivity::inProcessPacket");
-        // InputStream inputstream =
-        // getApplicationContext().getAssets().open("basic.xml");
-        // MihirPackager packager = new MihirPackager(inputstream);
-        try {
-            // GenericPackager packager = new
-            // GenericPackager("src/asset/basic.xml");
 
-            //  Log.i(TAG,"AdminActivity::Packager");
+        try {
 
             isoMsg.unpack(FinalData);
             // print the DE list
@@ -1396,6 +1421,7 @@ public class AdminActivity extends Activity {
         }
         return Constants.ReturnValues.RETURN_OK;
     }
+
 
     public int AddLength_Tpdu(byte[] data, byte[] FinalData) {
         int inOffset = 0;

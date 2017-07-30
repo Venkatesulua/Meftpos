@@ -6,9 +6,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,23 +27,15 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.Review_Transaction;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
-
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.database.DBStaticField;
-import com.mobileeftpos.android.eftpos.model.BatchModel;
-import com.mobileeftpos.android.eftpos.model.CommsModel;
-import com.mobileeftpos.android.eftpos.model.HostModel;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
+import com.mobileeftpos.android.eftpos.db.BatchModel;
+import com.mobileeftpos.android.eftpos.db.BatchModelDao;
+import com.mobileeftpos.android.eftpos.db.CommsModel;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
+import com.mobileeftpos.android.eftpos.db.HostModel;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 
-
-
 import java.math.BigInteger;
-
-import java.util.ArrayList;
-import java.util.List;
-
-
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +43,7 @@ import java.util.List;
 public class SettlementFlow extends AppCompatActivity {
 
     private TransactionDetails transDetails = new TransactionDetails();
-    private DBHelper databaseObj;
+   // private DBHelper databaseObj;
     private Constants constants = new Constants();
     private Review_Transaction reviewTrans = new Review_Transaction();
     private BatchModel batchModeldata = new BatchModel();
@@ -77,6 +69,7 @@ public class SettlementFlow extends AppCompatActivity {
     private RemoteHost remoteHost = new RemoteHost();
     public byte[] FinalData = new byte[1512];
     private Context mcontext;
+    private DaoSession daoSession;
     private List<HostModel>settlementList=new ArrayList<>();
 
     @Override
@@ -84,8 +77,7 @@ public class SettlementFlow extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settlement_flow);
         mcontext=SettlementFlow.this;
-        databaseObj = new DBHelper(SettlementFlow.this);
-
+        daoSession = GreenDaoSupport.getInstance(SettlementFlow.this);
         settelmentListview=(ListView)findViewById(R.id.settlement_menu);
 
         inSettlement();
@@ -94,7 +86,8 @@ public class SettlementFlow extends AppCompatActivity {
     private void inSettlement() {
         //findout number of host available
         HostModel hostModel;
-        List<HostModel> hostModelList = databaseObj.getAllHostTableData();
+        List<HostModel> hostModelList = GreenDaoSupport.getHostModelOBJList(SettlementFlow.this);//databaseObj
+        // .getAllHostTableData();
         for (int i = 0; i < hostModelList.size(); i++) {
             hostModel = hostModelList.get(i);
             if (!(hostModel == null || hostModel.equals(""))) {
@@ -135,7 +128,7 @@ public class SettlementFlow extends AppCompatActivity {
             // execution of result of Long time consuming operation
             super.onPostExecute(result);
             Log.i(TAG, "GetInvoice::Alipay:onPostExecute");
-            payService.vdUpdateSystemTrace(databaseObj);
+            payService.vdUpdateSystemTrace(daoSession);
             if(result!=null && !result.equalsIgnoreCase("null")) {
                 if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_OK) {
                     new Handler().postDelayed(new Runnable() {
@@ -147,10 +140,11 @@ public class SettlementFlow extends AppCompatActivity {
                             progressDialog.dismiss();
                         }
                     }, TIME_OUT);
-                    //Delete the Batch File
-                    databaseObj.deleteallvalues(DBStaticField.TABLE_BATCH);
+                    //Delete the Batch File cttModelDao.deleteAll();
+                   BatchModelDao batchModelDao=daoSession.getBatchModelDao();
+                    batchModelDao.deleteAll();
                     //Increment Batch Number
-                    payService.vdUpdateSystemBatch(databaseObj);
+                    payService.vdUpdateSystemBatch(SettlementFlow.this);
                     //finish();
                 }
                 else if (Integer.parseInt(result) == Constants.ReturnValues.NO_TRANSCATION) {
@@ -218,7 +212,7 @@ public class SettlementFlow extends AppCompatActivity {
                     case 0://Validation; in force settlement;
 
 
-                    inRet = isoPacket.vdScanRecord(databaseObj);
+                    inRet = isoPacket.vdScanRecord(SettlementFlow.this);
                     if(inRet == Constants.ReturnValues.NO_TRANSCATION){
                         return Constants.ReturnValues.NO_TRANSCATION;
                     }
@@ -237,7 +231,9 @@ public class SettlementFlow extends AppCompatActivity {
                     case 1://
 
                         Log.i(TAG,"GetInvoice::Alipay::COMMUNICATION PARAMS...");
-                        comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
+                        comModel =GreenDaoSupport.getCommsModelObj(SettlementFlow.this,TransactionDetails.inGCOM+"");
+                        //databaseObj.getCommsData
+                        // (TransactionDetails.inGCOM);
                         Log.i(TAG,"GetInvoice::Alipay::COMMUNICATION PARAMS2...");
                         String IP_Port = comModel.getCOM_PRIMARY_IP_PORT();
                         Log.i(TAG,"GetInvoice::Alipay::IP_Port::"+IP_Port);
@@ -252,7 +248,7 @@ public class SettlementFlow extends AppCompatActivity {
                         Log.i(TAG, "GetInvoice:ServerIP ::: "+ServerIP);
                         Log.i(TAG, "GetInvoice:Server PORT ::: "+Port);
 
-                        String stTrace = payService.pGetSystemTrace(databaseObj);
+                        String stTrace = payService.pGetSystemTrace(SettlementFlow.this);
 
                         Log.i(TAG, "GetInvoice:inCreatePacket:stTrace::"+stTrace);
                         Log.i(TAG, "GetInvoice:inCreatePacket:stTrace::"+stTrace);
@@ -336,7 +332,8 @@ public class SettlementFlow extends AppCompatActivity {
 
                         FinalData=null;
                         FinalData = new byte[1512];
-                        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.INIT_SETTLEMENT);
+                        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants.TransType
+                                .INIT_SETTLEMENT,SettlementFlow.this);
                         if(TransactionDetails.inFinalLength == 0)
                             inError = 1;
                         break;
@@ -353,10 +350,12 @@ public class SettlementFlow extends AppCompatActivity {
                         Log.i(TAG, "GetInvoice:inProcessPacket:");
                         inRet = isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength);
                         if(inRet == Constants.ReturnValues.RETURN_BATCH_TRANSFER) {
-                            if(isoPacket.BatchTranfer(databaseObj,ServerIP,Port) ==Constants.ReturnValues.RETURN_OK){
+                            if(isoPacket.BatchTranfer(ServerIP,Port,SettlementFlow.this) ==Constants.ReturnValues
+                                    .RETURN_OK){
                                 //Final Settlement
                                 TransactionDetails.trxType = Constants.TransType.FINAL_SETTLEMENT;
-                                TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.FINAL_SETTLEMENT);
+                                TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants
+                                        .TransType.FINAL_SETTLEMENT,SettlementFlow.this);
                                 if(TransactionDetails.inFinalLength == 0)
                                     return Constants.ReturnValues.RETURN_ERROR;
 
@@ -403,7 +402,7 @@ public class SettlementFlow extends AppCompatActivity {
                     case 6://
                         //Print receipt
                         Log.i(TAG, "\nPrinting Receipt");
-                        printReceipt.inPrintReceipt(databaseObj,SettlementFlow.this);
+                        printReceipt.inPrintReceipt(daoSession,SettlementFlow.this);
                         break;
                     case 7://Show the receipt in the display and give option to print or email
 

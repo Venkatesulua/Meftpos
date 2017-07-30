@@ -32,6 +32,8 @@ public class EzlinkModelDao extends AbstractDao<EzlinkModel, Long> {
         public final static Property EZLINK_TOPUP_DEVICE_TYPE = new Property(7, String.class, "EZLINK_TOPUP_DEVICE_TYPE", false, "EZLINK__TOPUP__DEVICE__TYPE");
         public final static Property EZLINK_BLACK_LIST_LAST_UPDATE = new Property(8, String.class, "EZLINK_BLACK_LIST_LAST_UPDATE", false, "EZLINK__BLACK__LIST__LAST__UPDATE");
         public final static Property EZLINK_TOPUP_PAYMENT_MODE = new Property(9, String.class, "EZLINK_TOPUP_PAYMENT_MODE", false, "EZLINK__TOPUP__PAYMENT__MODE");
+        public final static Property EZLINK_PAYMENT_MAC_KEY = new Property(10, String.class, "EZLINK_PAYMENT_MAC_KEY", false, "EZLINK__PAYMENT__MAC__KEY");
+        public final static Property EZLINK_TOPUP_MAC_KEY = new Property(11, String.class, "EZLINK_TOPUP_MAC_KEY", false, "EZLINK__TOPUP__MAC__KEY");
     }
 
 
@@ -56,7 +58,9 @@ public class EzlinkModelDao extends AbstractDao<EzlinkModel, Long> {
                 "\"EZLINK__PAYMENT__DEVICE__TYPE\" TEXT," + // 6: EZLINK_PAYMENT_DEVICE_TYPE
                 "\"EZLINK__TOPUP__DEVICE__TYPE\" TEXT," + // 7: EZLINK_TOPUP_DEVICE_TYPE
                 "\"EZLINK__BLACK__LIST__LAST__UPDATE\" TEXT," + // 8: EZLINK_BLACK_LIST_LAST_UPDATE
-                "\"EZLINK__TOPUP__PAYMENT__MODE\" TEXT);"); // 9: EZLINK_TOPUP_PAYMENT_MODE
+                "\"EZLINK__TOPUP__PAYMENT__MODE\" TEXT," + // 9: EZLINK_TOPUP_PAYMENT_MODE
+                "\"EZLINK__PAYMENT__MAC__KEY\" TEXT," + // 10: EZLINK_PAYMENT_MAC_KEY
+                "\"EZLINK__TOPUP__MAC__KEY\" TEXT);"); // 11: EZLINK_TOPUP_MAC_KEY
     }
 
     /** Drops the underlying database table. */
@@ -118,6 +122,16 @@ public class EzlinkModelDao extends AbstractDao<EzlinkModel, Long> {
         if (EZLINK_TOPUP_PAYMENT_MODE != null) {
             stmt.bindString(10, EZLINK_TOPUP_PAYMENT_MODE);
         }
+ 
+        String EZLINK_PAYMENT_MAC_KEY = entity.getEZLINK_PAYMENT_MAC_KEY();
+        if (EZLINK_PAYMENT_MAC_KEY != null) {
+            stmt.bindString(11, EZLINK_PAYMENT_MAC_KEY);
+        }
+ 
+        String EZLINK_TOPUP_MAC_KEY = entity.getEZLINK_TOPUP_MAC_KEY();
+        if (EZLINK_TOPUP_MAC_KEY != null) {
+            stmt.bindString(12, EZLINK_TOPUP_MAC_KEY);
+        }
     }
 
     @Override
@@ -173,6 +187,16 @@ public class EzlinkModelDao extends AbstractDao<EzlinkModel, Long> {
         if (EZLINK_TOPUP_PAYMENT_MODE != null) {
             stmt.bindString(10, EZLINK_TOPUP_PAYMENT_MODE);
         }
+ 
+        String EZLINK_PAYMENT_MAC_KEY = entity.getEZLINK_PAYMENT_MAC_KEY();
+        if (EZLINK_PAYMENT_MAC_KEY != null) {
+            stmt.bindString(11, EZLINK_PAYMENT_MAC_KEY);
+        }
+ 
+        String EZLINK_TOPUP_MAC_KEY = entity.getEZLINK_TOPUP_MAC_KEY();
+        if (EZLINK_TOPUP_MAC_KEY != null) {
+            stmt.bindString(12, EZLINK_TOPUP_MAC_KEY);
+        }
     }
 
     @Override
@@ -192,7 +216,9 @@ public class EzlinkModelDao extends AbstractDao<EzlinkModel, Long> {
             cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // EZLINK_PAYMENT_DEVICE_TYPE
             cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // EZLINK_TOPUP_DEVICE_TYPE
             cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // EZLINK_BLACK_LIST_LAST_UPDATE
-            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9) // EZLINK_TOPUP_PAYMENT_MODE
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // EZLINK_TOPUP_PAYMENT_MODE
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // EZLINK_PAYMENT_MAC_KEY
+            cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11) // EZLINK_TOPUP_MAC_KEY
         );
         return entity;
     }
@@ -209,6 +235,8 @@ public class EzlinkModelDao extends AbstractDao<EzlinkModel, Long> {
         entity.setEZLINK_TOPUP_DEVICE_TYPE(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
         entity.setEZLINK_BLACK_LIST_LAST_UPDATE(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
         entity.setEZLINK_TOPUP_PAYMENT_MODE(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setEZLINK_PAYMENT_MAC_KEY(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setEZLINK_TOPUP_MAC_KEY(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
      }
     
     @Override

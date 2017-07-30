@@ -1,13 +1,16 @@
 package com.mobileeftpos.android.eftpos.SupportClasses;
 
-import android.content.Context;
 import android.util.Log;
 
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.model.CardBinModel;
-import com.mobileeftpos.android.eftpos.model.CardTypeModel;
-import com.mobileeftpos.android.eftpos.model.HostModel;
-import com.mobileeftpos.android.eftpos.model.MerchantModel;
+import com.mobileeftpos.android.eftpos.db.CardBinModel;
+import com.mobileeftpos.android.eftpos.db.CardBinModelDao;
+import com.mobileeftpos.android.eftpos.db.CardTypeModel;
+import com.mobileeftpos.android.eftpos.db.CardTypeModelDao;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
+import com.mobileeftpos.android.eftpos.db.HostModel;
+import com.mobileeftpos.android.eftpos.db.HostModelDao;
+
+import java.util.List;
 
 /**
  * Created by venkat on 5/23/2017.
@@ -124,7 +127,7 @@ public class TransactionDetails {
         
     }
 
-    public int inSortPAN(DBHelper databaseObj)
+    public int inSortPAN(DaoSession daoSession)
     {
         int i=0;
         String chCardTypeIndex = "";
@@ -138,13 +141,14 @@ public class TransactionDetails {
         if(TransactionDetails.PAN.isEmpty()|| TransactionDetails.PAN==null )
             return Constants.ReturnValues.TRANSACTION_NOT_SUPPORTED;
 
-        if(databaseObj == null){
+        if(daoSession == null){
             return Constants.ReturnValues.RETURN_ERROR;
         }
 
 
         Log.i(TAG,"TransDetails::inSortPAN:");
         TransactionDetails.responseMessge = "Case 401";
+        CardBinModelDao cardBinModelDao =daoSession.getCardBinModelDao();
         while (true)
         {
 		/* get the index */
@@ -154,8 +158,8 @@ public class TransactionDetails {
            // goto lblKO;
 
             CardBinModel cardbinModeldata = new CardBinModel();
-            CardTypeModel cardTypeModeldata = new CardTypeModel();
-            cardbinModeldata = databaseObj.getCardBinData(i);
+            List<CardBinModel> cardbinModeldataList = cardBinModelDao.loadAll();
+            cardbinModeldata=cardbinModeldataList.get(0);
             Log.i(TAG,"TransDetails::LLow Value:"+cardbinModeldata.getCDT_LO_RANGE());
             Log.i(TAG,"TransDetails::High Value:"+cardbinModeldata.getCDT_HI_RANGE());
             Log.i(TAG,"TransDetails::PAN:"+this.PAN);
@@ -193,7 +197,7 @@ public class TransactionDetails {
                         , cardbinModeldata.getCDT_HDT_REFERENCE()
                         , cardbinModeldata.getCDT_CARD_TYPE_ARRAY()
                         , cardbinModeldata.getCDT_HDT_REFERENCE().length()
-                        ,ui8GlistOfValidHosts,databaseObj);
+                        ,ui8GlistOfValidHosts,daoSession);
 
                 chCardTypeIndex = cardbinModeldata.getCDT_CARD_TYPE_ARRAY().substring(0,2);
 
@@ -204,7 +208,7 @@ public class TransactionDetails {
                 chCardTypeIndex = cardbinModeldata.getCDT_CARD_TYPE_ARRAY().substring(0,2);
                 Log.i(TAG,"TransDetails::chCardTypeIndex:"+chCardTypeIndex);
 
-                cardTypeModeldata = databaseObj.getCardTypeData(Integer.parseInt(chCardTypeIndex));
+                //cardTypeModeldata = databaseObj.getCardTypeData(Integer.parseInt(chCardTypeIndex));
                 inGCDT = Integer.parseInt(cardbinModeldata.getCDT_ID());
 
                 Log.i(TAG,"TransDetails::inGCDT:"+inGCDT);
@@ -226,7 +230,7 @@ public class TransactionDetails {
 
         TransactionDetails.responseMessge = TransactionDetails.responseMessge + "Case 4035"+"\n";
         Log.i(TAG,"TransDetails::Find Valid:inGNoOfValidHosts "+inGNoOfValidHosts);
-        HostModel hostdata = new HostModel();
+        HostModelDao hostdataDao = daoSession.getHostModelDao();
         //inGHDT = inSelectHost();
         for (i = 0; i < inGNoOfValidHosts; i++) {
             TransactionDetails.responseMessge = TransactionDetails.responseMessge + "Case 4036"+"\n";
@@ -236,7 +240,8 @@ public class TransactionDetails {
 
 
             int inlocalHdtIndex = Integer.parseInt(localHdtIndex);
-            hostdata = databaseObj.getHostTableData(inlocalHdtIndex);
+            HostModel hostdata =daoSession.getHostModelDao().loadAll().get(0);
+           // hostdata = databaseObj.getHostTableData(inlocalHdtIndex);
             if(!hostdata.getHDT_HOST_ENABLED().equals("1"))
             {
                 Log.i(TAG,"TransDetails::Continue...");
@@ -251,7 +256,7 @@ public class TransactionDetails {
                 Log.i(TAG,"TransDetails::inGHDT1..."+inGHDT);
                 Log.i(TAG,"TransDetails::inGCOM..."+inGCOM);
                 Log.i(TAG,"TransDetails::inGCURR..."+inGCURR);
-                inFindGetCTT(inGHDT, databaseObj);
+                inFindGetCTT(inGHDT, daoSession);
                 TransactionDetails.responseMessge = "Case 4101";
                 return Constants.ReturnValues.RETURN_OK;
 
@@ -276,7 +281,7 @@ public class TransactionDetails {
     return Constants.ReturnValues.TRANSACTION_NOT_SUPPORTED;
     }
 
-    int inFindGetCTT(int inHDTIndex, DBHelper databaseObj)
+    int inFindGetCTT(int inHDTIndex, DaoSession daoSession)
     {
         //HDT_STRUCT localHDT;
         String chHDTIndex="";
@@ -287,19 +292,22 @@ public class TransactionDetails {
         Log.i(TAG,"TransDetails::inFindGetCTT_1");
         Log.i(TAG,"TransDetails::inFindGetCTT_1");
         Log.i(TAG,"TransDetails::inFindGetCTT_1");
-        CardBinModel cardBindata = databaseObj.getCardBinData(inGCDT);
-        HostModel localHDT = new HostModel();
-        CardTypeModel cardTypeData = new CardTypeModel();
+        //CardBinModel cardBindata = databaseObj.getCardBinData(inGCDT);
+        CardBinModelDao cardBinModelDao=daoSession.getCardBinModelDao();
+        CardBinModel cardBindata =cardBinModelDao.loadAll().get(0);
+        HostModelDao hostModelDao=daoSession.getHostModelDao();
+        CardTypeModelDao cardTypeModelDao=daoSession.getCardTypeModelDao();
+
 
         Log.i(TAG,"TransDetails::cardBindata.getCDT_HDT_REFERENCE()"+cardBindata.getCDT_HDT_REFERENCE());
 
         for (i=0;i<(cardBindata.getCDT_HDT_REFERENCE().length()/2); i++)
         {
             //memcpy(chHDTIndex,stGCDTStruct.CDT_HDT_REFERENCE+(i*2),2);
-
+            HostModel localHDT = new HostModel();
             Log.i(TAG,"TransDetails::inside-Loop_1");
             chHDTIndex = cardBindata.getCDT_HDT_REFERENCE().substring((i*2),((i*2)+2));
-            localHDT = databaseObj.getHostTableData(inGHDT);
+            localHDT = hostModelDao.loadAll().get(0);//databaseObj.getHostTableData(inGHDT);
 
             Log.i(TAG,"TransDetails::getHDT_HOST_LABEL::"+localHDT.getHDT_HOST_LABEL());
             Log.i(TAG,"TransDetails::getHDT_HOST_LABEL::"+localHDT.getHDT_DESCRIPTION());
@@ -322,11 +330,12 @@ public class TransactionDetails {
             // compare the HDT indexes
             if (Integer.parseInt(chHDTIndex) == inHDTIndex)
             {
+                CardTypeModel cardTypeData =new CardTypeModel();
                 Log.i(TAG,"TransDetails::inside-Loop_1 Matched HDT");
                 // extract CTT index in CDT_CARD_TYPE_ARRAY from the same position as CDT_HDT_REFERENCE
                 //memcpy(chCTTIndex,stGCDTStruct.CDT_CARD_TYPE_ARRAY+(i*2),2 );
                 chCTTIndex = cardBindata.getCDT_CARD_TYPE_ARRAY().substring((i*2),((i*2)+2));
-                cardTypeData =databaseObj.getCardTypeData(Integer.parseInt(chCTTIndex));
+                cardTypeData =  cardTypeModelDao.loadAll().get(0);//databaseObj.getCardTypeData(Integer.parseInt(chCTTIndex));
                 Log.i(TAG,"TransDetails::CTT_CARD_LABEL::"+cardTypeData.getCTT_CARD_LABEL());
                 Log.i(TAG,"TransDetails::CTT_CARD_FORMAT::"+cardTypeData.getCTT_CARD_FORMAT());
                 inGCTT = Integer.parseInt(chCTTIndex);
@@ -344,7 +353,8 @@ public class TransactionDetails {
         return 1;
     }
 
-    int vecGetValidCurrVsHDTList( int ui16CurrencyIndex, String CDT_HDT_REFERENCEVal, String CDT_CARD_TYPE_ARRAYVal, int CHReferenceSize, String[] listOfValidHosts, DBHelper databaseObj)
+    int vecGetValidCurrVsHDTList( int ui16CurrencyIndex, String CDT_HDT_REFERENCEVal, String CDT_CARD_TYPE_ARRAYVal,
+                                  int CHReferenceSize, String[] listOfValidHosts, DaoSession daoSession)
     {
         //HDT_STRUCT localHDTStruct;
         int localHDTIndex,i,inTotalValidInvalidHosts = 0;
@@ -357,7 +367,7 @@ public class TransactionDetails {
         String CTTRef;//[2+1];
         //ui8ListOfValinInvalidHosts="";
         int inRedirectHDTIndex = 0;
-        HostModel hostdata = new HostModel();
+        HostModelDao hostdataDao = daoSession.getHostModelDao();
 
         Log.i(TAG,"TransDetails::vecGetValidCurrVsHDTList_1");
 
@@ -401,9 +411,9 @@ public class TransactionDetails {
         for( i=0; i< inTotalValidInvalidHosts; i++)
         {
             localHDTIndex= Integer.parseInt(ui8ListOfValinInvalidHosts[i]);
-
+             List<HostModel> hostdatalist =hostdataDao.loadAll();
+             HostModel hostdata=hostdatalist.get(0);
             //Open HDT file and read structure
-            hostdata = databaseObj.getHostTableData(localHDTIndex);
             //if(inGetHDTConfig(GET,localHDTIndex, (HDT_STRUCT*)&localHDTStruct)==FALSE)
             if(hostdata == null)
                 continue;

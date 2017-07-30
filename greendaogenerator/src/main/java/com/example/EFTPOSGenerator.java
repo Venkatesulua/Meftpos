@@ -201,6 +201,8 @@ public class EFTPOSGenerator {
         ezlinkTable.addStringProperty("EZLINK_TOPUP_DEVICE_TYPE");
         ezlinkTable.addStringProperty("EZLINK_BLACK_LIST_LAST_UPDATE");
         ezlinkTable.addStringProperty("EZLINK_TOPUP_PAYMENT_MODE");
+        ezlinkTable.addStringProperty("EZLINK_PAYMENT_MAC_KEY");
+        ezlinkTable.addStringProperty("EZLINK_TOPUP_MAC_KEY");
         return ezlinkTable;
 
     }
@@ -402,7 +404,9 @@ public class EFTPOSGenerator {
 
     private static Entity addMerchantEntity(final Schema schema) {
         Entity merchantTable = schema.addEntity(TABLE_MERCHANT);
-        merchantTable.addIdProperty().primaryKey().autoincrement();
+          merchantTable.addIdProperty().primaryKey().autoincrement();
+
+
         merchantTable.addStringProperty("MERCHANT_ID");
         merchantTable.addStringProperty("ADDITIONAL_PROMPT");
         merchantTable.addStringProperty("DAILY_SETTLEMENT_FLAG");
@@ -413,6 +417,8 @@ public class EFTPOSGenerator {
         merchantTable.addStringProperty("AUTO_SETTLE_TIME");
         merchantTable.addStringProperty("LAST_AUTO_SETTLEMENT_DATETIME");
         merchantTable.addStringProperty("UTRN_PREFIX");
+
+
         return merchantTable;
 
     }

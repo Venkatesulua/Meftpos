@@ -1,19 +1,21 @@
 package com.mobileeftpos.android.eftpos.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.app.EftposApp;
 import com.mobileeftpos.android.eftpos.async.AsyncTaskRequestResponse;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 
 public class ConfirmRefund extends AppCompatActivity {
@@ -23,7 +25,8 @@ public class ConfirmRefund extends AppCompatActivity {
     private TextView TVRefAmount;
     private TextView TVOriAmount;
     private TextView TVPartnetTransactionID;
-
+    private DaoSession daoSession;
+    private Activity activity;
 
     private AsyncTaskRequestResponse ASTask = new AsyncTaskRequestResponse();
     public static Context context;
@@ -34,7 +37,8 @@ public class ConfirmRefund extends AppCompatActivity {
         setContentView(R.layout.activity_confirm_refund);
 
         context=ConfirmRefund.this;
-
+        activity=ConfirmRefund.this;
+        daoSession = ((EftposApp) getApplication()).getDaoSession();
         BTConfirmBtn=(Button)findViewById(R.id.ConfirmBtn);
         BTCancelBtn=(Button)findViewById(R.id.CancelBtn);
         TVRefAmount=(TextView) findViewById(R.id.ConfirmRefAmount);
@@ -67,7 +71,7 @@ public class ConfirmRefund extends AppCompatActivity {
                 if (AppUtil.isNetworkAvailable(ConfirmRefund.this)) {
                     TransactionDetails.trxType = Constants.TransType.ALIPAY_REFUND;
                     TransactionDetails.inOritrxType = Constants.TransType.ALIPAY_REFUND;
-                    ASTask.AsyncTaskCreation(context);
+                    ASTask.AsyncTaskCreation(context,activity,daoSession);
                 }else {
                     Toast.makeText(ConfirmRefund.this, "REFUND CONNECTION ISSUE",Toast.LENGTH_SHORT).show();
                 }

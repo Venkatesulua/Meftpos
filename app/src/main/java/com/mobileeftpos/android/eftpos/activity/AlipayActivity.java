@@ -1,77 +1,51 @@
 package com.mobileeftpos.android.eftpos.activity;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.google.gson.Gson;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
-import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
-import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
 import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.PacketCreation;
 import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
-
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
-import com.mobileeftpos.android.eftpos.async.AsyncTaskRequestResponse;
 import com.mobileeftpos.android.eftpos.async.WebServiceCall;
-import com.mobileeftpos.android.eftpos.database.DBHelper;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
+import com.mobileeftpos.android.eftpos.db.BatchModel;
+import com.mobileeftpos.android.eftpos.db.CommsModel;
+import com.mobileeftpos.android.eftpos.db.CommsModelDao;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
+import com.mobileeftpos.android.eftpos.db.HTTModel;
+import com.mobileeftpos.android.eftpos.db.HTTModelDao;
 import com.mobileeftpos.android.eftpos.model.AlipayResponceModel;
-import com.mobileeftpos.android.eftpos.model.BarcodeModel;
-import com.mobileeftpos.android.eftpos.model.BatchModel;
-import com.mobileeftpos.android.eftpos.model.CommsModel;
-import com.mobileeftpos.android.eftpos.model.CurrencyModel;
-import com.mobileeftpos.android.eftpos.model.HostModel;
-import com.mobileeftpos.android.eftpos.model.HostTransmissionModel;
-import com.mobileeftpos.android.eftpos.model.MerchantModel;
 import com.mobileeftpos.android.eftpos.scan.SunmiScanner;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 import com.mobileeftpos.android.eftpos.utils.JSONUtil;
 
-import org.jpos.iso.ISOMsg;
-import org.jpos.security.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.Socket;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class AlipayActivity extends AppCompatActivity {
-
-
 
     public static Context context;
     public static String barCodeValue=null;
@@ -86,16 +60,11 @@ public class AlipayActivity extends AppCompatActivity {
     public PrintReceipt printReceipt = new PrintReceipt();
     public PayServices payServices = new PayServices();
     AsyncTaskRunner mAsyncTask;
-
     public byte[] FinalData = new byte[1512];
     public static  Context loContext;
-    //public int TransactionDetails.inFinalLength = 0;
-
-
-    private static DBHelper databaseObj;
     private String ServerIP="";
     private String Port="";
-
+    private DaoSession daoSession;
     private static final int TIME_OUT = 1000;
     private static String BASE_URL="https://devapi.prayapay.com/v2?";
     private String requestTypeValue,brandValue,storeIdValue,deviceIdValue,
@@ -108,11 +77,9 @@ public class AlipayActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alipay);
-        databaseObj = new DBHelper(AlipayActivity.this);
+        daoSession = GreenDaoSupport.getInstance(AlipayActivity.this);
         context = AlipayActivity.this;
         loContext=AlipayActivity.this;
-
-
         if(checkAndRequestPermissions()) {
             // carry on the normal flow, as the case of  permissions  granted.
         }
@@ -254,9 +221,7 @@ public class AlipayActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             // execution of result of Long time consuming operation
             super.onPostExecute(result);
-
-
-            payServices.vdUpdateSystemTrace(databaseObj);
+            payServices.vdUpdateSystemTrace(daoSession);
             if(result != null) {
                 if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN) {
                     loContext.startActivity(new Intent(loContext, AlipayCheckPrompt.class));
@@ -346,7 +311,7 @@ public class AlipayActivity extends AppCompatActivity {
                     case 0://Validation; in force settlement;
                         TransactionDetails.responseMessge = "Case 0";
                         if (TransactionDetails.trxType == Constants.TransType.ALIPAY_SALE || TransactionDetails.trxType == Constants.TransType.VOID) {
-                            inError = trDetails.inSortPAN(databaseObj);
+                            inError = trDetails.inSortPAN(daoSession);
                             if (inError != Constants.ReturnValues.RETURN_OK) {
                                 TransactionDetails.responseMessge = "TRANSCATION NOT SUPPORTED or \n CARD NOT READ PROPERLY";
                                 return Constants.ReturnValues.RETURN_ERROR;
@@ -372,14 +337,15 @@ public class AlipayActivity extends AppCompatActivity {
                     case 1://
 
                         TransactionDetails.responseMessge = "Case 1";
-                        comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
+                        CommsModelDao commsModelDao =daoSession.getCommsModelDao();
+                        comModel =commsModelDao.loadAll().get(0);// databaseObj.getCommsData(TransactionDetails.inGCOM);
                         String IP_Port = comModel.getCOM_PRIMARY_IP_PORT();
                         int indexOffset = IP_Port.indexOf("|");
                         ServerIP = IP_Port.substring(0, indexOffset);
                         Port = IP_Port.substring(indexOffset + 1);
                         Log.i(TAG, "Aipay:ServerIP ::: " + ServerIP);
                         Log.i(TAG, "Aipay:Server PORT ::: " + Port);
-                        String stTrace = payServices.pGetSystemTrace(databaseObj);
+                        String stTrace = payServices.pGetSystemTrace(AlipayActivity.this);
                         TransactionDetails.InvoiceNumber = stTrace;
                         Log.i(TAG, "Aipay:inCreatePacket:stTrace::" + stTrace);
 
@@ -419,7 +385,8 @@ public class AlipayActivity extends AppCompatActivity {
                         Log.i(TAG,result);
                         KeyValueDB.setReversal(loContext,new String(result));*/
 
-                        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj, FinalData, Constants.TransType.ALIPAY_SALE);
+                        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants.TransType
+                                .ALIPAY_SALE,AlipayActivity.this);
                         if (TransactionDetails.inFinalLength == 0) {
                             inError = 1;
                             break;
@@ -432,7 +399,9 @@ public class AlipayActivity extends AppCompatActivity {
                         if(remoteHost.inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK)
                             return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
                         Log.i(TAG, "Aipay:inSendRecvPacket:");
-                        HostTransmissionModel connectionTimeout = databaseObj.getHostTransmissionModelData(0);
+                        HTTModelDao httModelDao=daoSession.getHTTModelDao();
+                        HTTModel connectionTimeout =httModelDao.loadAll().get(0);
+                        //databaseObj.getHostTransmissionModelData(0);
                         TransactionDetails.ConnectionTimeout = connectionTimeout.getCONNECTION_TIMEOUT();
                         if ((FinalData = remoteHost.inSendRecvPacket(FinalData, TransactionDetails.inFinalLength)) == null) {
                             //inError = 1;
@@ -463,26 +432,27 @@ public class AlipayActivity extends AppCompatActivity {
 
                         Log.i(TAG, "\nSave Record:");
                         //save Record
-                        isoPacket.vdSaveRecord(databaseObj);
+                        isoPacket.vdSaveRecord(AlipayActivity.this);
                         KeyValueDB.removeReversal(loContext);//Clear Reversal
                         break;
                     case 6://
 
                         //Print receipt
                         Log.i(TAG, "\nPrinting Receipt");
-                        printReceipt.inPrintReceipt(databaseObj, loContext);
+                        printReceipt.inPrintReceipt(daoSession, loContext);
                         break;
                     case 7:
                         //Increment STAN NUMBER
-                        payServices.vdUpdateSystemTrace(databaseObj);
+                        payServices.vdUpdateSystemTrace(daoSession);
                         break;
                     case 8:
                         //Keep Upload Transcation On
                         if (TransactionDetails.trxType == Constants.TransType.VOID || TransactionDetails.trxType == Constants.TransType.ALIPAY_REFUND) {
-                            stTrace = payServices.pGetSystemTrace(databaseObj);
+                            ///stTrace = payServices.pGetSystemTrace(daoSession);
                             FinalData = null;
                             FinalData = new byte[1512];
-                            TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj, FinalData, Constants.TransType.ALIPAY_UPLOAD);
+                            TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants
+                                    .TransType.ALIPAY_UPLOAD,AlipayActivity.this);
                             result = "";
                             for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
                                 result = result + String.format("%02x", FinalData[k]);

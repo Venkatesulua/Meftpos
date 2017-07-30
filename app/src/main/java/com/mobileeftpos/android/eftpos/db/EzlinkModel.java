@@ -24,6 +24,8 @@ public class EzlinkModel {
     private String EZLINK_TOPUP_DEVICE_TYPE;
     private String EZLINK_BLACK_LIST_LAST_UPDATE;
     private String EZLINK_TOPUP_PAYMENT_MODE;
+    private String EZLINK_PAYMENT_MAC_KEY;
+    private String EZLINK_TOPUP_MAC_KEY;
 
     // KEEP FIELDS - put your custom fields here
     // KEEP FIELDS END
@@ -37,7 +39,7 @@ public class EzlinkModel {
     }
 
     @Generated
-    public EzlinkModel(Long id, String Ezlink_ID, String EZLINK_ENABLE, String EZLINK_SAM_KEY, String EZLINK_PAYMENT_TRP, String EZLINK_TOPUP_TRP, String EZLINK_PAYMENT_DEVICE_TYPE, String EZLINK_TOPUP_DEVICE_TYPE, String EZLINK_BLACK_LIST_LAST_UPDATE, String EZLINK_TOPUP_PAYMENT_MODE) {
+    public EzlinkModel(Long id, String Ezlink_ID, String EZLINK_ENABLE, String EZLINK_SAM_KEY, String EZLINK_PAYMENT_TRP, String EZLINK_TOPUP_TRP, String EZLINK_PAYMENT_DEVICE_TYPE, String EZLINK_TOPUP_DEVICE_TYPE, String EZLINK_BLACK_LIST_LAST_UPDATE, String EZLINK_TOPUP_PAYMENT_MODE, String EZLINK_PAYMENT_MAC_KEY, String EZLINK_TOPUP_MAC_KEY) {
         this.id = id;
         this.Ezlink_ID = Ezlink_ID;
         this.EZLINK_ENABLE = EZLINK_ENABLE;
@@ -48,6 +50,8 @@ public class EzlinkModel {
         this.EZLINK_TOPUP_DEVICE_TYPE = EZLINK_TOPUP_DEVICE_TYPE;
         this.EZLINK_BLACK_LIST_LAST_UPDATE = EZLINK_BLACK_LIST_LAST_UPDATE;
         this.EZLINK_TOPUP_PAYMENT_MODE = EZLINK_TOPUP_PAYMENT_MODE;
+        this.EZLINK_PAYMENT_MAC_KEY = EZLINK_PAYMENT_MAC_KEY;
+        this.EZLINK_TOPUP_MAC_KEY = EZLINK_TOPUP_MAC_KEY;
     }
 
     public Long getId() {
@@ -128,6 +132,22 @@ public class EzlinkModel {
 
     public void setEZLINK_TOPUP_PAYMENT_MODE(String EZLINK_TOPUP_PAYMENT_MODE) {
         this.EZLINK_TOPUP_PAYMENT_MODE = EZLINK_TOPUP_PAYMENT_MODE;
+    }
+
+    public String getEZLINK_PAYMENT_MAC_KEY() {
+        return EZLINK_PAYMENT_MAC_KEY;
+    }
+
+    public void setEZLINK_PAYMENT_MAC_KEY(String EZLINK_PAYMENT_MAC_KEY) {
+        this.EZLINK_PAYMENT_MAC_KEY = EZLINK_PAYMENT_MAC_KEY;
+    }
+
+    public String getEZLINK_TOPUP_MAC_KEY() {
+        return EZLINK_TOPUP_MAC_KEY;
+    }
+
+    public void setEZLINK_TOPUP_MAC_KEY(String EZLINK_TOPUP_MAC_KEY) {
+        this.EZLINK_TOPUP_MAC_KEY = EZLINK_TOPUP_MAC_KEY;
     }
 
     // KEEP METHODS - put your custom methods here

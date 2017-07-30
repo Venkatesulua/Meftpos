@@ -2,28 +2,25 @@ package com.mobileeftpos.android.eftpos.activity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
-import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.model.CurrencyModel;
-import com.mobileeftpos.android.eftpos.model.HostModel;
-import com.mobileeftpos.android.eftpos.model.MerchantModel;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
+import com.mobileeftpos.android.eftpos.db.CurrencyModel;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
+import com.mobileeftpos.android.eftpos.db.HostModel;
+import com.mobileeftpos.android.eftpos.db.MerchantModel;
+
 
 public class PaymentSuccess extends Activity {
 
       private Button shareBtnAction, gotoHomeAction,printCopy;
-      private DBHelper databaseObj;
         private TextView TVHeading, TVContent,TVFooter,TVTitle,TVDisclaimer;
     String Header="";
     String Title="";
@@ -32,13 +29,13 @@ public class PaymentSuccess extends Activity {
     String Disclaimer="";
     CurrencyModel curr = new CurrencyModel();
     String cuLabel;
+    private DaoSession daoSession;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment_success);
-         databaseObj = new DBHelper(PaymentSuccess.this);
-
+        daoSession = GreenDaoSupport.getInstance(PaymentSuccess.this);
          TVHeading=(TextView) findViewById(R.id.MerDetails);
         TVTitle=(TextView) findViewById(R.id.title);
          TVContent=(TextView) findViewById(R.id.ContentDetails);
@@ -79,7 +76,7 @@ public class PaymentSuccess extends Activity {
              @Override
              public void onClick(View view) {
                  PrintReceipt printReceipt = new PrintReceipt();
-                 printReceipt.inPrintReceipt(databaseObj,PaymentSuccess.this);
+                 printReceipt.inPrintReceipt(daoSession,PaymentSuccess.this);
                  Intent intent = new Intent(PaymentSuccess.this, HomeActivity.class);
                  intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                  startActivity(intent);
@@ -109,25 +106,28 @@ public class PaymentSuccess extends Activity {
     {
 
 
-        curr = databaseObj.getCurrencyData(TransactionDetails.inGCURR);
+//        curr = databaseObj.getCurrencyData(TransactionDetails.inGCURR);
+        curr = GreenDaoSupport.getCurrencyModelOBJList(PaymentSuccess.this,TransactionDetails.inGCURR+"");
+
         cuLabel = curr.getCURR_LABEL();
 
-        MerchantModel merchantData = databaseObj.getMerchantData(0);
+        MerchantModel merchantData =GreenDaoSupport.getMerchantModelOBJ(PaymentSuccess.this);
+        //databaseObj.getMerchantData(0);
         String hh ="";
-        if(merchantData.getMERCHANT_NAME().length() !=0)
-            hh = hh+ merchantData.getMERCHANT_NAME() +"\n";
-        if(merchantData.getMERCHANT_HEADER1().length() !=0)
-            hh = hh + merchantData.getMERCHANT_HEADER1() +"\n";
-        if(merchantData.getMERCHANT_HEADER2().length() !=0)
-            hh = hh + merchantData.getMERCHANT_HEADER2() +"\n";
-        if(merchantData.getADDRESS_LINE1().length() !=0)
-            hh = hh + merchantData.getADDRESS_LINE1() +"\n";
-        if(merchantData.getADDRESS_LINE2().length() !=0)
-            hh = hh + merchantData.getADDRESS_LINE2() +"\n";
-        if(merchantData.getADDRESS_LINE3().length() !=0)
-            hh = hh + merchantData.getADDRESS_LINE3() +"\n";
-        if(merchantData.getADDRESS_LINE4().length() !=0)
-            hh = hh + merchantData.getADDRESS_LINE4() +"\n";
+        if(merchantData.getADDITIONAL_PROMPT().length() !=0)
+            hh = hh+ merchantData.getADDITIONAL_PROMPT() +"\n";
+        if(merchantData.getDAILY_SETTLEMENT_FLAG().length() !=0)
+            hh = hh + merchantData.getDAILY_SETTLEMENT_FLAG() +"\n";
+        if(merchantData.getLAST_4_DIGIT_PROMPT_FLAG().length() !=0)
+            hh = hh + merchantData.getLAST_4_DIGIT_PROMPT_FLAG() +"\n";
+        if(merchantData.getINSERT_2_SWIPE().length() !=0)
+            hh = hh + merchantData.getINSERT_2_SWIPE() +"\n";
+        if(merchantData.getPIGGYBACK_FLAG().length() !=0)
+            hh = hh + merchantData.getPIGGYBACK_FLAG() +"\n";
+        if(merchantData.getPINBYPASS().length() !=0)
+            hh = hh + merchantData.getPINBYPASS() +"\n";
+        if(merchantData.getAUTO_SETTLE_TIME().length() !=0)
+            hh = hh + merchantData.getAUTO_SETTLE_TIME() +"\n";
 
         return hh;
     }
@@ -148,7 +148,8 @@ public class PaymentSuccess extends Activity {
     String MakeContent()
     {
         String cc ="";
-        HostModel hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        HostModel hostData = GreenDaoSupport.getHostTableModelOBJ(PaymentSuccess.this);
+        //databaseObj.getHostTableData(TransactionDetails.inGHDT);
         String dateTime = "DATE/TIME : " + TransactionDetails.trxDateTime.substring(2,4)+"/"+TransactionDetails.trxDateTime.substring(4,6)+"/"+TransactionDetails.trxDateTime.substring(6,8)+" "+
                 TransactionDetails.trxDateTime.substring(8,10) +":"+TransactionDetails.trxDateTime.substring(10,12)+":"+TransactionDetails.trxDateTime.substring(12,14);
         cc = cc + dateTime + "\n";

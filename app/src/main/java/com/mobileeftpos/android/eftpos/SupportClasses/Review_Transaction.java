@@ -1,12 +1,12 @@
 package com.mobileeftpos.android.eftpos.SupportClasses;
 
-import android.util.Log;
+import android.app.Activity;
 
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.model.BatchModel;
-import com.mobileeftpos.android.eftpos.model.CurrencyModel;
-import com.mobileeftpos.android.eftpos.model.HostModel;
-import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
+import com.mobileeftpos.android.eftpos.db.BatchModel;
+import com.mobileeftpos.android.eftpos.db.CurrencyModel;
+import com.mobileeftpos.android.eftpos.db.HostModel;
+import com.mobileeftpos.android.eftpos.db.TransactionControlModel;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -21,52 +21,54 @@ public class Review_Transaction {
     private TransactionControlModel transCtrlModelData = new TransactionControlModel();
     private final String TAG = "my_custom_msg";
 
-    public BatchModel lgReviewAllTrans(DBHelper databaseObj, String STDisplayTranstype,BatchModel batchModeldata){
+    public BatchModel lgReviewAllTrans(Activity activity, String STDisplayTranstype, BatchModel batchModeldata){
         //BatchModel batchModeldata = new BatchModel();
         HostModel hostModel = new HostModel();
 
         PayServices payService = new PayServices();
         RemoteHost remoteHost = new RemoteHost();
+        currModelData = GreenDaoSupport.getCurrencyTableModelOBJ(activity);
 
-        currModelData = databaseObj.getCurrencyData(0);
+        //currModelData = databaseObj.getCurrencyData(0);
         /*transCtrlModelData = databaseObj.getTransactionCtrlData(0);
 
         if(!transCtrlModelData.getVOID_CTRL().equals("1"))
         {
             return Constants.TRANSCATION_NOT_SUPPORTED;
         }*/
-        batchModeldata = databaseObj.getBatchDataUsngInvoice(STDisplayTranstype);//Read Transaction details
+        batchModeldata = GreenDaoSupport.getBatchModelOBJList(activity,STDisplayTranstype).get(0);//Read Transaction
+        // details
+        //batchModeldata = databaseObj.getBatchDataUsngInvoice(STDisplayTranstype);//Read Transaction details
         if(batchModeldata == null)
             return null;
-        String StHDT = batchModeldata.getHDT_INDEX();
-        hostModel =databaseObj.getHostTableData(Integer.parseInt(StHDT));
-       if(batchModeldata.getVOIDED().equals(Integer.toString(Constants.TRUE))){
+        String StHDT = batchModeldata.getHdt_index();
+        if(batchModeldata.getVoided().equals(Integer.toString(Constants.TRUE))){
 
            return null;
        }
-        TransactionDetails.inOritrxType = Integer.parseInt(batchModeldata.getTRANS_TYPE());
-        TransactionDetails.inGTrxMode = Integer.parseInt(batchModeldata.getTRANS_MODE());
-        TransactionDetails.processingcode = batchModeldata.getPROC_CODE();
-        TransactionDetails.trxAmount = batchModeldata.getAMOUNT();
-        TransactionDetails.tipAmount = batchModeldata.getTIP_AMOUNT();
-        TransactionDetails.trxDateTime = batchModeldata.getYEAR();
-        TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getDATE();
-        TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getTIME();
-        TransactionDetails.messagetype = batchModeldata.getORG_MESS_ID();
+        TransactionDetails.inOritrxType = Integer.parseInt(batchModeldata.getTrans_type());
+        TransactionDetails.inGTrxMode = Integer.parseInt(batchModeldata.getTrans_type());
+        TransactionDetails.processingcode = batchModeldata.getProc_code();
+        TransactionDetails.trxAmount = batchModeldata.getAmount();
+        TransactionDetails.tipAmount = batchModeldata.getTip_amount();
+        TransactionDetails.trxDateTime = batchModeldata.getYear();
+        TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getDate();
+        TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getTime();
+        TransactionDetails.messagetype = batchModeldata.getOrg_mess_id();
 //        batchModeldata.getSYS_TRACE_NUM(payServices.pGetSystemTrace(databaseObj));
-        TransactionDetails.ExpDate = batchModeldata.getDATE_EXP();
-        TransactionDetails.RetrievalRefNumber = batchModeldata.getRETR_REF_NUM();
-        TransactionDetails.chApprovalCode = batchModeldata.getAUTH_ID_RESP();
-        TransactionDetails.ResponseCode = batchModeldata.getRESP_CODE();
-        TransactionDetails.PAN = batchModeldata.getACCT_NUMBER();
-        TransactionDetails.PersonName = batchModeldata.getPERSON_NAME();
-        TransactionDetails.trxAmount = batchModeldata.getORIGINAL_AMOUNT();
-        TransactionDetails.responseMessge = batchModeldata.getADDITIONAL_DATA();
+        TransactionDetails.ExpDate = batchModeldata.getDate_exp();
+        TransactionDetails.RetrievalRefNumber = batchModeldata.getRetr_ref_num();
+        TransactionDetails.chApprovalCode = batchModeldata.getAuth_id_resp();
+        TransactionDetails.ResponseCode = batchModeldata.getResp_code();
+        TransactionDetails.PAN = batchModeldata.getAcct_number();
+        TransactionDetails.PersonName = batchModeldata.getPerson_name();
+        TransactionDetails.trxAmount = batchModeldata.getOriginal_amount();
+        TransactionDetails.responseMessge = batchModeldata.getAdditional_data();
         //batchModeldata.getPAYMENT_TERM_INFO(res.getString(res.getColumnIndex(DBStaticField.PAYMENT_TERM_INFO)));
-        TransactionDetails.PAN = batchModeldata.getPRIMARY_ACC_NUM();
-        TransactionDetails.POSEntryMode = batchModeldata.getPOS_ENT_MODE();
+        TransactionDetails.PAN = batchModeldata.getPri_acct_num();
+        TransactionDetails.POSEntryMode = batchModeldata.getPos_ent_mode();
         TransactionDetails.NII = batchModeldata.getNII();
-        TransactionDetails.POS_COND_CODE = batchModeldata.getPOS_COND_CODE();
+        TransactionDetails.POS_COND_CODE = batchModeldata.getPos_cond_code();
 
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSS");
         Date date = new Date();

@@ -1,28 +1,17 @@
 package com.mobileeftpos.android.eftpos.activity;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
-import com.mobileeftpos.android.eftpos.SupportClasses.BluetoothUtil;
-import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
-import com.mobileeftpos.android.eftpos.SupportClasses.ESCUtil;
 import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
 import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
 import com.mobileeftpos.android.eftpos.SupportClasses.PacketCreation;
@@ -30,26 +19,15 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
-import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.model.BarcodeModel;
 import com.mobileeftpos.android.eftpos.model.CommsModel;
 import com.mobileeftpos.android.eftpos.model.CurrencyModel;
 import com.mobileeftpos.android.eftpos.model.HostModel;
 import com.mobileeftpos.android.eftpos.model.MerchantModel;
 
-import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class TransactionType extends AppCompatActivity {
 
@@ -70,8 +48,7 @@ public class TransactionType extends AppCompatActivity {
     ISOMsg isoMsg = new ISOMsg();
     public static boolean isFromBarcodeScanner;
     private final String TAG = "my_custom_msg";
-    private static DBHelper databaseObj;
-    public static Context context;
+     public static Context context;
 
     private BarcodeModel barcode = new BarcodeModel();
     private CurrencyModel currModel = new CurrencyModel();
@@ -84,8 +61,7 @@ public class TransactionType extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transaction_type);
-        databaseObj = new DBHelper(TransactionType.this);
-        context = TransactionType.this;
+         context = TransactionType.this;
         barCodeValue=null;
         isFromBarcodeScanner=false;
         isFromBarcodeScanner=true;

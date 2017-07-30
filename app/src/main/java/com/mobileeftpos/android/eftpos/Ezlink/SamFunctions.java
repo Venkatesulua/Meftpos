@@ -1,15 +1,15 @@
 package com.mobileeftpos.android.eftpos.Ezlink;
 
+import android.app.Activity;
 import android.os.RemoteException;
 
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.SupportClasses.TripleDes;
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.model.EzlinkModel;
-import com.mobileeftpos.android.eftpos.model.HostModel;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
+import com.mobileeftpos.android.eftpos.db.EzlinkModel;
+import com.mobileeftpos.android.eftpos.db.HostModel;
 import com.mobileeftpos.android.eftpos.utils.StringByteUtils;
-import com.sunmi.pay.hardware.aidl.AidlErrorCode;
 import com.sunmi.pay.hardware.aidl.readcard.ReadCardOpt;
 
 /**
@@ -400,9 +400,10 @@ public class SamFunctions {
         return Constants.ReturnValues.RETURN_ERROR;
     }
 
-    public byte[] inCreateField63(DBHelper databaseObj){
+    public byte[] inCreateField63(Activity activity){
         //Ezlink header end here
-        EzlinkModel EzlinkData = databaseObj.getEzlinkData(0);
+        //EzlinkModel EzlinkData =  databaseObj.getEzlinkData(0);
+        EzlinkModel EzlinkData= GreenDaoSupport.getEzlinkTableModelOBJ(activity);
         byte[] byDevType = StringByteUtils.HexString2Bytes(EzlinkData.getEZLINK_PAYMENT_DEVICE_TYPE());
         byte[] byField63 = new byte[32+112];
         byte[] byField63Header=new byte[32];
@@ -428,7 +429,8 @@ public class SamFunctions {
 
         System.arraycopy(StringByteUtils.HexString2Bytes("0000006C"), 0, byField63Content, 0, 4);//Data len
         System.arraycopy(TransactionDetails.JulianDate, 0, byField63Content, 4, 4);//Date
-        HostModel hostdata = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        //HostModel hostdata = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        HostModel hostdata=GreenDaoSupport.getHostTableModelOBJ(activity);
         String stTerminalID = hostdata.getHDT_TERMINAL_ID();
         byte[] byTerminalID = StringByteUtils.HexString2Bytes(stTerminalID);
         System.arraycopy(byTerminalID, 0, byField63Content,8 , 4);
@@ -452,7 +454,7 @@ public class SamFunctions {
         System.arraycopy(TransactionDetails.LastOptions, 0, byField63Content, 96, 1);
         System.arraycopy(TransactionDetails.AutoLoadAmt, 0, byField63Content, 97, 3);
         System.arraycopy(TransactionDetails.PaymentTRP, 0, byField63Content, 100, 4);
-        byte[] byMAC=inCalculateEZMAC(byField63Content,104,StringByteUtils.HexString2Bytes("0000000000000000"),databaseObj);
+        byte[] byMAC=inCalculateEZMAC(byField63Content,104,StringByteUtils.HexString2Bytes("0000000000000000"));
         System.arraycopy(byMAC, 0, byField63Content, 104, 8);
 
         System.arraycopy(byField63Header, 0, byField63, 0, 32);
@@ -462,7 +464,7 @@ public class SamFunctions {
         return byField63;
     }
 
-    byte[] inCalculateEZMAC(byte[] chData2MAC, int inLength, byte[] chInVector,DBHelper databaseObj) {
+    byte[] inCalculateEZMAC(byte[] chData2MAC, int inLength, byte[] chInVector) {
 
         byte[] chLeftKey=new byte[8];
         byte[] chRightKey=new byte[8];
@@ -478,7 +480,7 @@ public class SamFunctions {
         TripleDes tripleDes=new TripleDes(TransactionDetails.SessionKey);
         inTotalMACLen = inLength;
 
-        EzlinkModel EzlinkData = databaseObj.getEzlinkData(0);
+       // EzlinkModel EzlinkData = databaseObj.getEzlinkData(0);
         //if(TransactionDetails.trxType == Constants.TransType.EZLINK_SALE)
         //{
            // chMacKey= EzlinkData.getEZLINK_PAYMENT_MAC_KEY().getBytes();

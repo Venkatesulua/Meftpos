@@ -14,13 +14,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mobileeftpos.android.eftpos.Ezlink.CepasPayment;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.model.HostModel;
-import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
+import com.mobileeftpos.android.eftpos.db.HostModel;
+import com.mobileeftpos.android.eftpos.db.TransactionControlModel;
 import com.mobileeftpos.android.eftpos.utils.MenuConstants;
 
 import java.text.DateFormat;
@@ -34,7 +34,7 @@ public class OneFragment extends Fragment  {
 
      private ArrayList<String>homeListData;
     private GridView gridLayout;
-    private static DBHelper databaseObj;
+    private DaoSession daoSession;
     public OneFragment() {
         // Required empty public constructor
     }
@@ -42,7 +42,7 @@ public class OneFragment extends Fragment  {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        databaseObj = new DBHelper(getActivity());
+         daoSession = GreenDaoSupport.getInstance(getActivity());
 
     }
 
@@ -65,7 +65,8 @@ public class OneFragment extends Fragment  {
 //TransactionControlModel transactionControlModel=//get the date from where it's aavailable
 
         TransactionControlModel controlModel = new TransactionControlModel();
-        controlModel = databaseObj.getTransactionCtrlData(0);
+        controlModel = GreenDaoSupport.getTransactionControlModelOBJ(getActivity());
+        //controlModel = databaseObj.getTransactionCtrlData(0);
         if(controlModel.getSALE_CTRL() != null && controlModel.getSALE_CTRL().equalsIgnoreCase("1")){
              homeListData.add(MenuConstants.SALE);
         }
@@ -285,7 +286,8 @@ public class OneFragment extends Fragment  {
     int inCheckParamaters()
     {
         HostModel hostModel = new HostModel();
-        List<HostModel> hostModelList = databaseObj.getAllHostTableData();
+        List<HostModel> hostModelList = GreenDaoSupport.getHostModelOBJList(getActivity());//databaseObj
+        // .getAllHostTableData();
         for (int i = 0; i < hostModelList.size(); i++) {
             hostModel = hostModelList.get(i);
             if (!(hostModel == null || hostModel.equals(""))) {

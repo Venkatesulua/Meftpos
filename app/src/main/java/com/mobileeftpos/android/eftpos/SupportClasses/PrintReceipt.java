@@ -5,17 +5,20 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.model.BarcodeModel;
-import com.mobileeftpos.android.eftpos.model.CommsModel;
-import com.mobileeftpos.android.eftpos.model.CurrencyModel;
-import com.mobileeftpos.android.eftpos.model.HostModel;
-import com.mobileeftpos.android.eftpos.model.MerchantModel;
-import com.mobileeftpos.android.eftpos.model.TraceNumberModel;
-
-import org.jpos.iso.ISOMsg;
+import com.mobileeftpos.android.eftpos.db.AlipayModel;
+import com.mobileeftpos.android.eftpos.db.AlipayModelDao;
+import com.mobileeftpos.android.eftpos.db.CommsModel;
+import com.mobileeftpos.android.eftpos.db.CommsModelDao;
+import com.mobileeftpos.android.eftpos.db.CurrencyModel;
+import com.mobileeftpos.android.eftpos.db.CurrencyModelDao;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
+import com.mobileeftpos.android.eftpos.db.HostModel;
+import com.mobileeftpos.android.eftpos.db.HostModelDao;
+import com.mobileeftpos.android.eftpos.db.MerchantModel;
+import com.mobileeftpos.android.eftpos.db.MerchantModelDao;
+import com.mobileeftpos.android.eftpos.db.TraceModel;
+import com.mobileeftpos.android.eftpos.db.TraceModelDao;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -25,13 +28,9 @@ import java.io.UnsupportedEncodingException;
  */
 public class PrintReceipt  {
 
-    //private GlobalVar globalVar = new GlobalVar();
-    private BarcodeModel barcode = new BarcodeModel();
-    private CurrencyModel currModel = new CurrencyModel();
-    private HostModel hostData = new HostModel();
-    private CommsModel commData = new CommsModel();
-    private MerchantModel merchantData = new MerchantModel();
-    private TraceNumberModel traceNumber = new TraceNumberModel();
+    //private GlobalVar globalVar =
+
+
     //private ISOPackager1 packager = new ISOPackager1();
     //private ISOMsg isoMsg = new ISOMsg();
     private final String TAG = "my_custom_msg";
@@ -39,7 +38,7 @@ public class PrintReceipt  {
     //private int inFinalLength=0;
     //private TransactionDetails trDetails = new TransactionDetails();
 
-    public int inPrintReceipt(DBHelper databaseObj, Context context){
+    public int inPrintReceipt(DaoSession daoSession, Context context){
         Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING:");
         // 1: Get BluetoothAdapter
         BluetoothAdapter btAdapter = BluetoothUtil.getBTAdapter();
@@ -61,7 +60,7 @@ public class PrintReceipt  {
 
         Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING_STRING STRING:");
         // 3: Generate a order data
-        byte[] data = generateMockData1(databaseObj,context);
+        byte[] data = generateMockData1(daoSession,context);
         // 4: Using InnerPrinter print data
         BluetoothSocket socket = null;
         try {
@@ -82,20 +81,33 @@ public class PrintReceipt  {
         return 0;
     }
 
-    private byte[] generateMockData1(DBHelper databaseObj,Context context) {
+    private byte[] generateMockData1(DaoSession daoSession,Context context) {
         String inPrintBuffer="";
-        barcode = databaseObj.getBarcodeData(0);
-        currModel = databaseObj.getCurrencyData(TransactionDetails.inGCURR);
-        hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
-        commData = databaseObj.getCommsData(TransactionDetails.inGCOM);
-        merchantData = databaseObj.getMerchantData(0);
-        traceNumber = databaseObj.getTraceNumberData(0);
+         AlipayModelDao barcodeDao = daoSession.getAlipayModelDao();
+        CurrencyModelDao currencyModelDao =daoSession.getCurrencyModelDao();
+        CommsModelDao commsModelDao =daoSession.getCommsModelDao();
+        MerchantModelDao merchantModelDao =daoSession.getMerchantModelDao();
+        TraceModelDao traceModelDao = daoSession.getTraceModelDao();
+        HostModelDao hostModelDao =daoSession.getHostModelDao();
+          AlipayModel barcode =new AlipayModel();
+          CurrencyModel currModel = new CurrencyModel();
+          HostModel hostData = new HostModel();
+          CommsModel commData = new CommsModel();
+          MerchantModel merchantData = new MerchantModel();
+          TraceModel traceNumber = new TraceModel();
+
+        barcode = barcodeDao.loadAll().get(0);//databaseObj.getBarcodeData(0);
+        currModel =currencyModelDao.loadAll().get(0);// databaseObj.getCurrencyData(TransactionDetails.inGCURR);
+        hostData = hostModelDao.loadAll().get(0);//databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        commData = commsModelDao.loadAll().get(0);//databaseObj.getCommsData(TransactionDetails.inGCOM);
+        merchantData = merchantModelDao.loadAll().get(0);//databaseObj.getMerchantData(0);
+        traceNumber =traceModelDao.loadAll().get(0);// databaseObj.getTraceNumberData(0);
 
         Log.i(TAG,"generateMockData1 getHDT_TERMINAL_ID::"+hostData.getHDT_TERMINAL_ID());
-        Log.i(TAG,"generateMockData1 getMERCHANT_NAME::"+merchantData.getMERCHANT_NAME());
+        Log.i(TAG,"generateMockData1 getMERCHANT_NAME::"+merchantData.getADDITIONAL_PROMPT());
 
         CurrencyModel curr = new CurrencyModel();
-        curr = databaseObj.getCurrencyData(TransactionDetails.inGCURR);
+        curr =currencyModelDao.loadAll().get(0);// databaseObj.getCurrencyData(TransactionDetails.inGCURR);
         String cuLabel = curr.getCURR_LABEL();
 
         try {
@@ -137,30 +149,30 @@ public class PrintReceipt  {
             byte[] breakPartial = ESCUtil.feedPaperCutPartial();
 
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(center, "UTF-8")+new String(boldOn, "UTF-8")+new String(fontSize1Big, "UTF-8");
-            inPrintBuffer = inPrintBuffer + merchantData.getMERCHANT_NAME()+new String(boldOff, "UTF-8");
+            inPrintBuffer = inPrintBuffer + merchantData.getADDITIONAL_PROMPT()+new String(boldOff, "UTF-8");
 
-            if(merchantData.getMERCHANT_HEADER1().length() !=0) {
+            if(merchantData.getDAILY_SETTLEMENT_FLAG().length() !=0) {
                 inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-                inPrintBuffer = inPrintBuffer + merchantData.getMERCHANT_HEADER1();
+                inPrintBuffer = inPrintBuffer + merchantData.getDAILY_SETTLEMENT_FLAG();
             }
-            if(merchantData.getMERCHANT_HEADER2().length() !=0){
+            if(merchantData.getLAST_4_DIGIT_PROMPT_FLAG().length() !=0){
                 inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-                inPrintBuffer = inPrintBuffer + merchantData.getMERCHANT_HEADER2();
+                inPrintBuffer = inPrintBuffer + merchantData.getLAST_4_DIGIT_PROMPT_FLAG();
             }
-            if(merchantData.getADDRESS_LINE1().length() !=0){
+            if(merchantData.getINSERT_2_SWIPE().length() !=0){
                 inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-                inPrintBuffer = inPrintBuffer + merchantData.getADDRESS_LINE1();
-            }if(merchantData.getADDRESS_LINE2().length() !=0){
+                inPrintBuffer = inPrintBuffer + merchantData.getINSERT_2_SWIPE();
+            }if(merchantData.getPIGGYBACK_FLAG().length() !=0){
                 inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-                inPrintBuffer = inPrintBuffer + merchantData.getADDRESS_LINE2();
+                inPrintBuffer = inPrintBuffer + merchantData.getPIGGYBACK_FLAG();
             }
-            if(merchantData.getADDRESS_LINE3().length() !=0){
+            if(merchantData.getPINBYPASS().length() !=0){
                 inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-                inPrintBuffer = inPrintBuffer + merchantData.getADDRESS_LINE3();
+                inPrintBuffer = inPrintBuffer + merchantData.getPINBYPASS();
             }
-            if(merchantData.getADDRESS_LINE4().length() !=0){
+            if(merchantData.getAUTO_SETTLE_TIME().length() !=0){
                 inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-                inPrintBuffer = inPrintBuffer + merchantData.getADDRESS_LINE4();
+                inPrintBuffer = inPrintBuffer + merchantData.getAUTO_SETTLE_TIME();
             }
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(center, "UTF-8")+new String(boldOn, "UTF-8")+new String(fontSize1Big, "UTF-8");
 
