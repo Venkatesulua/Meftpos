@@ -154,7 +154,7 @@ public class PacketCreation {
     String AlipayExtendedData(String staddinfo)
     {
         staddinfo ="merchant_name:";
-        staddinfo = staddinfo + merchantData.getADDITIONAL_PROMPT();
+        staddinfo = staddinfo + merchantData.getMERCHANT_NAME();
         staddinfo = staddinfo + ",merchant_no:";
         staddinfo = staddinfo + hostData.getHDT_MERCHANT_ID();
         staddinfo = staddinfo + ",business_no:";
@@ -274,7 +274,7 @@ public class PacketCreation {
 
                     Log.i(TAG,"PacketCreation:::TransactionDetails.trxAmount::"+TransactionDetails.trxAmount);
                     Log.i(TAG,"PacketCreation:::getHDT_TERMINAL_ID::"+hostData.getHDT_TERMINAL_ID());
-                    Log.i(TAG,"PacketCreation:::getMERCHANT_NAME::"+merchantData.getADDITIONAL_PROMPT());
+                    Log.i(TAG,"PacketCreation:::getMERCHANT_NAME::"+merchantData.getMERCHANT_NAME());
 
                     TransactionDetails.processingcode = Constants.PROCESSINGCODE.pcFinancialRequest;
                     if(inTrxType == Constants.TransType.ALIPAY_SALE) {

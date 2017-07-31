@@ -104,7 +104,7 @@ public class PrintReceipt  {
         traceNumber =traceModelDao.loadAll().get(0);// databaseObj.getTraceNumberData(0);
 
         Log.i(TAG,"generateMockData1 getHDT_TERMINAL_ID::"+hostData.getHDT_TERMINAL_ID());
-        Log.i(TAG,"generateMockData1 getMERCHANT_NAME::"+merchantData.getADDITIONAL_PROMPT());
+        Log.i(TAG,"generateMockData1 getMERCHANT_NAME::"+merchantData.getMERCHANT_NAME());
 
         CurrencyModel curr = new CurrencyModel();
         curr =currencyModelDao.loadAll().get(0);// databaseObj.getCurrencyData(TransactionDetails.inGCURR);
@@ -149,30 +149,30 @@ public class PrintReceipt  {
             byte[] breakPartial = ESCUtil.feedPaperCutPartial();
 
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(center, "UTF-8")+new String(boldOn, "UTF-8")+new String(fontSize1Big, "UTF-8");
-            inPrintBuffer = inPrintBuffer + merchantData.getADDITIONAL_PROMPT()+new String(boldOff, "UTF-8");
+            inPrintBuffer = inPrintBuffer + merchantData.getMERCHANT_NAME()+new String(boldOff, "UTF-8");
 
-            if(merchantData.getDAILY_SETTLEMENT_FLAG().length() !=0) {
+            if(merchantData.getMERCHANT_HEADER1().length() !=0) {
                 inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-                inPrintBuffer = inPrintBuffer + merchantData.getDAILY_SETTLEMENT_FLAG();
+                inPrintBuffer = inPrintBuffer + merchantData.getMERCHANT_HEADER1();
             }
-            if(merchantData.getLAST_4_DIGIT_PROMPT_FLAG().length() !=0){
+            if(merchantData.getMERCHANT_HEADER2().length() !=0){
                 inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-                inPrintBuffer = inPrintBuffer + merchantData.getLAST_4_DIGIT_PROMPT_FLAG();
+                inPrintBuffer = inPrintBuffer + merchantData.getMERCHANT_HEADER2();
             }
-            if(merchantData.getINSERT_2_SWIPE().length() !=0){
+            if(merchantData.getADDRESS_LINE1().length() !=0){
                 inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-                inPrintBuffer = inPrintBuffer + merchantData.getINSERT_2_SWIPE();
-            }if(merchantData.getPIGGYBACK_FLAG().length() !=0){
+                inPrintBuffer = inPrintBuffer + merchantData.getADDRESS_LINE1();
+            }if(merchantData.getADDRESS_LINE2().length() !=0){
                 inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-                inPrintBuffer = inPrintBuffer + merchantData.getPIGGYBACK_FLAG();
+                inPrintBuffer = inPrintBuffer + merchantData.getADDRESS_LINE2();
             }
-            if(merchantData.getPINBYPASS().length() !=0){
+            if(merchantData.getADDRESS_LINE3().length() !=0){
                 inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-                inPrintBuffer = inPrintBuffer + merchantData.getPINBYPASS();
+                inPrintBuffer = inPrintBuffer + merchantData.getADDRESS_LINE3();
             }
-            if(merchantData.getAUTO_SETTLE_TIME().length() !=0){
+            if(merchantData.getADDRESS_LINE4().length() !=0){
                 inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8") + new String(center, "UTF-8")+new String(fontSize2Small, "UTF-8");
-                inPrintBuffer = inPrintBuffer + merchantData.getAUTO_SETTLE_TIME();
+                inPrintBuffer = inPrintBuffer + merchantData.getADDRESS_LINE4();
             }
             inPrintBuffer = inPrintBuffer + new String(nextLine, "UTF-8")+new String(center, "UTF-8")+new String(boldOn, "UTF-8")+new String(fontSize1Big, "UTF-8");
 

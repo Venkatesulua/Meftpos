@@ -114,20 +114,20 @@ public class PaymentSuccess extends Activity {
         MerchantModel merchantData =GreenDaoSupport.getMerchantModelOBJ(PaymentSuccess.this);
         //databaseObj.getMerchantData(0);
         String hh ="";
-        if(merchantData.getADDITIONAL_PROMPT().length() !=0)
-            hh = hh+ merchantData.getADDITIONAL_PROMPT() +"\n";
-        if(merchantData.getDAILY_SETTLEMENT_FLAG().length() !=0)
-            hh = hh + merchantData.getDAILY_SETTLEMENT_FLAG() +"\n";
-        if(merchantData.getLAST_4_DIGIT_PROMPT_FLAG().length() !=0)
-            hh = hh + merchantData.getLAST_4_DIGIT_PROMPT_FLAG() +"\n";
-        if(merchantData.getINSERT_2_SWIPE().length() !=0)
-            hh = hh + merchantData.getINSERT_2_SWIPE() +"\n";
-        if(merchantData.getPIGGYBACK_FLAG().length() !=0)
-            hh = hh + merchantData.getPIGGYBACK_FLAG() +"\n";
-        if(merchantData.getPINBYPASS().length() !=0)
-            hh = hh + merchantData.getPINBYPASS() +"\n";
-        if(merchantData.getAUTO_SETTLE_TIME().length() !=0)
-            hh = hh + merchantData.getAUTO_SETTLE_TIME() +"\n";
+        if(merchantData.getMERCHANT_NAME().length() !=0)
+            hh = hh+ merchantData.getMERCHANT_NAME() +"\n";
+        if(merchantData.getMERCHANT_HEADER1().length() !=0)
+            hh = hh + merchantData.getMERCHANT_HEADER1() +"\n";
+        if(merchantData.getMERCHANT_HEADER2().length() !=0)
+            hh = hh + merchantData.getMERCHANT_HEADER2() +"\n";
+        if(merchantData.getADDRESS_LINE1().length() !=0)
+            hh = hh + merchantData.getADDRESS_LINE1() +"\n";
+        if(merchantData.getADDRESS_LINE2().length() !=0)
+            hh = hh + merchantData.getADDRESS_LINE2() +"\n";
+        if(merchantData.getADDRESS_LINE3().length() !=0)
+            hh = hh + merchantData.getADDRESS_LINE3() +"\n";
+        if(merchantData.getADDRESS_LINE4().length() !=0)
+            hh = hh + merchantData.getADDRESS_LINE4() +"\n";
 
         return hh;
     }

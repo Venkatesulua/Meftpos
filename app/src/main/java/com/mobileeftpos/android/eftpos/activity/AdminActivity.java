@@ -490,23 +490,23 @@ public class AdminActivity extends Activity {
 
             }
             if (stParam.equals("TON"))
-                merchantModel.setADDITIONAL_PROMPT(stValue);
+                merchantModel.setMERCHANT_NAME(stValue);
             else if (stParam.equals("HDRA"))
-                merchantModel.setDAILY_SETTLEMENT_FLAG(stValue);
+                merchantModel.setMERCHANT_HEADER1(stValue);
             else if (stParam.equals("HDRB"))
-                merchantModel.setLAST_4_DIGIT_PROMPT_FLAG(stValue);
+                merchantModel.setMERCHANT_HEADER2(stValue);
             else if (stParam.equals("HDR1"))
-                merchantModel.setINSERT_2_SWIPE(stValue);
+                merchantModel.setADDRESS_LINE1(stValue);
             else if (stParam.equals("HDR2"))
-                merchantModel.setPIGGYBACK_FLAG(stValue);
+                merchantModel.setADDRESS_LINE2(stValue);
             else if (stParam.equals("HDR3"))
-                merchantModel.setPINBYPASS(stValue);
+                merchantModel.setADDRESS_LINE3(stValue);
             else if (stParam.equals("HDR4"))
-                merchantModel.setAUTO_SETTLE_TIME(stValue);
+                merchantModel.setADDRESS_LINE4(stValue);
             else if (stParam.equals("FTR1"))
-                merchantModel.setLAST_AUTO_SETTLEMENT_DATETIME(stValue);
+                merchantModel.setMERCHANT_FOOTER1(stValue);
             else if (stParam.equals("FTR2"))
-                merchantModel.setUTRN_PREFIX(stValue);
+                merchantModel.setMERCHANT_FOOTER2(stValue);
             else if (stParam.equals("DPW")) {
                 pwdModel.setDEFAULT_PASSWORD(stValue);
             } else if (stParam.equals("RPW")) {
@@ -1205,8 +1205,7 @@ public class AdminActivity extends Activity {
         limitModelDao.insert(limitModel);
         utilityModelDao.insert(utilModel);
 
-         List<MerchantModel> merchantModelList = daoSession.getMerchantModelDao().loadAll();
-        Log.i(TAG, "Merchant NAme" + merchantModelList.get(0).getADDITIONAL_PROMPT());
+
 
     }
 

@@ -16,15 +16,15 @@ public class MerchantModel {
     @Id(autoincrement = true)
     private Long id;
     private String MERCHANT_ID;
-    private String ADDITIONAL_PROMPT;
-    private String DAILY_SETTLEMENT_FLAG;
-    private String LAST_4_DIGIT_PROMPT_FLAG;
-    private String INSERT_2_SWIPE;
-    private String PIGGYBACK_FLAG;
-    private String PINBYPASS;
-    private String AUTO_SETTLE_TIME;
-    private String LAST_AUTO_SETTLEMENT_DATETIME;
-    private String UTRN_PREFIX;
+    private String MERCHANT_NAME;
+    private String MERCHANT_HEADER1;
+    private String MERCHANT_HEADER2;
+    private String ADDRESS_LINE1;
+    private String ADDRESS_LINE2;
+    private String ADDRESS_LINE3;
+    private String ADDRESS_LINE4;
+    private String MERCHANT_FOOTER1;
+    private String MERCHANT_FOOTER2;
 
     // KEEP FIELDS - put your custom fields here
     // KEEP FIELDS END
@@ -38,18 +38,18 @@ public class MerchantModel {
     }
 
     @Generated
-    public MerchantModel(Long id, String MERCHANT_ID, String ADDITIONAL_PROMPT, String DAILY_SETTLEMENT_FLAG, String LAST_4_DIGIT_PROMPT_FLAG, String INSERT_2_SWIPE, String PIGGYBACK_FLAG, String PINBYPASS, String AUTO_SETTLE_TIME, String LAST_AUTO_SETTLEMENT_DATETIME, String UTRN_PREFIX) {
+    public MerchantModel(Long id, String MERCHANT_ID, String MERCHANT_NAME, String MERCHANT_HEADER1, String MERCHANT_HEADER2, String ADDRESS_LINE1, String ADDRESS_LINE2, String ADDRESS_LINE3, String ADDRESS_LINE4, String MERCHANT_FOOTER1, String MERCHANT_FOOTER2) {
         this.id = id;
         this.MERCHANT_ID = MERCHANT_ID;
-        this.ADDITIONAL_PROMPT = ADDITIONAL_PROMPT;
-        this.DAILY_SETTLEMENT_FLAG = DAILY_SETTLEMENT_FLAG;
-        this.LAST_4_DIGIT_PROMPT_FLAG = LAST_4_DIGIT_PROMPT_FLAG;
-        this.INSERT_2_SWIPE = INSERT_2_SWIPE;
-        this.PIGGYBACK_FLAG = PIGGYBACK_FLAG;
-        this.PINBYPASS = PINBYPASS;
-        this.AUTO_SETTLE_TIME = AUTO_SETTLE_TIME;
-        this.LAST_AUTO_SETTLEMENT_DATETIME = LAST_AUTO_SETTLEMENT_DATETIME;
-        this.UTRN_PREFIX = UTRN_PREFIX;
+        this.MERCHANT_NAME = MERCHANT_NAME;
+        this.MERCHANT_HEADER1 = MERCHANT_HEADER1;
+        this.MERCHANT_HEADER2 = MERCHANT_HEADER2;
+        this.ADDRESS_LINE1 = ADDRESS_LINE1;
+        this.ADDRESS_LINE2 = ADDRESS_LINE2;
+        this.ADDRESS_LINE3 = ADDRESS_LINE3;
+        this.ADDRESS_LINE4 = ADDRESS_LINE4;
+        this.MERCHANT_FOOTER1 = MERCHANT_FOOTER1;
+        this.MERCHANT_FOOTER2 = MERCHANT_FOOTER2;
     }
 
     public Long getId() {
@@ -68,76 +68,76 @@ public class MerchantModel {
         this.MERCHANT_ID = MERCHANT_ID;
     }
 
-    public String getADDITIONAL_PROMPT() {
-        return ADDITIONAL_PROMPT;
+    public String getMERCHANT_NAME() {
+        return MERCHANT_NAME;
     }
 
-    public void setADDITIONAL_PROMPT(String ADDITIONAL_PROMPT) {
-        this.ADDITIONAL_PROMPT = ADDITIONAL_PROMPT;
+    public void setMERCHANT_NAME(String MERCHANT_NAME) {
+        this.MERCHANT_NAME = MERCHANT_NAME;
     }
 
-    public String getDAILY_SETTLEMENT_FLAG() {
-        return DAILY_SETTLEMENT_FLAG;
+    public String getMERCHANT_HEADER1() {
+        return MERCHANT_HEADER1;
     }
 
-    public void setDAILY_SETTLEMENT_FLAG(String DAILY_SETTLEMENT_FLAG) {
-        this.DAILY_SETTLEMENT_FLAG = DAILY_SETTLEMENT_FLAG;
+    public void setMERCHANT_HEADER1(String MERCHANT_HEADER1) {
+        this.MERCHANT_HEADER1 = MERCHANT_HEADER1;
     }
 
-    public String getLAST_4_DIGIT_PROMPT_FLAG() {
-        return LAST_4_DIGIT_PROMPT_FLAG;
+    public String getMERCHANT_HEADER2() {
+        return MERCHANT_HEADER2;
     }
 
-    public void setLAST_4_DIGIT_PROMPT_FLAG(String LAST_4_DIGIT_PROMPT_FLAG) {
-        this.LAST_4_DIGIT_PROMPT_FLAG = LAST_4_DIGIT_PROMPT_FLAG;
+    public void setMERCHANT_HEADER2(String MERCHANT_HEADER2) {
+        this.MERCHANT_HEADER2 = MERCHANT_HEADER2;
     }
 
-    public String getINSERT_2_SWIPE() {
-        return INSERT_2_SWIPE;
+    public String getADDRESS_LINE1() {
+        return ADDRESS_LINE1;
     }
 
-    public void setINSERT_2_SWIPE(String INSERT_2_SWIPE) {
-        this.INSERT_2_SWIPE = INSERT_2_SWIPE;
+    public void setADDRESS_LINE1(String ADDRESS_LINE1) {
+        this.ADDRESS_LINE1 = ADDRESS_LINE1;
     }
 
-    public String getPIGGYBACK_FLAG() {
-        return PIGGYBACK_FLAG;
+    public String getADDRESS_LINE2() {
+        return ADDRESS_LINE2;
     }
 
-    public void setPIGGYBACK_FLAG(String PIGGYBACK_FLAG) {
-        this.PIGGYBACK_FLAG = PIGGYBACK_FLAG;
+    public void setADDRESS_LINE2(String ADDRESS_LINE2) {
+        this.ADDRESS_LINE2 = ADDRESS_LINE2;
     }
 
-    public String getPINBYPASS() {
-        return PINBYPASS;
+    public String getADDRESS_LINE3() {
+        return ADDRESS_LINE3;
     }
 
-    public void setPINBYPASS(String PINBYPASS) {
-        this.PINBYPASS = PINBYPASS;
+    public void setADDRESS_LINE3(String ADDRESS_LINE3) {
+        this.ADDRESS_LINE3 = ADDRESS_LINE3;
     }
 
-    public String getAUTO_SETTLE_TIME() {
-        return AUTO_SETTLE_TIME;
+    public String getADDRESS_LINE4() {
+        return ADDRESS_LINE4;
     }
 
-    public void setAUTO_SETTLE_TIME(String AUTO_SETTLE_TIME) {
-        this.AUTO_SETTLE_TIME = AUTO_SETTLE_TIME;
+    public void setADDRESS_LINE4(String ADDRESS_LINE4) {
+        this.ADDRESS_LINE4 = ADDRESS_LINE4;
     }
 
-    public String getLAST_AUTO_SETTLEMENT_DATETIME() {
-        return LAST_AUTO_SETTLEMENT_DATETIME;
+    public String getMERCHANT_FOOTER1() {
+        return MERCHANT_FOOTER1;
     }
 
-    public void setLAST_AUTO_SETTLEMENT_DATETIME(String LAST_AUTO_SETTLEMENT_DATETIME) {
-        this.LAST_AUTO_SETTLEMENT_DATETIME = LAST_AUTO_SETTLEMENT_DATETIME;
+    public void setMERCHANT_FOOTER1(String MERCHANT_FOOTER1) {
+        this.MERCHANT_FOOTER1 = MERCHANT_FOOTER1;
     }
 
-    public String getUTRN_PREFIX() {
-        return UTRN_PREFIX;
+    public String getMERCHANT_FOOTER2() {
+        return MERCHANT_FOOTER2;
     }
 
-    public void setUTRN_PREFIX(String UTRN_PREFIX) {
-        this.UTRN_PREFIX = UTRN_PREFIX;
+    public void setMERCHANT_FOOTER2(String MERCHANT_FOOTER2) {
+        this.MERCHANT_FOOTER2 = MERCHANT_FOOTER2;
     }
 
     // KEEP METHODS - put your custom methods here

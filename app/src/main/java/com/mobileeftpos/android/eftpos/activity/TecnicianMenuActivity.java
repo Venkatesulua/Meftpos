@@ -241,13 +241,13 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 barcodeModel.setREGION_CODE("RETAIL");
                 //Merchant
                 merchantModel.setMERCHANT_ID("1");
-                merchantModel.setADDITIONAL_PROMPT("TEST TRANSACTION");
-                merchantModel.setDAILY_SETTLEMENT_FLAG("HEADER1");
-                merchantModel.setLAST_4_DIGIT_PROMPT_FLAG("HEADER2");
-                merchantModel.setINSERT_2_SWIPE("ADDRESSLINE1");
-                merchantModel.setPIGGYBACK_FLAG("ADDRESSLINE2");
-                merchantModel.setPINBYPASS("ADDRESSLINE3");
-                merchantModel.setAUTO_SETTLE_TIME("ADDRESSLINE4");
+                merchantModel.setMERCHANT_NAME("TEST TRANSACTION");
+                merchantModel.setMERCHANT_HEADER1("HEADER1");
+                merchantModel.setMERCHANT_HEADER2("HEADER2");
+                merchantModel.setADDRESS_LINE1("ADDRESSLINE1");
+                merchantModel.setADDRESS_LINE2("ADDRESSLINE2");
+                merchantModel.setADDRESS_LINE3("ADDRESSLINE3");
+                merchantModel.setADDRESS_LINE4("ADDRESSLINE4");
 
 
                 daoSession.getHostModelDao().insert(hostModel);

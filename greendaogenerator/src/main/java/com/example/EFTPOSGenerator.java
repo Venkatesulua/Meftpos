@@ -408,15 +408,15 @@ public class EFTPOSGenerator {
 
 
         merchantTable.addStringProperty("MERCHANT_ID");
-        merchantTable.addStringProperty("ADDITIONAL_PROMPT");
-        merchantTable.addStringProperty("DAILY_SETTLEMENT_FLAG");
-        merchantTable.addStringProperty("LAST_4_DIGIT_PROMPT_FLAG");
-        merchantTable.addStringProperty("INSERT_2_SWIPE");
-        merchantTable.addStringProperty("PIGGYBACK_FLAG");
-        merchantTable.addStringProperty("PINBYPASS");
-        merchantTable.addStringProperty("AUTO_SETTLE_TIME");
-        merchantTable.addStringProperty("LAST_AUTO_SETTLEMENT_DATETIME");
-        merchantTable.addStringProperty("UTRN_PREFIX");
+        merchantTable.addStringProperty("MERCHANT_NAME");
+        merchantTable.addStringProperty("MERCHANT_HEADER1");
+        merchantTable.addStringProperty("MERCHANT_HEADER2");
+        merchantTable.addStringProperty("ADDRESS_LINE1");
+        merchantTable.addStringProperty("ADDRESS_LINE2");
+        merchantTable.addStringProperty("ADDRESS_LINE3");
+        merchantTable.addStringProperty("ADDRESS_LINE4");
+        merchantTable.addStringProperty("MERCHANT_FOOTER1");
+        merchantTable.addStringProperty("MERCHANT_FOOTER2");
 
 
         return merchantTable;

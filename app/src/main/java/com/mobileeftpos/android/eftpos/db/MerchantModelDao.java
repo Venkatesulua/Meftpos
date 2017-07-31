@@ -24,15 +24,15 @@ public class MerchantModelDao extends AbstractDao<MerchantModel, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property MERCHANT_ID = new Property(1, String.class, "MERCHANT_ID", false, "MERCHANT__ID");
-        public final static Property ADDITIONAL_PROMPT = new Property(2, String.class, "ADDITIONAL_PROMPT", false, "ADDITIONAL__PROMPT");
-        public final static Property DAILY_SETTLEMENT_FLAG = new Property(3, String.class, "DAILY_SETTLEMENT_FLAG", false, "DAILY__SETTLEMENT__FLAG");
-        public final static Property LAST_4_DIGIT_PROMPT_FLAG = new Property(4, String.class, "LAST_4_DIGIT_PROMPT_FLAG", false, "LAST_4__DIGIT__PROMPT__FLAG");
-        public final static Property INSERT_2_SWIPE = new Property(5, String.class, "INSERT_2_SWIPE", false, "INSERT_2__SWIPE");
-        public final static Property PIGGYBACK_FLAG = new Property(6, String.class, "PIGGYBACK_FLAG", false, "PIGGYBACK__FLAG");
-        public final static Property PINBYPASS = new Property(7, String.class, "PINBYPASS", false, "PINBYPASS");
-        public final static Property AUTO_SETTLE_TIME = new Property(8, String.class, "AUTO_SETTLE_TIME", false, "AUTO__SETTLE__TIME");
-        public final static Property LAST_AUTO_SETTLEMENT_DATETIME = new Property(9, String.class, "LAST_AUTO_SETTLEMENT_DATETIME", false, "LAST__AUTO__SETTLEMENT__DATETIME");
-        public final static Property UTRN_PREFIX = new Property(10, String.class, "UTRN_PREFIX", false, "UTRN__PREFIX");
+        public final static Property MERCHANT_NAME = new Property(2, String.class, "MERCHANT_NAME", false, "MERCHANT__NAME");
+        public final static Property MERCHANT_HEADER1 = new Property(3, String.class, "MERCHANT_HEADER1", false, "MERCHANT__HEADER1");
+        public final static Property MERCHANT_HEADER2 = new Property(4, String.class, "MERCHANT_HEADER2", false, "MERCHANT__HEADER2");
+        public final static Property ADDRESS_LINE1 = new Property(5, String.class, "ADDRESS_LINE1", false, "ADDRESS__LINE1");
+        public final static Property ADDRESS_LINE2 = new Property(6, String.class, "ADDRESS_LINE2", false, "ADDRESS__LINE2");
+        public final static Property ADDRESS_LINE3 = new Property(7, String.class, "ADDRESS_LINE3", false, "ADDRESS__LINE3");
+        public final static Property ADDRESS_LINE4 = new Property(8, String.class, "ADDRESS_LINE4", false, "ADDRESS__LINE4");
+        public final static Property MERCHANT_FOOTER1 = new Property(9, String.class, "MERCHANT_FOOTER1", false, "MERCHANT__FOOTER1");
+        public final static Property MERCHANT_FOOTER2 = new Property(10, String.class, "MERCHANT_FOOTER2", false, "MERCHANT__FOOTER2");
     }
 
 
@@ -50,15 +50,15 @@ public class MerchantModelDao extends AbstractDao<MerchantModel, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"MERCHANT_MODEL\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"MERCHANT__ID\" TEXT," + // 1: MERCHANT_ID
-                "\"ADDITIONAL__PROMPT\" TEXT," + // 2: ADDITIONAL_PROMPT
-                "\"DAILY__SETTLEMENT__FLAG\" TEXT," + // 3: DAILY_SETTLEMENT_FLAG
-                "\"LAST_4__DIGIT__PROMPT__FLAG\" TEXT," + // 4: LAST_4_DIGIT_PROMPT_FLAG
-                "\"INSERT_2__SWIPE\" TEXT," + // 5: INSERT_2_SWIPE
-                "\"PIGGYBACK__FLAG\" TEXT," + // 6: PIGGYBACK_FLAG
-                "\"PINBYPASS\" TEXT," + // 7: PINBYPASS
-                "\"AUTO__SETTLE__TIME\" TEXT," + // 8: AUTO_SETTLE_TIME
-                "\"LAST__AUTO__SETTLEMENT__DATETIME\" TEXT," + // 9: LAST_AUTO_SETTLEMENT_DATETIME
-                "\"UTRN__PREFIX\" TEXT);"); // 10: UTRN_PREFIX
+                "\"MERCHANT__NAME\" TEXT," + // 2: MERCHANT_NAME
+                "\"MERCHANT__HEADER1\" TEXT," + // 3: MERCHANT_HEADER1
+                "\"MERCHANT__HEADER2\" TEXT," + // 4: MERCHANT_HEADER2
+                "\"ADDRESS__LINE1\" TEXT," + // 5: ADDRESS_LINE1
+                "\"ADDRESS__LINE2\" TEXT," + // 6: ADDRESS_LINE2
+                "\"ADDRESS__LINE3\" TEXT," + // 7: ADDRESS_LINE3
+                "\"ADDRESS__LINE4\" TEXT," + // 8: ADDRESS_LINE4
+                "\"MERCHANT__FOOTER1\" TEXT," + // 9: MERCHANT_FOOTER1
+                "\"MERCHANT__FOOTER2\" TEXT);"); // 10: MERCHANT_FOOTER2
     }
 
     /** Drops the underlying database table. */
@@ -81,49 +81,49 @@ public class MerchantModelDao extends AbstractDao<MerchantModel, Long> {
             stmt.bindString(2, MERCHANT_ID);
         }
  
-        String ADDITIONAL_PROMPT = entity.getADDITIONAL_PROMPT();
-        if (ADDITIONAL_PROMPT != null) {
-            stmt.bindString(3, ADDITIONAL_PROMPT);
+        String MERCHANT_NAME = entity.getMERCHANT_NAME();
+        if (MERCHANT_NAME != null) {
+            stmt.bindString(3, MERCHANT_NAME);
         }
  
-        String DAILY_SETTLEMENT_FLAG = entity.getDAILY_SETTLEMENT_FLAG();
-        if (DAILY_SETTLEMENT_FLAG != null) {
-            stmt.bindString(4, DAILY_SETTLEMENT_FLAG);
+        String MERCHANT_HEADER1 = entity.getMERCHANT_HEADER1();
+        if (MERCHANT_HEADER1 != null) {
+            stmt.bindString(4, MERCHANT_HEADER1);
         }
  
-        String LAST_4_DIGIT_PROMPT_FLAG = entity.getLAST_4_DIGIT_PROMPT_FLAG();
-        if (LAST_4_DIGIT_PROMPT_FLAG != null) {
-            stmt.bindString(5, LAST_4_DIGIT_PROMPT_FLAG);
+        String MERCHANT_HEADER2 = entity.getMERCHANT_HEADER2();
+        if (MERCHANT_HEADER2 != null) {
+            stmt.bindString(5, MERCHANT_HEADER2);
         }
  
-        String INSERT_2_SWIPE = entity.getINSERT_2_SWIPE();
-        if (INSERT_2_SWIPE != null) {
-            stmt.bindString(6, INSERT_2_SWIPE);
+        String ADDRESS_LINE1 = entity.getADDRESS_LINE1();
+        if (ADDRESS_LINE1 != null) {
+            stmt.bindString(6, ADDRESS_LINE1);
         }
  
-        String PIGGYBACK_FLAG = entity.getPIGGYBACK_FLAG();
-        if (PIGGYBACK_FLAG != null) {
-            stmt.bindString(7, PIGGYBACK_FLAG);
+        String ADDRESS_LINE2 = entity.getADDRESS_LINE2();
+        if (ADDRESS_LINE2 != null) {
+            stmt.bindString(7, ADDRESS_LINE2);
         }
  
-        String PINBYPASS = entity.getPINBYPASS();
-        if (PINBYPASS != null) {
-            stmt.bindString(8, PINBYPASS);
+        String ADDRESS_LINE3 = entity.getADDRESS_LINE3();
+        if (ADDRESS_LINE3 != null) {
+            stmt.bindString(8, ADDRESS_LINE3);
         }
  
-        String AUTO_SETTLE_TIME = entity.getAUTO_SETTLE_TIME();
-        if (AUTO_SETTLE_TIME != null) {
-            stmt.bindString(9, AUTO_SETTLE_TIME);
+        String ADDRESS_LINE4 = entity.getADDRESS_LINE4();
+        if (ADDRESS_LINE4 != null) {
+            stmt.bindString(9, ADDRESS_LINE4);
         }
  
-        String LAST_AUTO_SETTLEMENT_DATETIME = entity.getLAST_AUTO_SETTLEMENT_DATETIME();
-        if (LAST_AUTO_SETTLEMENT_DATETIME != null) {
-            stmt.bindString(10, LAST_AUTO_SETTLEMENT_DATETIME);
+        String MERCHANT_FOOTER1 = entity.getMERCHANT_FOOTER1();
+        if (MERCHANT_FOOTER1 != null) {
+            stmt.bindString(10, MERCHANT_FOOTER1);
         }
  
-        String UTRN_PREFIX = entity.getUTRN_PREFIX();
-        if (UTRN_PREFIX != null) {
-            stmt.bindString(11, UTRN_PREFIX);
+        String MERCHANT_FOOTER2 = entity.getMERCHANT_FOOTER2();
+        if (MERCHANT_FOOTER2 != null) {
+            stmt.bindString(11, MERCHANT_FOOTER2);
         }
     }
 
@@ -141,49 +141,49 @@ public class MerchantModelDao extends AbstractDao<MerchantModel, Long> {
             stmt.bindString(2, MERCHANT_ID);
         }
  
-        String ADDITIONAL_PROMPT = entity.getADDITIONAL_PROMPT();
-        if (ADDITIONAL_PROMPT != null) {
-            stmt.bindString(3, ADDITIONAL_PROMPT);
+        String MERCHANT_NAME = entity.getMERCHANT_NAME();
+        if (MERCHANT_NAME != null) {
+            stmt.bindString(3, MERCHANT_NAME);
         }
  
-        String DAILY_SETTLEMENT_FLAG = entity.getDAILY_SETTLEMENT_FLAG();
-        if (DAILY_SETTLEMENT_FLAG != null) {
-            stmt.bindString(4, DAILY_SETTLEMENT_FLAG);
+        String MERCHANT_HEADER1 = entity.getMERCHANT_HEADER1();
+        if (MERCHANT_HEADER1 != null) {
+            stmt.bindString(4, MERCHANT_HEADER1);
         }
  
-        String LAST_4_DIGIT_PROMPT_FLAG = entity.getLAST_4_DIGIT_PROMPT_FLAG();
-        if (LAST_4_DIGIT_PROMPT_FLAG != null) {
-            stmt.bindString(5, LAST_4_DIGIT_PROMPT_FLAG);
+        String MERCHANT_HEADER2 = entity.getMERCHANT_HEADER2();
+        if (MERCHANT_HEADER2 != null) {
+            stmt.bindString(5, MERCHANT_HEADER2);
         }
  
-        String INSERT_2_SWIPE = entity.getINSERT_2_SWIPE();
-        if (INSERT_2_SWIPE != null) {
-            stmt.bindString(6, INSERT_2_SWIPE);
+        String ADDRESS_LINE1 = entity.getADDRESS_LINE1();
+        if (ADDRESS_LINE1 != null) {
+            stmt.bindString(6, ADDRESS_LINE1);
         }
  
-        String PIGGYBACK_FLAG = entity.getPIGGYBACK_FLAG();
-        if (PIGGYBACK_FLAG != null) {
-            stmt.bindString(7, PIGGYBACK_FLAG);
+        String ADDRESS_LINE2 = entity.getADDRESS_LINE2();
+        if (ADDRESS_LINE2 != null) {
+            stmt.bindString(7, ADDRESS_LINE2);
         }
  
-        String PINBYPASS = entity.getPINBYPASS();
-        if (PINBYPASS != null) {
-            stmt.bindString(8, PINBYPASS);
+        String ADDRESS_LINE3 = entity.getADDRESS_LINE3();
+        if (ADDRESS_LINE3 != null) {
+            stmt.bindString(8, ADDRESS_LINE3);
         }
  
-        String AUTO_SETTLE_TIME = entity.getAUTO_SETTLE_TIME();
-        if (AUTO_SETTLE_TIME != null) {
-            stmt.bindString(9, AUTO_SETTLE_TIME);
+        String ADDRESS_LINE4 = entity.getADDRESS_LINE4();
+        if (ADDRESS_LINE4 != null) {
+            stmt.bindString(9, ADDRESS_LINE4);
         }
  
-        String LAST_AUTO_SETTLEMENT_DATETIME = entity.getLAST_AUTO_SETTLEMENT_DATETIME();
-        if (LAST_AUTO_SETTLEMENT_DATETIME != null) {
-            stmt.bindString(10, LAST_AUTO_SETTLEMENT_DATETIME);
+        String MERCHANT_FOOTER1 = entity.getMERCHANT_FOOTER1();
+        if (MERCHANT_FOOTER1 != null) {
+            stmt.bindString(10, MERCHANT_FOOTER1);
         }
  
-        String UTRN_PREFIX = entity.getUTRN_PREFIX();
-        if (UTRN_PREFIX != null) {
-            stmt.bindString(11, UTRN_PREFIX);
+        String MERCHANT_FOOTER2 = entity.getMERCHANT_FOOTER2();
+        if (MERCHANT_FOOTER2 != null) {
+            stmt.bindString(11, MERCHANT_FOOTER2);
         }
     }
 
@@ -197,15 +197,15 @@ public class MerchantModelDao extends AbstractDao<MerchantModel, Long> {
         MerchantModel entity = new MerchantModel( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // MERCHANT_ID
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // ADDITIONAL_PROMPT
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // DAILY_SETTLEMENT_FLAG
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // LAST_4_DIGIT_PROMPT_FLAG
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // INSERT_2_SWIPE
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // PIGGYBACK_FLAG
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // PINBYPASS
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // AUTO_SETTLE_TIME
-            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // LAST_AUTO_SETTLEMENT_DATETIME
-            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10) // UTRN_PREFIX
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // MERCHANT_NAME
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // MERCHANT_HEADER1
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // MERCHANT_HEADER2
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // ADDRESS_LINE1
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // ADDRESS_LINE2
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // ADDRESS_LINE3
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // ADDRESS_LINE4
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // MERCHANT_FOOTER1
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10) // MERCHANT_FOOTER2
         );
         return entity;
     }
@@ -214,15 +214,15 @@ public class MerchantModelDao extends AbstractDao<MerchantModel, Long> {
     public void readEntity(Cursor cursor, MerchantModel entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setMERCHANT_ID(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setADDITIONAL_PROMPT(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setDAILY_SETTLEMENT_FLAG(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setLAST_4_DIGIT_PROMPT_FLAG(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setINSERT_2_SWIPE(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setPIGGYBACK_FLAG(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
-        entity.setPINBYPASS(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
-        entity.setAUTO_SETTLE_TIME(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
-        entity.setLAST_AUTO_SETTLEMENT_DATETIME(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
-        entity.setUTRN_PREFIX(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setMERCHANT_NAME(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setMERCHANT_HEADER1(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setMERCHANT_HEADER2(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setADDRESS_LINE1(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setADDRESS_LINE2(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setADDRESS_LINE3(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setADDRESS_LINE4(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setMERCHANT_FOOTER1(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setMERCHANT_FOOTER2(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
      }
     
     @Override
