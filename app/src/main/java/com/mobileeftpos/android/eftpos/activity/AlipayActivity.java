@@ -70,7 +70,8 @@ public class AlipayActivity extends AppCompatActivity {
     private String requestTypeValue,brandValue,storeIdValue,deviceIdValue,
             reqIdValue,reqDTValue,custCodeValue,amountValue,currValue,signTypeValue,
             signValue;
-
+    private CommsModelDao commsModelDao;
+    private HTTModelDao httModelDao;
 
 
     @Override
@@ -78,6 +79,7 @@ public class AlipayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alipay);
         daoSession = GreenDaoSupport.getInstance(AlipayActivity.this);
+        loadDatabaseContent();
         context = AlipayActivity.this;
         loContext=AlipayActivity.this;
         if(checkAndRequestPermissions()) {
@@ -337,7 +339,6 @@ public class AlipayActivity extends AppCompatActivity {
                     case 1://
 
                         TransactionDetails.responseMessge = "Case 1";
-                        CommsModelDao commsModelDao =daoSession.getCommsModelDao();
                         comModel =commsModelDao.loadAll().get(0);// databaseObj.getCommsData(TransactionDetails.inGCOM);
                         String IP_Port = comModel.getCOM_PRIMARY_IP_PORT();
                         int indexOffset = IP_Port.indexOf("|");
@@ -399,7 +400,7 @@ public class AlipayActivity extends AppCompatActivity {
                         if(remoteHost.inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK)
                             return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
                         Log.i(TAG, "Aipay:inSendRecvPacket:");
-                        HTTModelDao httModelDao=daoSession.getHTTModelDao();
+                        httModelDao=daoSession.getHTTModelDao();
                         HTTModel connectionTimeout =httModelDao.loadAll().get(0);
                         //databaseObj.getHostTransmissionModelData(0);
                         TransactionDetails.ConnectionTimeout = connectionTimeout.getCONNECTION_TIMEOUT();
@@ -623,6 +624,14 @@ public class AlipayActivity extends AppCompatActivity {
         return urlString;
     }
 
+
+    private void loadDatabaseContent(){
+
+        commsModelDao =daoSession.getCommsModelDao();
+        httModelDao=daoSession.getHTTModelDao();
+
+
+    }
 
 
 }

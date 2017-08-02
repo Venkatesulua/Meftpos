@@ -142,17 +142,7 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 CardTypeModel cttModel = new CardTypeModel();
                 CommsModel comModel = new CommsModel();
                 CurrencyModel currModel = new CurrencyModel();
-                EthernetLabel ethernetModel = new EthernetLabel();
-                EzlinkModel ezlinkModel = new EzlinkModel();
-
-                HostTransmissionModel hostTransModel = new HostTransmissionModel();
-                LimitModel limitModel = new LimitModel();
-                MaskingModel maskModel = new MaskingModel();
                 MerchantModel merchantModel = new MerchantModel();
-                ReceiptModel receiptModel = new ReceiptModel();
-                ReportsModel reportModel = new ReportsModel();
-                TransactionControlModel transctrlModel = new TransactionControlModel();
-                UtilityTable utilModel = new UtilityTable();
                 AlipayModel barcodeModel = new AlipayModel();
                 TraceModel traceNumber = new TraceModel();
                 //Trace number
