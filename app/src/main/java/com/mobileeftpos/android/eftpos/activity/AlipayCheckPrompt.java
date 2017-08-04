@@ -54,10 +54,10 @@ public class AlipayCheckPrompt extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alipay_check_prompt);
         daoSession = GreenDaoSupport.getInstance(AlipayCheckPrompt.this);
-
+        loadDataBaseContent();
         //databaseObj = new DBHelper(AlipayCheckPrompt.this);
         //comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
-        comModel = GreenDaoSupport.getCommsModelOBJ(AlipayCheckPrompt.this);
+
 
         context = AlipayCheckPrompt.this;
 
@@ -134,7 +134,7 @@ public class AlipayCheckPrompt extends AppCompatActivity {
                     return Integer.toString(Constants.ReturnValues.RETURN_ERROR);
                 }
                 //comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
-                comModel = GreenDaoSupport.getCommsModelOBJ(AlipayCheckPrompt.this);
+                loadDataBaseContent();
                 String IP_Port = comModel.getCOM_PRIMARY_IP_PORT();
                 int indexOffset = IP_Port.indexOf("|");
                 String ServerIP = IP_Port.substring(0, indexOffset);
@@ -223,6 +223,13 @@ public class AlipayCheckPrompt extends AppCompatActivity {
                     "Please wait...");
             progressDialog.show();
         }
+    }
+
+    private void loadDataBaseContent(){
+
+        comModel = GreenDaoSupport.getCommsModelOBJ(AlipayCheckPrompt.this);
+
+
     }
 
     }
