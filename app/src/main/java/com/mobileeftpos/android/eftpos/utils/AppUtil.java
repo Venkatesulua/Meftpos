@@ -14,7 +14,8 @@ import com.mobileeftpos.android.eftpos.activity.LoginActivity;
 import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
 import org.json.JSONObject;
 import java.io.IOException;
- import java.util.List;
+import java.util.ArrayList;
+import java.util.List;
 
 
 
@@ -270,5 +271,15 @@ public class AppUtil {
 		}
 	}*/
 
+	public static List<String> loadNetworks(){
+
+        List<String> list = new ArrayList<String>();
+        list.add(NetworkTypes.M2M_NETWORK);
+        list.add(NetworkTypes.PUBLIC_NETWORK);
+        list.add(NetworkTypes.OFFICE_NETWORK);
+        list.add(NetworkTypes.DIRECT_NETWORK);
+        list.add(NetworkTypes.CLOUD_NETWORK);
+        return list;
+    }
 
 }

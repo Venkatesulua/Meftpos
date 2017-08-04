@@ -81,7 +81,7 @@ public class ConfirmRefund extends AppCompatActivity {
         BTCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(ConfirmRefund.this, HomeActivity.class));
+                startActivity(new Intent(ConfirmRefund.this, ViewPagerActivity.class));
             }
         });
 

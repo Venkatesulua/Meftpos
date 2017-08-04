@@ -12,7 +12,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
@@ -28,7 +27,7 @@ import sunmi.paylib.SunmiPayKernel;
  * Created by Prathap on 4/26/17.
  */
 
-public class HomeActivity extends AppCompatActivity {
+public class ViewPagerActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
@@ -46,7 +45,7 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_icon_text_tabs);
-        context=HomeActivity.this;
+        context=ViewPagerActivity.this;
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -105,10 +104,10 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new OneFragment(),"");
-        adapter.addFrag(new TwoFragment(), "");
-        adapter.addFrag(new ThirdFragment(), "");
-        adapter.addFrag(new FouthFragment(), "");
+        adapter.addFrag(new HomeFragment(),"");
+        adapter.addFrag(new ReceiptMenuFragment(), "");
+        adapter.addFrag(new TechnicianPasswordFragment(), "");
+        adapter.addFrag(new SettingsFragment(), "");
         viewPager.setAdapter(adapter);
     }
 
@@ -148,7 +147,7 @@ public class HomeActivity extends AppCompatActivity {
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        HomeActivity.this.finish();
+                        ViewPagerActivity.this.finish();
                     }
                 })
                 .setNegativeButton("No", null)

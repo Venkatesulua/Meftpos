@@ -22,19 +22,10 @@ import com.mobileeftpos.android.eftpos.db.CardTypeModel;
 import com.mobileeftpos.android.eftpos.db.CommsModel;
 import com.mobileeftpos.android.eftpos.db.CurrencyModel;
 import com.mobileeftpos.android.eftpos.db.DaoSession;
-import com.mobileeftpos.android.eftpos.db.EzlinkModel;
 import com.mobileeftpos.android.eftpos.db.HostModel;
-import com.mobileeftpos.android.eftpos.db.LimitModel;
-import com.mobileeftpos.android.eftpos.db.MaskingModel;
 import com.mobileeftpos.android.eftpos.db.MerchantModel;
 import com.mobileeftpos.android.eftpos.db.PasswordModel;
-import com.mobileeftpos.android.eftpos.db.ReceiptModel;
 import com.mobileeftpos.android.eftpos.db.TraceModel;
-import com.mobileeftpos.android.eftpos.db.TransactionControlModel;
-import com.mobileeftpos.android.eftpos.model.EthernetLabel;
-import com.mobileeftpos.android.eftpos.model.HostTransmissionModel;
-import com.mobileeftpos.android.eftpos.model.ReportsModel;
-import com.mobileeftpos.android.eftpos.model.UtilityTable;
 
 import java.util.List;
 
@@ -83,7 +74,7 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
             case R.id.clrreverseItem:
                 KeyValueDB.removeReversal(context);
                 Toast.makeText(TecnicianMenuActivity.this, "REVERSAL CLEARED", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(TecnicianMenuActivity.this, HomeActivity.class));
+                startActivity(new Intent(TecnicianMenuActivity.this, ViewPagerActivity.class));
                 break;
 
             case R.id.clrbatchItem:
@@ -115,7 +106,7 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 //ALL BATCH DELETED
 
                 Toast.makeText(TecnicianMenuActivity.this, "ALL HOST DELETED", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(TecnicianMenuActivity.this, HomeActivity.class));
+                startActivity(new Intent(TecnicianMenuActivity.this, ViewPagerActivity.class));
 
                 break;
 
@@ -258,7 +249,7 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(TecnicianMenuActivity.this, HomeActivity.class);
+        Intent intent = new Intent(TecnicianMenuActivity.this, ViewPagerActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         this.finish();    }

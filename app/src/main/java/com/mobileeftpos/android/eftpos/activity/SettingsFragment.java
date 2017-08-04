@@ -19,12 +19,12 @@ import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
 /**
  * Created by Prathap on 4/26/17.
  */
-public class FouthFragment extends Fragment {
+public class SettingsFragment extends Fragment {
 
     private Button changePwd,logoutBtn;
     private static final int REQUEST_INTERNET = 200;
 
-    public FouthFragment() {
+    public SettingsFragment() {
         // Required empty public constructor
     }
 

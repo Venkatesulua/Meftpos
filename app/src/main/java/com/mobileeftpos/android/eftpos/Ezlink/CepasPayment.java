@@ -21,7 +21,7 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.activity.AlipayCheckPrompt;
-import com.mobileeftpos.android.eftpos.activity.HomeActivity;
+import com.mobileeftpos.android.eftpos.activity.ViewPagerActivity;
 import com.mobileeftpos.android.eftpos.activity.MyApplication;
 import com.mobileeftpos.android.eftpos.activity.PaymentFailure;
 import com.mobileeftpos.android.eftpos.activity.PaymentSuccess;
@@ -88,35 +88,35 @@ public class CepasPayment extends AppCompatActivity {
         if(inError != Constants.ReturnValues.RETURN_OK)
         {
             Toast.makeText(this,"HOST NOT SUPPORTED",Toast.LENGTH_LONG).show();
-            startActivity(new Intent(this, HomeActivity.class));
+            startActivity(new Intent(this, ViewPagerActivity.class));
             finish();
             return;
         }
         if(samRelated.initPSAMCard(mReadCardOpt) != Constants.ReturnValues.RETURN_OK)
         {
             Toast.makeText(this,"SAM INITILIATION FAILED",Toast.LENGTH_LONG).show();
-            startActivity(new Intent(this, HomeActivity.class));
+            startActivity(new Intent(this, ViewPagerActivity.class));
             finish();
             return;
         }
         if(samRelated.SelectEzlSAMApp(mReadCardOpt) != Constants.ReturnValues.RETURN_OK)
         {
             Toast.makeText(this,"SAM INITILIATION FAILED",Toast.LENGTH_LONG).show();
-            startActivity(new Intent(this, HomeActivity.class));
+            startActivity(new Intent(this, ViewPagerActivity.class));
             finish();
             return;
         }
         if(samRelated.SelectEzlSAMGetId(mReadCardOpt) != Constants.ReturnValues.RETURN_OK)
         {
             Toast.makeText(this,"SAM INITILIATION FAILED",Toast.LENGTH_LONG).show();
-            startActivity(new Intent(this, HomeActivity.class));
+            startActivity(new Intent(this, ViewPagerActivity.class));
             finish();
             return;
         }
         if(samRelated.SelectEzlSAMEnable(mReadCardOpt) != Constants.ReturnValues.RETURN_OK)
         {
             Toast.makeText(this,"SAM INITILIATION FAILED",Toast.LENGTH_LONG).show();
-            startActivity(new Intent(this, HomeActivity.class));
+            startActivity(new Intent(this, ViewPagerActivity.class));
             finish();
             return;
         }
@@ -274,7 +274,7 @@ public class CepasPayment extends AppCompatActivity {
                     //startActivity(new Intent(AlipayActivity.this,AlipayCheckPrompt.class));
                 }else
                 {
-                    startActivity(new Intent(CepasPayment.this, HomeActivity.class));
+                    startActivity(new Intent(CepasPayment.this, ViewPagerActivity.class));
                 }
             }
         }
@@ -307,7 +307,7 @@ public class CepasPayment extends AppCompatActivity {
                     /*if(samRelated.Ezlink_inGetSessionKey(mReadCardOpt,keytype) != Constants.ReturnValues.RETURN_OK)
                     {
                         Toast.makeText(CepasPayment.this,"GET SESSION KEY FAILED!!!",Toast.LENGTH_LONG).show();
-                        startActivity(new Intent(CepasPayment.this, HomeActivity.class));
+                        startActivity(new Intent(CepasPayment.this, ViewPagerActivity.class));
                     }
                     cardRelated.Ezlink_vdDecryptCounterData();*/
 

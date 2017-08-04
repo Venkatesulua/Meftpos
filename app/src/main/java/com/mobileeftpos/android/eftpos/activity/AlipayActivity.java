@@ -338,7 +338,7 @@ public class AlipayActivity extends AppCompatActivity {
                     }, TIME_OUT);
                 }else
                 {
-                    //loContext.startActivity(new Intent(loContext, HomeActivity.class));
+                    //loContext.startActivity(new Intent(loContext, ViewPagerActivity.class));
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {

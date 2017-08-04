@@ -16,11 +16,11 @@ import com.mobileeftpos.android.eftpos.R;
 /**
  * Created by Prathap on 4/26/17.
  */
-public class TwoFragment extends Fragment implements View.OnClickListener{
+public class ReceiptMenuFragment extends Fragment implements View.OnClickListener{
 
     private LinearLayout reprintBtn, reportBtn, reviewBtn, logonBtn, blacklistBtn, cepasBtn;
 
-    public TwoFragment() {
+    public ReceiptMenuFragment() {
         // Required empty public constructor
     }
 

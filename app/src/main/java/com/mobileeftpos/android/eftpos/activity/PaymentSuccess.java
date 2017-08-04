@@ -65,7 +65,7 @@ public class PaymentSuccess extends Activity {
         gotoHomeAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(PaymentSuccess.this, HomeActivity.class);
+                Intent intent = new Intent(PaymentSuccess.this, ViewPagerActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 finish();
@@ -77,7 +77,7 @@ public class PaymentSuccess extends Activity {
              public void onClick(View view) {
                  PrintReceipt printReceipt = new PrintReceipt();
                  printReceipt.inPrintReceipt(daoSession,PaymentSuccess.this);
-                 Intent intent = new Intent(PaymentSuccess.this, HomeActivity.class);
+                 Intent intent = new Intent(PaymentSuccess.this, ViewPagerActivity.class);
                  intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                  startActivity(intent);
              }
