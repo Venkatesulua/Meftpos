@@ -152,7 +152,9 @@ public static DaoSession daosession;
 		}
 		TransactionControlModelDao transactionControlModelDao =daosession.getTransactionControlModelDao();
 		TransactionControlModel transactionControlModel=new TransactionControlModel();
-		transactionControlModel=transactionControlModelDao.loadAll().get(0);
+		if(transactionControlModelDao.loadAll().size()>0) {
+			transactionControlModel = transactionControlModelDao.loadAll().get(0);
+		}
 		return transactionControlModel;
 	}
 
@@ -163,7 +165,9 @@ public static DaoSession daosession;
 		}
 		EthernetModelDao ethernetModelDao =daosession.getEthernetModelDao();
 		EthernetModel ethernetModel=new EthernetModel();
-		ethernetModel=ethernetModelDao.loadAll().get(0);
+		if(ethernetModelDao.loadAll().size()>0) {
+			ethernetModel = ethernetModelDao.loadAll().get(0);
+		}
 		return ethernetModel;
 	}
 

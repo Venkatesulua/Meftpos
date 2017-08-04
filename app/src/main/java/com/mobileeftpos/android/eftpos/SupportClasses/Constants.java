@@ -4,7 +4,19 @@ package com.mobileeftpos.android.eftpos.SupportClasses;
  * Created by venkat on 5/18/2017.
  */
 public class Constants {
+
 	public static final String TMS_DEFAULT_MMS_FAMILY = "TELIUM";
+
+	//Transaction Manager
+	public static final int inGetCardInfo=001;
+	public static final int SortPan=002;
+	public static final int CheckReversal=003;
+	public static final int CheckUpload=004;
+	public static final int HostConnectivity=005;
+	public static final int SaveRecord=006;
+	public static final int PrintReceipt=007;
+	public static final int ClearGlobals= 8;
+
 
 	public static final int TRUE = 1;
 	public static final int FALSE = 0;

@@ -162,7 +162,7 @@ public class TransactionDetails {
             cardbinModeldata=cardbinModeldataList.get(0);
             Log.i(TAG,"TransDetails::LLow Value:"+cardbinModeldata.getCDT_LO_RANGE());
             Log.i(TAG,"TransDetails::High Value:"+cardbinModeldata.getCDT_HI_RANGE());
-            Log.i(TAG,"TransDetails::PAN:"+this.PAN);
+            Log.i(TAG,"TransDetails::PAN:"+TransactionDetails.PAN);
 
             TransactionDetails.responseMessge = "Case 402";
             if(cardbinModeldata==null) {

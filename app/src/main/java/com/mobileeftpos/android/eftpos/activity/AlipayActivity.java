@@ -24,6 +24,14 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.TransactionFlow.AGetCard;
+import com.mobileeftpos.android.eftpos.TransactionFlow.BValidateCard;
+import com.mobileeftpos.android.eftpos.TransactionFlow.CCheckReversal;
+import com.mobileeftpos.android.eftpos.TransactionFlow.DCheckUpload;
+import com.mobileeftpos.android.eftpos.TransactionFlow.EHostConnectivity;
+import com.mobileeftpos.android.eftpos.TransactionFlow.FSaveRecord;
+import com.mobileeftpos.android.eftpos.TransactionFlow.GPrintReceipt;
+import com.mobileeftpos.android.eftpos.TransactionFlow.HAfterTransaction;
 import com.mobileeftpos.android.eftpos.async.WebServiceCall;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.BatchModel;
@@ -45,7 +53,20 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
+import rx.Observer;
+import rx.schedulers.Schedulers;
+
 public class AlipayActivity extends AppCompatActivity {
+
+    public AGetCard getCard;
+    public BValidateCard validateCard;
+    public CCheckReversal checkReversal;
+    public DCheckUpload checkUpload;
+    public EHostConnectivity hostConnectivity;
+    public FSaveRecord saveRecord;
+    public GPrintReceipt gprintReceipt;
+    public HAfterTransaction afterTranscation;
 
     public static Context context;
     public static String barCodeValue=null;
@@ -187,13 +208,63 @@ public class AlipayActivity extends AppCompatActivity {
             //AsyncTaskRequestResponse ASTask = new AsyncTaskRequestResponse(context);
             //ASTask.AsyncTaskCreation(context);
             new AsyncTaskRunner().execute("0.0.0.0","0");
+            //observable
+            //1.
+
+           // processRequest(null,null);
+            /*Observable.just(Constants.SortPan, Constants.CheckReversal, Constants.CheckUpload,
+                            Constants.HostConnectivity,Constants.SaveRecord,Constants.PrintReceipt,Constants.ClearGlobals)
+                    .subscribeOn(Schedulers.newThread())
+                    .subscribe(new Observer<Integer>() {
+
+                        @Override
+                        public void onCompleted() {
+                            //logger.info("connection coplete");
+                            Log.i("tcp","COMPLETED");
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            //logger.error(e.getMessage(), e);
+                            //close();
+                            Log.i("tcp","ON ERROR"+ e.getMessage());
+                        }
+
+                        @Override
+                        public void onNext(Integer str) {
+                        try{
+                            if(str == Constants.inGetCardInfo){
+                                getCard = new AGetCard(AlipayActivity.this);
+                                getCard.readCard();
+                            }
+                            else if(str == Constants.SortPan){
+                                validateCard.inSortPAN();
+                            }else if(str == Constants.CheckReversal){
+                                checkReversal.inCheckReversal();
+                            }else if(str == Constants.CheckUpload){
+                                checkUpload.inCheckUpload();
+                            }else if(str == Constants.HostConnectivity){
+                                hostConnectivity.inHostConnect();
+                            }else if(str == Constants.SaveRecord){
+                                saveRecord.vdSaveRecord();
+                            }else if(str == Constants.PrintReceipt){
+                                gprintReceipt.inPrintReceipt();
+                            }else if(str == Constants.ClearGlobals){
+
+                            }
+
+                            }catch(Throwable  e)
+                            {
+
+                            }
+
+                        }
+                    });*/
 
         }else {
             Toast.makeText(AlipayActivity.this, "BAR:NO INTERNET CONNECTION",Toast.LENGTH_SHORT).show();
         }
-
     }
-
 
     private class AsyncTaskRunner extends AsyncTask<String, Void, String> {
 
@@ -309,9 +380,13 @@ public class AlipayActivity extends AppCompatActivity {
             while (whLoop) {
                 switch (inPhase++) {
                     case 0://Validation; in force settlement;
-                        TransactionDetails.responseMessge = "Case 0";
+                        //getCard = new AGetCard(AlipayActivity.this);
                         if (TransactionDetails.trxType == Constants.TransType.ALIPAY_SALE || TransactionDetails.trxType == Constants.TransType.VOID) {
-                            inError = trDetails.inSortPAN(daoSession);
+                            getCard = new AGetCard(AlipayActivity.this);
+                            getCard.readCard();
+                            validateCard.inSortPAN();
+                            //inError = trDetails.inSortPAN(daoSession);
+                            //inError = validateCard.inSortPAN();
                             if (inError != Constants.ReturnValues.RETURN_OK) {
                                 TransactionDetails.responseMessge = "TRANSCATION NOT SUPPORTED or \n CARD NOT READ PROPERLY";
                                 return Constants.ReturnValues.RETURN_ERROR;
@@ -336,7 +411,7 @@ public class AlipayActivity extends AppCompatActivity {
                         break;
                     case 1://
 
-                        TransactionDetails.responseMessge = "Case 1";
+                        /*TransactionDetails.responseMessge = "Case 1";
                         CommsModelDao commsModelDao =daoSession.getCommsModelDao();
                         comModel =commsModelDao.loadAll().get(0);// databaseObj.getCommsData(TransactionDetails.inGCOM);
                         String IP_Port = comModel.getCOM_PRIMARY_IP_PORT();
@@ -347,19 +422,20 @@ public class AlipayActivity extends AppCompatActivity {
                         Log.i(TAG, "Aipay:Server PORT ::: " + Port);
                         String stTrace = payServices.pGetSystemTrace(AlipayActivity.this);
                         TransactionDetails.InvoiceNumber = stTrace;
-                        Log.i(TAG, "Aipay:inCreatePacket:stTrace::" + stTrace);
+                        Log.i(TAG, "Aipay:inCreatePacket:stTrace::" + stTrace);*/
 
                         break;
                     case 2://
                         //TransactionDetails.trxType = inTempTrxType;
-                        TransactionDetails.responseMessge = "Case 2";
-                        inError = inCheckReversal();
+                        //inError = inCheckReversal();
+                        inError = checkReversal.inCheckReversal();
                         if (inError != Constants.ReturnValues.RETURN_OK) {
                             TransactionDetails.responseMessge = "REVERSAL FAILED";
                             return Constants.ReturnValues.RETURN_REVERSAL_FAILED;
                         }
 
-                        inError = inCheckUpload();
+                        //inError = inCheckUpload();
+                        inError = checkUpload.inCheckUpload();
                         if (inError != Constants.ReturnValues.RETURN_OK) {
                             TransactionDetails.responseMessge = "UPLOAD FAILED";
                             return Constants.ReturnValues.RETURN_UPLOAD_FAILED;
@@ -368,6 +444,8 @@ public class AlipayActivity extends AppCompatActivity {
 
                         break;
                     case 3://
+
+
                         /*TransactionDetails.inFinalLength = isoPacket.inCreatePacket(databaseObj,FinalData, Constants.TransType.REVERSAL);
                         if(TransactionDetails.inFinalLength == 0) {
                             inError = 1;
@@ -385,20 +463,20 @@ public class AlipayActivity extends AppCompatActivity {
                         Log.i(TAG,result);
                         KeyValueDB.setReversal(loContext,new String(result));*/
 
-                        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants.TransType
+                       /* TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants.TransType
                                 .ALIPAY_SALE,AlipayActivity.this);
                         if (TransactionDetails.inFinalLength == 0) {
                             inError = 1;
                             break;
-                        }
+                        }*/
                         break;
 
 
                     case 4:
-                        TransactionDetails.responseMessge = "Case 4";
-                        if(remoteHost.inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK)
+                        if(hostConnectivity.inHostConnect() != Constants.ReturnValues.RETURN_OK)
+                        //if(remoteHost.inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK)
                             return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
-                        Log.i(TAG, "Aipay:inSendRecvPacket:");
+                        /*Log.i(TAG, "Aipay:inSendRecvPacket:");
                         HTTModelDao httModelDao=daoSession.getHTTModelDao();
                         HTTModel connectionTimeout =httModelDao.loadAll().get(0);
                         //databaseObj.getHostTransmissionModelData(0);
@@ -425,21 +503,23 @@ public class AlipayActivity extends AppCompatActivity {
                             //redirect to error
                             //break;
                             return Constants.ReturnValues.RETURN_ERROR;
-                        }
+                        }*/
 
 
                     case 5:
 
                         Log.i(TAG, "\nSave Record:");
                         //save Record
-                        isoPacket.vdSaveRecord(AlipayActivity.this);
+                        //isoPacket.vdSaveRecord(AlipayActivity.this);
+                        saveRecord.vdSaveRecord();
                         KeyValueDB.removeReversal(loContext);//Clear Reversal
                         break;
                     case 6://
 
                         //Print receipt
                         Log.i(TAG, "\nPrinting Receipt");
-                        printReceipt.inPrintReceipt(daoSession, loContext);
+                        //printReceipt.inPrintReceipt(daoSession, loContext);
+                        gprintReceipt.inPrintReceipt();
                         break;
                     case 7:
                         //Increment STAN NUMBER
