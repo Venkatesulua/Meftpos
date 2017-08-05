@@ -27,10 +27,10 @@ public class GPrintReceipt extends FSaveRecord {
     private static int MerchantCopy =0;
 
 
-    public GPrintReceipt(Activity context){
-        super(context);
-        locontext=context;
-    }
+    //public GPrintReceipt(Activity context){
+       // super(context);
+        //locontext=context;
+    //}
 
     public int inPrintReceipt( ){
         Log.i(TAG,"\nPrintReceiptPRINTING-BUILDING:");

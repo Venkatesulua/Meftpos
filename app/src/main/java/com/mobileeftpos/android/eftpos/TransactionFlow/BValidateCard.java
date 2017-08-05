@@ -7,12 +7,10 @@ import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.CardBinModel;
-import com.mobileeftpos.android.eftpos.db.CardBinModelDao;
-import com.mobileeftpos.android.eftpos.db.CardTypeModel;
-import com.mobileeftpos.android.eftpos.db.CardTypeModelDao;
-import com.mobileeftpos.android.eftpos.db.DaoSession;
 import com.mobileeftpos.android.eftpos.db.HostModel;
-import com.mobileeftpos.android.eftpos.db.HostModelDao;
+
+//import com.mobileeftpos.android.eftpos.db.HostModel;
+//import com.mobileeftpos.android.eftpos.db.HostModelDao;
 
 import java.util.List;
 
@@ -22,13 +20,16 @@ import java.util.List;
 
 public class BValidateCard extends AGetCard {
 
+    //private CardBinModel cardBinModel = new CardBinModel();
+    //private HostModel hostModel = new HostModel();
     Activity locontext;
-    public BValidateCard(Activity context){
+    //AGetCard CardParams = new AGetCard();
+    //public BValidateCard(Activity context){
 
 
-        super (context);
-        locontext= context;
-    }
+        //super (context);
+       // locontext= context;
+    //}
     int inGNoOfValidHosts=0;
 
     public int inSortPAN( )
@@ -60,8 +61,9 @@ public class BValidateCard extends AGetCard {
             // goto lblKO;
 
             //CardBinModel cardBinModel = new CardBinModel();
-            List<CardBinModel> cardBinModelList = cardBinModelDao.loadAll();
-            cardBinModel=cardBinModelList.get(i);
+            //List<CardBinModel> cardBinModelList = cardBinModelDao.loadAll();
+            //cardBinModel=cardBinModelList.get(i);
+            cardBinModel=GreenDaoSupport.getCardBinTableIDBasedModelOBJ(locontext,String.format("%02d",i));
             Log.i(TAG,"TransDetails::LLow Value:"+cardBinModel.getCDT_LO_RANGE());
             Log.i(TAG,"TransDetails::High Value:"+cardBinModel.getCDT_HI_RANGE());
             Log.i(TAG,"TransDetails::PAN:"+TransactionDetails.PAN);
@@ -141,7 +143,7 @@ public class BValidateCard extends AGetCard {
 
             int inlocalHdtIndex = Integer.parseInt(localHdtIndex);
             //hostModel= hostModelDao.getHostTableModelOBJ();loadAll().get(inlocalHdtIndex);
-            hostModel = GreenDaoSupport.getHostTableModelOBJ(locontext,localHdtIndex);
+            hostModel = GreenDaoSupport.getHostTableIDBasedModelOBJ(locontext,localHdtIndex);
             //HostModel hostdata =daoSession.getHostModelDao().loadAll().get(0);
              //hostdata = databaseObj.getHostTableData(inlocalHdtIndex);
             if(!hostModel.getHDT_HOST_ENABLED().equals("1"))
@@ -206,13 +208,14 @@ public class BValidateCard extends AGetCard {
         for (i=0;i<(cardBinModel.getCDT_HDT_REFERENCE().length()/2); i++)
         {
             //memcpy(chHDTIndex,stGCDTStruct.CDT_HDT_REFERENCE+(i*2),2);
-            HostModel localHDT = new HostModel();
+            //HostModel localHDT = new HostModel();
             Log.i(TAG,"TransDetails::inside-Loop_1");
             chHDTIndex = cardBinModel.getCDT_HDT_REFERENCE().substring((i*2),((i*2)+2));
-            localHDT = hostModelDao.loadAll().get(0);//databaseObj.getHostTableData(inGHDT);
+           // localHDT = hostModelDao.loadAll().get(0);//databaseObj.getHostTableData(inGHDT);
+            //localHDT = GreenDaoSupport.getHostTableIDBasedModelOBJ(locontext,Integer.toString(i));
 
-            Log.i(TAG,"TransDetails::getHDT_HOST_LABEL::"+localHDT.getHDT_HOST_LABEL());
-            Log.i(TAG,"TransDetails::getHDT_HOST_LABEL::"+localHDT.getHDT_DESCRIPTION());
+            //Log.i(TAG,"TransDetails::getHDT_HOST_LABEL::"+localHDT.getHDT_HOST_LABEL());
+            //Log.i(TAG,"TransDetails::getHDT_HOST_LABEL::"+localHDT.getHDT_DESCRIPTION());
             //memset(&localHDT, 0, sizeof(HDT_STRUCT));
             //inGetHDTConfig(GET, atoi(chHDTIndex), &localHDT);
 
@@ -237,20 +240,26 @@ public class BValidateCard extends AGetCard {
                 // extract CTT index in CDT_CARD_TYPE_ARRAY from the same position as CDT_HDT_REFERENCE
                 //memcpy(chCTTIndex,stGCDTStruct.CDT_CARD_TYPE_ARRAY+(i*2),2 );
                 chCTTIndex = cardBinModel.getCDT_CARD_TYPE_ARRAY().substring((i*2),((i*2)+2));
-                cardTypeModel =  cttModelDao.loadAll().get(0);//databaseObj.getCardTypeData(Integer.parseInt(chCTTIndex));
-                Log.i(TAG,"TransDetails::CTT_CARD_LABEL::"+cardTypeModel.getCTT_CARD_LABEL());
-                Log.i(TAG,"TransDetails::CTT_CARD_FORMAT::"+cardTypeModel.getCTT_CARD_FORMAT());
+                //cardTypeModel =  cttModelDao.loadAll().get(0);//databaseObj.getCardTypeData(Integer.parseInt(chCTTIndex));
+                //Log.i(TAG,"TransDetails::CTT_CARD_LABEL::"+cardTypeModel.getCTT_CARD_LABEL());
+               // Log.i(TAG,"TransDetails::CTT_CARD_FORMAT::"+cardTypeModel.getCTT_CARD_FORMAT());
                 TransactionDetails.inGCTT = Integer.parseInt(chCTTIndex);
 
                 Log.i(TAG,"TransDetails::inGCTT::"+TransactionDetails.inGCTT);
 
 
                 //Load HDT,CTT,CURR
-                hostModel = hostModelDao.loadAll().get(TransactionDetails.inGHDT);
-                cardBinModel = cardBinModelDao.loadAll().get(TransactionDetails.inGCDT);
-                cardTypeModel = cttModelDao.loadAll().get(TransactionDetails.inGCTT);
-                comModel = comModelDao.loadAll().get(TransactionDetails.inGCOM);
-                currencyModel = currModelDao.loadAll().get(TransactionDetails.inGCURR);
+                //hostModel = hostModelDao.loadAll().get(TransactionDetails.inGHDT);
+                //cardBinModel = cardBinModelDao.loadAll().get(TransactionDetails.inGCDT);
+                //cardTypeModel = cttModelDao.loadAll().get(TransactionDetails.inGCTT);
+                //comModel = comModelDao.loadAll().get(TransactionDetails.inGCOM);
+                //currencyModel = currModelDao.loadAll().get(TransactionDetails.inGCURR);
+                SetHostModel(GreenDaoSupport.getHostTableIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGHDT)));
+                SetCardBinModel(GreenDaoSupport.getCardBinTableIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCDT)));
+                SetCardTypeModel(GreenDaoSupport.getCardTypeIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCTT)));
+                SetCommsModel(GreenDaoSupport.getCommsTableIdBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCOM)));
+                SetCurrencyModel(GreenDaoSupport.getCurrencyTableIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCURR)));
+                LoadAll(locontext);
                 //open CTT
                 //if(inGetSetCTTConfig(GET,atoi(chCTTIndex)) == FALSE)
                 //return FALSE;
@@ -324,7 +333,7 @@ public class BValidateCard extends AGetCard {
             //List<HostModel> hostdatalist =hostModelDao.loadAll();
             //hostModel=hostModelDao.loadAll().get(0);
             //hostModel = hostModelDao.loadAll().get(localHDTIndex);
-            hostModel = GreenDaoSupport.getHostTableModelOBJ(locontext,ui8ListOfValinInvalidHosts[i]);
+            hostModel = GreenDaoSupport.getHostTableIDBasedModelOBJ(locontext,ui8ListOfValinInvalidHosts[i]);
             //Open HDT file and read structure
             //if(inGetHDTConfig(GET,localHDTIndex, (HDT_STRUCT*)&localHDTStruct)==FALSE)
             if(hostModel == null)

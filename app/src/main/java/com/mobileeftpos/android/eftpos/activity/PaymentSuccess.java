@@ -107,7 +107,7 @@ public class PaymentSuccess extends Activity {
 
 
 //        curr = databaseObj.getCurrencyData(TransactionDetails.inGCURR);
-        curr = GreenDaoSupport.getCurrencyModelOBJList(PaymentSuccess.this,TransactionDetails.inGCURR+"");
+        curr = GreenDaoSupport.getCurrencyTableIDBasedModelOBJ(PaymentSuccess.this,Integer.toString(TransactionDetails.inGCURR));
 
         cuLabel = curr.getCURR_LABEL();
 

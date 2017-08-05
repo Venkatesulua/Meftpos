@@ -6,32 +6,16 @@ import android.util.Log;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
-import com.mobileeftpos.android.eftpos.activity.AlipayActivity;
 
-import java.nio.charset.Charset;
-import java.util.concurrent.TimeUnit;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelOption;
-import io.reactivex.netty.protocol.tcp.client.TcpClient;
-import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import java.math.BigInteger;
 
 /**
  * Created by venkat on 8/2/2017.
  */
 
-public class EHostConnectivity extends DCheckUpload {
+public class EHostConnectivity extends CPacketHandling {
 
     private Activity locontext;
-    public EHostConnectivity(Activity context){
-        super(context);
-        locontext=context;
-    }
-
     public int inConnectSendRecv(String ServerIP, String Port){
         if(remoteHost.inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK)
             return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
@@ -55,14 +39,58 @@ public class EHostConnectivity extends DCheckUpload {
 
     public int inHostConnect()
     {
-        TransactionDetails.inFinalLength = isoPacket.inCreatePacket(byRequestData, Constants.TransType.ALIPAY_SALE,locontext);
-        String IP_Port = comModel.getCOM_PRIMARY_IP_PORT();
+        TransactionDetails.inFinalLength = inFCreatePacket(byRequestData, Constants.TransType.ALIPAY_SALE,locontext);
+        String IP_Port = GetCommsModel().getCOM_PRIMARY_IP_PORT();
         int indexOffset = IP_Port.indexOf("|");
         if(TransactionDetails.inFinalLength != 0)
         {
             inConnectSendRecv(IP_Port.substring(0, indexOffset),IP_Port.substring(indexOffset + 1));
         }
-        /*Subscription rx =
+
+        return Constants.ReturnValues.RETURN_OK;
+    }
+
+    public int inCheckReversal()
+    {
+        String ReversalData = KeyValueDB.getReversal(locontext);
+
+        String IP_Port = GetCommsModel().getCOM_PRIMARY_IP_PORT();
+        int indexOffset = IP_Port.indexOf("|");
+        if(!ReversalData.isEmpty()) {
+            EHostConnectivity connectSendRecv = new EHostConnectivity();
+
+            byRequestData = new BigInteger(ReversalData, 16).toByteArray();
+            TransactionDetails.inFinalLength = byRequestData[0] *256;
+            TransactionDetails.inFinalLength = TransactionDetails.inFinalLength + (byRequestData[1]);
+            TransactionDetails.inFinalLength = TransactionDetails.inFinalLength +2;
+
+            return connectSendRecv.inConnectSendRecv(IP_Port.substring(0, indexOffset),IP_Port.substring(indexOffset + 1));
+        }
+        return Constants.ReturnValues.RETURN_OK;
+    }
+
+    public int inCheckUpload()
+    {
+        String UploadData = KeyValueDB.getUpload(locontext);
+
+        String IP_Port = GetCommsModel().getCOM_PRIMARY_IP_PORT();
+        int indexOffset = IP_Port.indexOf("|");
+        if(!UploadData.isEmpty()) {
+            EHostConnectivity connectSendRecv = new EHostConnectivity();
+
+            byRequestData = new BigInteger(UploadData, 16).toByteArray();
+            TransactionDetails.inFinalLength = byRequestData[0] *256;
+            TransactionDetails.inFinalLength = TransactionDetails.inFinalLength + (byRequestData[1]);
+            TransactionDetails.inFinalLength = TransactionDetails.inFinalLength +2;
+            return connectSendRecv.inConnectSendRecv(IP_Port.substring(0, indexOffset),IP_Port.substring(indexOffset + 1));
+        }
+
+
+        return Constants.ReturnValues.RETURN_OK;
+    }
+}
+
+/*Subscription rx =
                 TcpClient.newClient(IP_Port.substring(0, indexOffset), Integer.parseInt(IP_Port.substring(indexOffset + 1)))
                         .channelOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15 * 1000)
                         .channelOption(ChannelOption.AUTO_READ, false)
@@ -104,6 +132,3 @@ public class EHostConnectivity extends DCheckUpload {
                                 KeyValueDB.removeReversal(locontext);
                             }
                         });*/
-        return Constants.ReturnValues.RETURN_OK;
-    }
-}

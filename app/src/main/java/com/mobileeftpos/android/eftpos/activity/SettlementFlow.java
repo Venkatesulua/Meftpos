@@ -231,7 +231,7 @@ public class SettlementFlow extends AppCompatActivity {
                     case 1://
 
                         Log.i(TAG,"GetInvoice::Alipay::COMMUNICATION PARAMS...");
-                        comModel =GreenDaoSupport.getCommsModelObj(SettlementFlow.this,TransactionDetails.inGCOM+"");
+                        comModel =GreenDaoSupport.getCommsModelOBJ(SettlementFlow.this);
                         //databaseObj.getCommsData
                         // (TransactionDetails.inGCOM);
                         Log.i(TAG,"GetInvoice::Alipay::COMMUNICATION PARAMS2...");

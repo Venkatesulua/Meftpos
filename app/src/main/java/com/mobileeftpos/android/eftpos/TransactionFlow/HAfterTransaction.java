@@ -8,8 +8,8 @@ import android.app.Activity;
 
 public class HAfterTransaction extends GPrintReceipt {
     private Activity locontext;
-    public HAfterTransaction(Activity context){
-        super(context);
-        locontext=context;
-    }
+    //public HAfterTransaction(Activity context){
+        //super(context);
+        //locontext=context;
+    //}
 }
