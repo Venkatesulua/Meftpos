@@ -116,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
                 TransactionDetails.deviceId = deviceUuid.toString();
                 Log.i(TAG,"TransactionDetails.deviceId::"+TransactionDetails.deviceId);*/
 
-                Intent i = new Intent(LoginActivity.this, ViewPagerActivity.class);
+                Intent i = new Intent(LoginActivity.this, HomePagerActivity.class);
                 startActivity(i);
                 overridePendingTransition(R.anim.right_enter, R.anim.left_out);
                 SharedPreferenceStore

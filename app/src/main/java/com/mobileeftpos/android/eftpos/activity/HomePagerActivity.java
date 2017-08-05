@@ -27,7 +27,7 @@ import sunmi.paylib.SunmiPayKernel;
  * Created by Prathap on 4/26/17.
  */
 
-public class ViewPagerActivity extends AppCompatActivity {
+public class HomePagerActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
@@ -45,7 +45,7 @@ public class ViewPagerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_icon_text_tabs);
-        context=ViewPagerActivity.this;
+        context=HomePagerActivity.this;
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -147,7 +147,7 @@ public class ViewPagerActivity extends AppCompatActivity {
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        ViewPagerActivity.this.finish();
+                        HomePagerActivity.this.finish();
                     }
                 })
                 .setNegativeButton("No", null)

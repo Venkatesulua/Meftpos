@@ -17,7 +17,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.mobileeftpos.android.eftpos.R;
-import com.mobileeftpos.android.eftpos.activity.ViewPagerActivity;
+import com.mobileeftpos.android.eftpos.activity.HomePagerActivity;
 import com.mobileeftpos.android.eftpos.activity.LoginActivity;
 import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
 
@@ -48,7 +48,7 @@ public class SplashActivity extends Activity {
 
                     if (SharedPreferenceStore.getEncryptedSharedPref(SharedPreferenceStore.KEY_LOGIN_STATUS).equalsIgnoreCase
                             ("true")) {
-                        Intent i = new Intent(SplashActivity.this, ViewPagerActivity.class);
+                        Intent i = new Intent(SplashActivity.this, HomePagerActivity.class);
                         startActivity(i);
                         overridePendingTransition(R.anim.right_enter, R.anim.left_out);
                     } else {

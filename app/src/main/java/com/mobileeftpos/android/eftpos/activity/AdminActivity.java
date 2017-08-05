@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -135,7 +134,6 @@ public class AdminActivity extends Activity {
         daoSession = ((EftposApp) getApplication()).getDaoSession();
         context = AdminActivity.this;
         initView();
-        loadDaoObjects();
 
     }
 
@@ -288,7 +286,7 @@ public class AdminActivity extends Activity {
    // Async background task in downloading data
     private String processRequest() {
 
-
+        loadDaoObjects();
         //Validation for null
         if (validateInputParams()) {
             globalVar.tmsParam.setTMS_APPLICATION(appName.getText().toString());
@@ -1483,7 +1481,7 @@ public class AdminActivity extends Activity {
             if(result.equals("OK")) {
                 progress.dismiss();
                 Toast.makeText(AdminActivity.this, "DOWNLOAD SUCCESSFUL", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(AdminActivity.this, ViewPagerActivity.class));
+                startActivity(new Intent(AdminActivity.this, HomePagerActivity.class));
 
             }else{
 

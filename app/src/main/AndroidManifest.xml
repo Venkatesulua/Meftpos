@@ -32,7 +32,7 @@
             android:name=".activity.LoginActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.ViewPagerActivity"
+            android:name=".activity.HomePagerActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activity.SaleActivity"

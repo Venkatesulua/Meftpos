@@ -34,21 +34,33 @@ import java.util.List;
  */
 
 public class TecnicianMenuActivity extends Activity implements View.OnClickListener{
-    private final String TAG = "my_custom_msg";
+    private final String TAG = TecnicianMenuActivity.class.getSimpleName();
     private LinearLayout reversalBtn, batchBtn, printConfigBtn, mmsBtn, secureBtn, KeyManagementBtn,LoadDefaultBtn;
-
-    public static Context context;
+    public static Activity context;
     private PayServices payService = new PayServices();
-    HostModel hostModel = new HostModel();
+    HostModel hostModel;
     private DaoSession daoSession;
+    PasswordModel pwdModel;
+    CardBinModel cbinModel ;
+    CardTypeModel cttModel ;
+    CommsModel comModel;
+    CurrencyModel currModel;
+    MerchantModel merchantModel ;
+    AlipayModel barcodeModel;
+    TraceModel traceNumber;
+    BatchModel batchdata;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_three);
         daoSession = GreenDaoSupport.getInstance(TecnicianMenuActivity.this);
-
-        //databaseObj = new DBHelper(TecnicianMenuActivity.this);
         context = TecnicianMenuActivity.this;
+        initView();
+
+    }
+
+    private void initView(){
 
         reversalBtn = (LinearLayout) findViewById(R.id.clrreverseItem);
         batchBtn = (LinearLayout) findViewById(R.id.clrbatchItem);
@@ -74,18 +86,18 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
             case R.id.clrreverseItem:
                 KeyValueDB.removeReversal(context);
                 Toast.makeText(TecnicianMenuActivity.this, "REVERSAL CLEARED", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(TecnicianMenuActivity.this, ViewPagerActivity.class));
+                startActivity(new Intent(TecnicianMenuActivity.this, HomePagerActivity.class));
                 break;
 
             case R.id.clrbatchItem:
                 //delete batch
 
                 int BatchPresent=0;
-                BatchModel batchdata = new BatchModel();
-                List<HostModel> hostModelList = GreenDaoSupport.getHostModelOBJList(TecnicianMenuActivity.this);
-	            // databaseObj.getAllHostTableData();
+                batchdata = new BatchModel();
+                List<HostModel> hostModelList = GreenDaoSupport.getHostModelOBJList(context);
                 for (int i = 0; i < hostModelList.size(); i++) {
                     hostModel = hostModelList.get(i);
+
                     if (!(hostModel == null || hostModel.equals(""))) {
                         if (hostModel.getHDT_HOST_ENABLED().equalsIgnoreCase("1")) {
 
@@ -96,17 +108,18 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                             {
                                 BatchPresent =1;
                             }
-                payService.vdUpdateSystemBatch(TecnicianMenuActivity.this);
+                payService.vdUpdateSystemBatch(context);
                     }
                 }
-            }
+              }
+
                 daoSession.getBatchModelDao().deleteAll();
                 KeyValueDB.removeReversal(context);
                 KeyValueDB.removeUpload(context);
                 //ALL BATCH DELETED
 
-                Toast.makeText(TecnicianMenuActivity.this, "ALL HOST DELETED", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(TecnicianMenuActivity.this, ViewPagerActivity.class));
+                Toast.makeText(context, "ALL HOST DELETED", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(context, HomePagerActivity.class));
 
                 break;
 
@@ -115,7 +128,7 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 break;
 
             case R.id.mmsdownloaditem:
-                startActivity(new Intent(TecnicianMenuActivity.this, AdminActivity.class));
+                startActivity(new Intent(context, AdminActivity.class));
                 break;
 
             case R.id.secureeditoritem:
@@ -126,16 +139,17 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
 
             case R.id.loaddefaultitem:
                 Log.i(TAG, "DELETE ALL THE CONTENT FROM  THE FILE");
-                GreenDaoSupport.deleteAllTablesData(TecnicianMenuActivity.this);
+                GreenDaoSupport.deleteAllTablesData(context);
 
-                PasswordModel pwdModel = new PasswordModel();
-                CardBinModel cbinModel = new CardBinModel();
-                CardTypeModel cttModel = new CardTypeModel();
-                CommsModel comModel = new CommsModel();
-                CurrencyModel currModel = new CurrencyModel();
-                MerchantModel merchantModel = new MerchantModel();
-                AlipayModel barcodeModel = new AlipayModel();
-                TraceModel traceNumber = new TraceModel();
+                 pwdModel = new PasswordModel();
+                 cbinModel = new CardBinModel();
+                 cttModel = new CardTypeModel();
+                 comModel = new CommsModel();
+                 currModel = new CurrencyModel();
+                 merchantModel = new MerchantModel();
+                 barcodeModel = new AlipayModel();
+                 traceNumber = new TraceModel();
+                 hostModel = new HostModel();
                 //Trace number
                 traceNumber.setSYSTEM_TRACE("000001");
                 //Password Values
@@ -241,7 +255,7 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
 	            daoSession.getMerchantModelDao().insert(merchantModel);
 	            daoSession.getTraceModelDao().insert(traceNumber);
 
-                Toast.makeText(TecnicianMenuActivity.this,"LOADED DEFAULT SETTINGS",Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,"LOADED DEFAULT SETTINGS",Toast.LENGTH_SHORT).show();
                 this.finish();
                 break;
         }
@@ -249,7 +263,7 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(TecnicianMenuActivity.this, ViewPagerActivity.class);
+        Intent intent = new Intent(context, HomePagerActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         this.finish();    }

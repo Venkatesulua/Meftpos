@@ -39,7 +39,7 @@ public class PaymentFailure extends AppCompatActivity {
         mRunnable = new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(PaymentFailure.this, ViewPagerActivity.class);
+                Intent intent = new Intent(PaymentFailure.this, HomePagerActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }
