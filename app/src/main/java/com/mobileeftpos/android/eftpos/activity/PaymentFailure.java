@@ -3,12 +3,8 @@ package com.mobileeftpos.android.eftpos.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 
 import com.mobileeftpos.android.eftpos.R;
@@ -43,7 +39,7 @@ public class PaymentFailure extends AppCompatActivity {
         mRunnable = new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(PaymentFailure.this, HomeActivity.class);
+                Intent intent = new Intent(PaymentFailure.this, HomePagerActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }

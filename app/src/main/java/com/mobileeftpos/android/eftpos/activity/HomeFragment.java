@@ -30,12 +30,12 @@ import java.util.Date;
 import java.util.List;
 
 
-public class OneFragment extends Fragment  {
+public class HomeFragment extends Fragment  {
 
      private ArrayList<String>homeListData;
     private GridView gridLayout;
     private DaoSession daoSession;
-    public OneFragment() {
+    public HomeFragment() {
         // Required empty public constructor
     }
 
@@ -139,22 +139,22 @@ public class OneFragment extends Fragment  {
 
             case MenuConstants.SALE:
                 //byte[] cc = bb.getBytes();
-                startActivity(new Intent(HomeActivity.context, SaleActivity.class));
+                startActivity(new Intent(HomePagerActivity.context, SaleActivity.class));
                 break;
 
             case MenuConstants.SETTLEMENT:
                 TransactionDetails.trxType = Constants.TransType.INIT_SETTLEMENT;
-                startActivity(new Intent(HomeActivity.context, SettlementFlow.class));
+                startActivity(new Intent(HomePagerActivity.context, SettlementFlow.class));
                 break;
 
             case MenuConstants.VOID:
                 TransactionDetails.trxType = Constants.TransType.VOID;
-                startActivity(new Intent(HomeActivity.context, VoidFlow.class));
+                startActivity(new Intent(HomePagerActivity.context, VoidFlow.class));
                 break;
 
             case MenuConstants.REFUND:
                 TransactionDetails.trxType = Constants.TransType.ALIPAY_REFUND;
-                startActivity(new Intent(HomeActivity.context, RefundFlow.class));
+                startActivity(new Intent(HomePagerActivity.context, RefundFlow.class));
                 break;
             case MenuConstants.PREAUTH:
                 break;
@@ -173,12 +173,12 @@ public class OneFragment extends Fragment  {
 
             case MenuConstants.CEPAS_SALE:
                 TransactionDetails.trxType = Constants.TransType.EZLINK_SALE;
-                startActivity(new Intent(HomeActivity.context, SaleActivity.class));
+                startActivity(new Intent(HomePagerActivity.context, SaleActivity.class));
                 break;
 
             case MenuConstants.ALIPAY_SALE:
                 TransactionDetails.trxType = Constants.TransType.ALIPAY_SALE;
-                startActivity(new Intent(HomeActivity.context, SaleActivity.class));
+                startActivity(new Intent(HomePagerActivity.context, SaleActivity.class));
                 break;
 
 

@@ -45,6 +45,7 @@ import com.mobileeftpos.android.eftpos.db.UtilityModelDao;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -88,33 +89,51 @@ public static DaoSession daosession;
 		}
 		HostModelDao hostModelDao =daosession.getHostModelDao();
 		HostModel hostModel=new HostModel();
-		hostModel=hostModelDao.loadAll().get(0);
-
+        if(hostModelDao.loadAll().size()>0) {
+            hostModel = hostModelDao.loadAll().get(0);
+        }
 		return hostModel;
 	}
 
-	public static HostModel getHostTableModelOBJ(Activity context, String hostId){
+
+    public static HostModel getHostTableIDBasedModelOBJ(Activity context, String hostId){
+        if(daosession == null){
+            getInstance(context);
+        }
+        HostModel hostModel =new HostModel();
+        QueryBuilder<HostModel> qb = daosession.getHostModelDao().queryBuilder();
+        qb.where(HostModelDao.Properties.HDT_HOST_ID.eq(hostId));
+        if (qb.list().size() > 0) {
+            hostModel= qb.list().get(0);
+        }
+         return hostModel;
+    }
+
+	public static EzlinkModel getEzlinkTableModelOBJ(Activity context){
 		if(daosession == null){
 			getInstance(context);
 		}
-		HostModel hostModel =new HostModel();
-		QueryBuilder<HostModel> qb = daosession.getHostModelDao().queryBuilder();
-		qb.where(HostModelDao.Properties.HDT_HOST_ID.eq(hostId));
-		if (qb.list().size() > 0) {
-			hostModel= qb.list().get(0);
-		}
-		return hostModel;
+		EzlinkModelDao ezlinkModelDao =daosession.getEzlinkModelDao();
+		EzlinkModel ezlinkModel=new EzlinkModel();
+        if(ezlinkModelDao.loadAll().size()>0) {
+            ezlinkModel = ezlinkModelDao.loadAll().get(0);
+        }
+		return ezlinkModel;
 	}
 
-	public static EzlinkModel getEzlinkTableModelOBJ(Activity context){
-			if(daosession == null){
-				getInstance(context);
-			}
-			EzlinkModelDao ezlinkModelDao =daosession.getEzlinkModelDao();
-			EzlinkModel ezlinkModel=new EzlinkModel();
-			ezlinkModel=ezlinkModelDao.loadAll().get(0);
-			return ezlinkModel;
+	public static EzlinkModel getEzlinkTableIDBasedModelOBJ(Activity context, String ezlinkId){
+		if(daosession == null){
+			getInstance(context);
+		}
+		EzlinkModel ezlinkModel =new EzlinkModel();
+		QueryBuilder<EzlinkModel> qb = daosession.getEzlinkModelDao().queryBuilder();
+		qb.where(EzlinkModelDao.Properties.Ezlink_ID.eq(ezlinkId));
+		if (qb.list().size() > 0) {
+			ezlinkModel= qb.list().get(0);
+		}
+		return ezlinkModel;
 	}
+
 
 	public static CurrencyModel getCurrencyTableModelOBJ(Activity context){
 		if(daosession == null){
@@ -122,9 +141,25 @@ public static DaoSession daosession;
 		}
 		CurrencyModelDao currencyModelDao =daosession.getCurrencyModelDao();
 		CurrencyModel curencyModel=new CurrencyModel();
-		curencyModel=currencyModelDao.loadAll().get(0);
+        if(currencyModelDao.loadAll().size()>0) {
+            curencyModel = currencyModelDao.loadAll().get(0);
+        }
 		return curencyModel;
 	}
+
+	public static CurrencyModel getCurrencyTableIDBasedModelOBJ(Activity context, String currencyId){
+		if(daosession == null){
+			getInstance(context);
+		}
+		CurrencyModel currencyModel =new CurrencyModel();
+		QueryBuilder<CurrencyModel> qb = daosession.getCurrencyModelDao().queryBuilder();
+		qb.where(CurrencyModelDao.Properties.CURRENCY_ID.eq(currencyId));
+		if (qb.list().size() > 0) {
+			currencyModel= qb.list().get(0);
+		}
+		return currencyModel;
+	}
+
 
 	public static CardBinModel getCardBinModellOBJ(Activity context){
 		if(daosession == null){
@@ -132,7 +167,22 @@ public static DaoSession daosession;
 		}
 		CardBinModelDao cardBinModelDao =daosession.getCardBinModelDao();
 		CardBinModel cardBinModel=new CardBinModel();
-		cardBinModel=cardBinModelDao.loadAll().get(0);
+        if(cardBinModelDao.loadAll().size()>0) {
+            cardBinModel = cardBinModelDao.loadAll().get(0);
+        }
+		return cardBinModel;
+	}
+
+	public static CardBinModel getCardBinTableIDBasedModelOBJ(Activity context, String cardBinId){
+		if(daosession == null){
+			getInstance(context);
+		}
+		CardBinModel cardBinModel =new CardBinModel();
+		QueryBuilder<CardBinModel> qb = daosession.getCardBinModelDao().queryBuilder();
+		qb.where(CardBinModelDao.Properties.CDT_ID.eq(cardBinId));
+		if (qb.list().size() > 0) {
+			cardBinModel= qb.list().get(0);
+		}
 		return cardBinModel;
 	}
 
@@ -143,10 +193,24 @@ public static DaoSession daosession;
 		}
 		CardTypeModelDao cardTypeModelDao =daosession.getCardTypeModelDao();
 		CardTypeModel cardTypeModel=new CardTypeModel();
-		cardTypeModel=cardTypeModelDao.loadAll().get(0);
+        if(cardTypeModelDao.loadAll().size()>0) {
+            cardTypeModel = cardTypeModelDao.loadAll().get(0);
+        }
 		return cardTypeModel;
 	}
 
+	public static CardTypeModel getCardTypeIDBasedModelOBJ(Activity context, String cttId){
+		if(daosession == null){
+			getInstance(context);
+		}
+		CardTypeModel cardTypeModel =new CardTypeModel();
+		QueryBuilder<CardTypeModel> qb = daosession.getCardTypeModelDao().queryBuilder();
+		qb.where(CardTypeModelDao.Properties.CTT_ID.eq(cttId));
+		if (qb.list().size() > 0) {
+			cardTypeModel= qb.list().get(0);
+		}
+		return cardTypeModel;
+	}
 
 	public static PasswordModel getPasswordModelOBJ(Activity context){
 		if(daosession == null){
@@ -154,10 +218,24 @@ public static DaoSession daosession;
 		}
 		PasswordModelDao passwordModelDao =daosession.getPasswordModelDao();
 		PasswordModel passwordModel=new PasswordModel();
-		passwordModel=passwordModelDao.loadAll().get(0);
+        if(passwordModelDao.loadAll().size()>0) {
+            passwordModel = passwordModelDao.loadAll().get(0);
+        }
 		return passwordModel;
 	}
 
+	public static PasswordModel getPasswordIDBasedModelOBJ(Activity context, String pwdId){
+		if(daosession == null){
+			getInstance(context);
+		}
+		PasswordModel passwordModel =new PasswordModel();
+		QueryBuilder<PasswordModel> qb = daosession.getPasswordModelDao().queryBuilder();
+		qb.where(PasswordModelDao.Properties.PWD_ID.eq(pwdId));
+		if (qb.list().size() > 0) {
+			passwordModel= qb.list().get(0);
+		}
+		return passwordModel;
+	}
 
 	public static TransactionControlModel getTransactionControlModelOBJ(Activity context){
 		if(daosession == null){
@@ -171,6 +249,18 @@ public static DaoSession daosession;
 		return transactionControlModel;
 	}
 
+	public static TransactionControlModel getTransactionControlModelOBJ(Activity context, String tctId){
+		if(daosession == null){
+			getInstance(context);
+		}
+		TransactionControlModel transactionControlModel =new TransactionControlModel();
+		QueryBuilder<TransactionControlModel> qb = daosession.getTransactionControlModelDao().queryBuilder();
+		qb.where(TransactionControlModelDao.Properties.TCT_ID.eq(tctId));
+		if (qb.list().size() > 0) {
+			transactionControlModel= qb.list().get(0);
+		}
+		return transactionControlModel;
+	}
 
 	public static EthernetModel getEthernetModelOBJ(Activity context){
 		if(daosession == null){
@@ -184,29 +274,69 @@ public static DaoSession daosession;
 		return ethernetModel;
 	}
 
+	public static EthernetModel getEthernetModelOBJ(Activity context, String EthernetID){
+		if(daosession == null){
+			getInstance(context);
+		}
+		EthernetModel ethernetModel =new EthernetModel();
+		QueryBuilder<EthernetModel> qb = daosession.getEthernetModelDao().queryBuilder();
+		qb.where(EthernetModelDao.Properties.ETHERNET_ID.eq(EthernetID));
+		if (qb.list().size() > 0) {
+			ethernetModel= qb.list().get(0);
+		}
+		return ethernetModel;
+	}
 
-	public static LimitModel getLimitModelOBJ(Activity context){
+	public static LimitModel getLimitTableModelOBJ(Activity context){
 		if(daosession == null){
 			getInstance(context);
 		}
 		LimitModelDao limitModelDao =daosession.getLimitModelDao();
 		LimitModel limitModel=new LimitModel();
-		limitModel=limitModelDao.loadAll().get(0);
+        if(limitModelDao.loadAll().size()>0) {
+            limitModel = limitModelDao.loadAll().get(0);
+        }
+		return limitModel;
+	}
+
+	public static LimitModel getLimitTableIdBasedModelOBJ(Activity context, String limitId){
+		if(daosession == null){
+			getInstance(context);
+		}
+		LimitModel limitModel =new LimitModel();
+		QueryBuilder<LimitModel> qb = daosession.getLimitModelDao().queryBuilder();
+		qb.where(LimitModelDao.Properties.LIMIT_ID.eq(limitId));
+		if (qb.list().size() > 0) {
+			limitModel= qb.list().get(0);
+		}
 		return limitModel;
 	}
 
 
-
-	public static MaskingModel getMaskingModelOBJ(Activity context){
+	public static MaskingModel getMaskingTableModelOBJ(Activity context){
 		if(daosession == null){
 			getInstance(context);
 		}
 		MaskingModelDao maskingModelDao =daosession.getMaskingModelDao();
 		MaskingModel maskingModel=new MaskingModel();
-		maskingModel=maskingModelDao.loadAll().get(0);
+        if(maskingModelDao.loadAll().size()>0) {
+            maskingModel = maskingModelDao.loadAll().get(0);
+        }
 		return maskingModel;
 	}
 
+	public static MaskingModel getMaskingTableIdBasedModelOBJ(Activity context, String maskingId){
+		if(daosession == null){
+			getInstance(context);
+		}
+		MaskingModel maskingModel =new MaskingModel();
+		QueryBuilder<MaskingModel> qb = daosession.getMaskingModelDao().queryBuilder();
+		qb.where(MaskingModelDao.Properties.MASKING_ID.eq(maskingId));
+		if (qb.list().size() > 0) {
+            maskingModel= qb.list().get(0);
+		}
+		return maskingModel;
+	}
 
 	public static ReceiptModel getReceiptModelOBJ(Activity context){
 		if(daosession == null){
@@ -214,10 +344,24 @@ public static DaoSession daosession;
 		}
 		ReceiptModelDao receiptModelDao =daosession.getReceiptModelDao();
 		ReceiptModel receiptModel=new ReceiptModel();
-		receiptModel=receiptModelDao.loadAll().get(0);
+        if(receiptModelDao.loadAll().size()>0) {
+            receiptModel = receiptModelDao.loadAll().get(0);
+        }
 		return receiptModel;
 	}
 
+    public static ReceiptModel getReceiptTableIdBasedModelOBJ(Activity context, String receiptId){
+        if(daosession == null){
+            getInstance(context);
+        }
+        ReceiptModel receiptModel =new ReceiptModel();
+        QueryBuilder<ReceiptModel> qb = daosession.getReceiptModelDao().queryBuilder();
+        qb.where(MaskingModelDao.Properties.MASKING_ID.eq(receiptId));
+        if (qb.list().size() > 0) {
+            receiptModel= qb.list().get(0);
+        }
+        return receiptModel;
+    }
 
 	public static UtilityModel getUtilityModelOBJ(Activity context){
 		if(daosession == null){
@@ -225,10 +369,25 @@ public static DaoSession daosession;
 		}
 		UtilityModelDao utilityModelDao =daosession.getUtilityModelDao();
 		UtilityModel utilityModel=new UtilityModel();
-		utilityModel=utilityModelDao.loadAll().get(0);
+        if(utilityModelDao.loadAll().size()>0){
+            utilityModel=utilityModelDao.loadAll().get(0);
+
+        }
 		return utilityModel;
 	}
 
+    public static UtilityModel getUtilityTableIdBasedModelOBJ(Activity context, String UtilityId){
+        if(daosession == null){
+            getInstance(context);
+        }
+        UtilityModel utilityModel =new UtilityModel();
+        QueryBuilder<UtilityModel> qb = daosession.getUtilityModelDao().queryBuilder();
+        qb.where(UtilityModelDao.Properties.UTILITY_ID.eq(UtilityId));
+        if (qb.list().size() > 0) {
+            utilityModel= qb.list().get(0);
+        }
+        return utilityModel;
+    }
 
 	public static MerchantModel getMerchantModelOBJ(Activity context){
 		if(daosession == null){
@@ -236,11 +395,24 @@ public static DaoSession daosession;
 		}
 		MerchantModelDao merchantModelDao =daosession.getMerchantModelDao();
 		MerchantModel merchantModel=new MerchantModel();
-		merchantModel=merchantModelDao.loadAll().get(0);
+        if(merchantModelDao.loadAll().size()>0) {
+            merchantModel = merchantModelDao.loadAll().get(0);
+        }
 		return merchantModel;
 	}
 
-
+    public static MerchantModel getMerchantTableIdBasedModelOBJ(Activity context, String merchantId){
+        if(daosession == null){
+            getInstance(context);
+        }
+        MerchantModel merchantModel =new MerchantModel();
+        QueryBuilder<MerchantModel> qb = daosession.getMerchantModelDao().queryBuilder();
+        qb.where(MerchantModelDao.Properties.MERCHANT_ID.eq(merchantId));
+        if (qb.list().size() > 0) {
+            merchantModel= qb.list().get(0);
+        }
+        return merchantModel;
+    }
 
 	public static ReportModel getReportModelOBJ(Activity context){
 		if(daosession == null){
@@ -248,9 +420,24 @@ public static DaoSession daosession;
 		}
 		ReportModelDao reportModelDao =daosession.getReportModelDao();
 		ReportModel reportModel=new ReportModel();
-		reportModel=reportModelDao.loadAll().get(0);
+        if(reportModelDao.loadAll().size()>0) {
+            reportModel = reportModelDao.loadAll().get(0);
+        }
 		return reportModel;
 	}
+
+    public static ReportModel getReportTableIdBasedModelOBJ(Activity context, String reportId){
+        if(daosession == null){
+            getInstance(context);
+        }
+        ReportModel reportModel =new ReportModel();
+        QueryBuilder<ReportModel> qb = daosession.getReportModelDao().queryBuilder();
+        qb.where(ReportModelDao.Properties.REPORTTABLE_ID.eq(reportId));
+        if (qb.list().size() > 0) {
+            reportModel= qb.list().get(0);
+        }
+        return reportModel;
+    }
 
 
 	public static TraceModel getTraceModelOBJ(Activity context){
@@ -259,9 +446,24 @@ public static DaoSession daosession;
 		}
 		TraceModelDao traceModelDao =daosession.getTraceModelDao();
 		TraceModel traceModel=new TraceModel();
-		traceModel=traceModelDao.loadAll().get(0);
+        if(traceModelDao.loadAll().size()>0) {
+            traceModel = traceModelDao.loadAll().get(0);
+        }
 		return traceModel;
 	}
+
+    public static TraceModel getTraceTableIdBasedModelOBJ(Activity context, String reportId){
+        if(daosession == null){
+            getInstance(context);
+        }
+        TraceModel traceModel =new TraceModel();
+        QueryBuilder<TraceModel> qb = daosession.getTraceModelDao().queryBuilder();
+        qb.where(ReportModelDao.Properties.REPORTTABLE_ID.eq(reportId));
+        if (qb.list().size() > 0) {
+            traceModel= qb.list().get(0);
+        }
+        return traceModel;
+    }
 
 	public static BatchModel getBatchModelOBJ(Activity context){
 		if(daosession == null){
@@ -269,10 +471,24 @@ public static DaoSession daosession;
 		}
 		BatchModelDao batchModelDao =daosession.getBatchModelDao();
 		BatchModel batchModel=new BatchModel();
-		batchModel=batchModelDao.loadAll().get(0);
+        if(batchModelDao.loadAll().size()>0) {
+            batchModel = batchModelDao.loadAll().get(0);
+        }
 		return batchModel;
 	}
 
+    public static BatchModel getBatchTableIdBasedModelOBJ(Activity context, String batchId){
+        if(daosession == null){
+            getInstance(context);
+        }
+        BatchModel batchModel =new BatchModel();
+        QueryBuilder<BatchModel> qb = daosession.getBatchModelDao().queryBuilder();
+        qb.where(BatchModelDao.Properties.BATCH_ID.eq(batchId));
+        if (qb.list().size() > 0) {
+            batchModel= qb.list().get(0);
+        }
+        return batchModel;
+    }
 
 
 	public static HTTModel getHTTModelOBJ(Activity context){
@@ -281,9 +497,25 @@ public static DaoSession daosession;
 		}
 		HTTModelDao hTTModelDao =daosession.getHTTModelDao();
 		HTTModel reportModel=new HTTModel();
-		reportModel=hTTModelDao.loadAll().get(0);
+        if(hTTModelDao.loadAll().size()>0) {
+            reportModel = hTTModelDao.loadAll().get(0);
+        }
 		return reportModel;
 	}
+
+
+    public static HTTModel getHTTTableIdBasedModelOBJ(Activity context, String httId){
+        if(daosession == null){
+            getInstance(context);
+        }
+        HTTModel httModel =new HTTModel();
+        QueryBuilder<HTTModel> qb = daosession.getHTTModelDao().queryBuilder();
+        qb.where(HTTModelDao.Properties.HTT_ID.eq(httId));
+        if (qb.list().size() > 0) {
+            httModel= qb.list().get(0);
+        }
+        return httModel;
+    }
 
 
 	public static AlipayModel getAlipayModelOBJ(Activity context){
@@ -292,55 +524,65 @@ public static DaoSession daosession;
 		}
 		AlipayModelDao alipayModelDao =daosession.getAlipayModelDao();
 		AlipayModel alipayModel=new AlipayModel();
-		alipayModel=alipayModelDao.loadAll().get(0);
+        if(alipayModelDao.loadAll().size()>0) {
+            alipayModel = alipayModelDao.loadAll().get(0);
+        }
 		return alipayModel;
 	}
 
-	public static CommsModel getCommsModelOBJ(Activity context){
-		if(daosession == null){
-			getInstance(context);
-		}
-		CommsModelDao commsModelDao =daosession.getCommsModelDao();
-		CommsModel batchModel=new CommsModel();
-		batchModel=commsModelDao.loadAll().get(0);
-		return batchModel;
-	}
 
-	public static List<BatchModel> getBatchModelOBJList(Activity context, String hostId){
-		if(daosession == null){
-			getInstance(context);
-		}
-		BatchModelDao batchModelDao =daosession.getBatchModelDao();
-		BatchModel batchModel=new BatchModel();
-		QueryBuilder<BatchModel> qb = batchModelDao.queryBuilder();
-		qb.where(BatchModelDao.Properties.Hdt_index.eq(hostId));
-		List<BatchModel> batchModelList = qb.list();
-		return batchModelList;
-	}
-
-	public static CurrencyModel getCurrencyModelOBJList(Activity context, String hostId){
-		if(daosession == null){
-			getInstance(context);
-		}
-		CurrencyModelDao currencyModelDao =daosession.getCurrencyModelDao();
-		CurrencyModel currencyModel=new CurrencyModel();
-		QueryBuilder<CurrencyModel> qb = currencyModelDao.queryBuilder();
-		qb.where(BatchModelDao.Properties.Hdt_index.eq(hostId));
- 		return qb.list().get(0);
-	}
+    public static AlipayModel getAlipayTableIdBasedModelOBJ(Activity context, String httId){
+        if(daosession == null){
+            getInstance(context);
+        }
+        AlipayModel alipayModel =new AlipayModel();
+        QueryBuilder<AlipayModel> qb = daosession.getAlipayModelDao().queryBuilder();
+        qb.where(AlipayModelDao.Properties.ALIPAY_ID.eq(httId));
+        if (qb.list().size() > 0) {
+            alipayModel= qb.list().get(0);
+        }
+        return alipayModel;
+    }
 
 
-	public static CommsModel getCommsModelObj(Activity context, String hostId){
+    public static CommsModel getCommsModelOBJ(Activity context){
 		if(daosession == null){
 			getInstance(context);
 		}
 		CommsModelDao commsModelDao =daosession.getCommsModelDao();
 		CommsModel commsModel=new CommsModel();
-		QueryBuilder<CommsModel> qb = commsModelDao.queryBuilder();
-		qb.where(BatchModelDao.Properties.Hdt_index.eq(hostId));
-		return qb.list().get(0);
+        if(commsModelDao.loadAll().size()>0){
+            commsModel=commsModelDao.loadAll().get(0);
+        }
+		return commsModel;
 	}
 
+    public static CommsModel getCommsTableIdBasedModelOBJ(Activity context, String commosId){
+        if(daosession == null){
+            getInstance(context);
+        }
+        CommsModel commsModel =new CommsModel();
+        QueryBuilder<CommsModel> qb = daosession.getCommsModelDao().queryBuilder();
+        qb.where(CommsModelDao.Properties.COMMOS_ID.eq(commosId));
+        if (qb.list().size() > 0) {
+            commsModel= qb.list().get(0);
+        }
+        return commsModel;
+    }
+
+	public static List<BatchModel> getBatchModelOBJList(Activity context, String hostId){
+		 List<BatchModel> batchModelList = new ArrayList<>();
+		if(daosession == null){
+			getInstance(context);
+		}
+ 		QueryBuilder<BatchModel> qb = daosession.getBatchModelDao().queryBuilder();
+		qb.where(BatchModelDao.Properties.Hdt_index.eq(hostId));
+		if(qb.list().size()>0){
+
+			 batchModelList = qb.list();
+		}
+		return batchModelList;
+	}
 
 	public static List<HostModel> getHostModelOBJList(Activity context){
 		if(daosession == null){

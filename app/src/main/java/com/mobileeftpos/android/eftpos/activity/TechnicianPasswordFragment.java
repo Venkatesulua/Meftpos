@@ -22,12 +22,12 @@ import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 /**
  * Created by Prathap on 4/26/17.
  */
-public class ThirdFragment extends Fragment {
+public class TechnicianPasswordFragment extends Fragment {
 
     EditText alertinputField;
      ImageView closeBtn;
 
-    public ThirdFragment() {
+    public TechnicianPasswordFragment() {
         // Required empty public constructor
     }
 

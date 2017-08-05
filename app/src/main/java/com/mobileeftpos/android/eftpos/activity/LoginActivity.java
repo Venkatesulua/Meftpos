@@ -1,9 +1,7 @@
 package com.mobileeftpos.android.eftpos.activity;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,21 +10,16 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.mobileeftpos.android.eftpos.R;
-import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
-import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
 
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 
 import static com.mobileeftpos.android.eftpos.R.id.btn_create_an_account;
 import static com.mobileeftpos.android.eftpos.R.id.btn_submit;
@@ -123,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
                 TransactionDetails.deviceId = deviceUuid.toString();
                 Log.i(TAG,"TransactionDetails.deviceId::"+TransactionDetails.deviceId);*/
 
-                Intent i = new Intent(LoginActivity.this, HomeActivity.class);
+                Intent i = new Intent(LoginActivity.this, HomePagerActivity.class);
                 startActivity(i);
                 overridePendingTransition(R.anim.right_enter, R.anim.left_out);
                 SharedPreferenceStore

@@ -55,7 +55,7 @@ public class ScannerActivity extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFrag(new FullScannerFragment(),"QR or BAR Code");
-        adapter.addFrag(new FouthFragment(), "Enter Manually");
+        adapter.addFrag(new SettingsFragment(), "Enter Manually");
         viewPager.setAdapter(adapter);
     }
 
