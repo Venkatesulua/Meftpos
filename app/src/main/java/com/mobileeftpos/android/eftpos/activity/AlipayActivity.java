@@ -59,14 +59,14 @@ import rx.schedulers.Schedulers;
 
 public class AlipayActivity extends AppCompatActivity {
 
-    public AGetCard getCard;
-    public BValidateCard validateCard;
-    public CCheckReversal checkReversal;
-    public DCheckUpload checkUpload;
-    public EHostConnectivity hostConnectivity;
-    public FSaveRecord saveRecord;
-    public GPrintReceipt gprintReceipt;
-    public HAfterTransaction afterTranscation;
+    public AGetCard getCard = new AGetCard(AlipayActivity.this);
+    public BValidateCard validateCard = new BValidateCard(AlipayActivity.this);
+    public CCheckReversal checkReversal = new CCheckReversal(AlipayActivity.this);
+    public DCheckUpload checkUpload = new DCheckUpload(AlipayActivity.this);
+    public EHostConnectivity hostConnectivity = new EHostConnectivity(AlipayActivity.this);
+    public FSaveRecord saveRecord = new FSaveRecord(AlipayActivity.this);
+    public GPrintReceipt gprintReceipt = new GPrintReceipt(AlipayActivity.this);
+    public HAfterTransaction afterTranscation = new HAfterTransaction(AlipayActivity.this);
 
     public static Context context;
     public static String barCodeValue=null;

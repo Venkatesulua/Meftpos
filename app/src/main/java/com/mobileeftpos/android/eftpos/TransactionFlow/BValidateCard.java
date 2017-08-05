@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.CardBinModel;
 import com.mobileeftpos.android.eftpos.db.CardBinModelDao;
 import com.mobileeftpos.android.eftpos.db.CardTypeModel;
@@ -21,9 +22,12 @@ import java.util.List;
 
 public class BValidateCard extends AGetCard {
 
+    Activity locontext;
     public BValidateCard(Activity context){
 
+
         super (context);
+        locontext= context;
     }
     int inGNoOfValidHosts=0;
 
@@ -57,7 +61,7 @@ public class BValidateCard extends AGetCard {
 
             //CardBinModel cardBinModel = new CardBinModel();
             List<CardBinModel> cardBinModelList = cardBinModelDao.loadAll();
-            cardBinModel=cardBinModelList.get(0);
+            cardBinModel=cardBinModelList.get(i);
             Log.i(TAG,"TransDetails::LLow Value:"+cardBinModel.getCDT_LO_RANGE());
             Log.i(TAG,"TransDetails::High Value:"+cardBinModel.getCDT_HI_RANGE());
             Log.i(TAG,"TransDetails::PAN:"+TransactionDetails.PAN);
@@ -136,8 +140,10 @@ public class BValidateCard extends AGetCard {
 
 
             int inlocalHdtIndex = Integer.parseInt(localHdtIndex);
-           // HostModel hostdata =daoSession.getHostModelDao().loadAll().get(0);
-            // hostdata = databaseObj.getHostTableData(inlocalHdtIndex);
+            //hostModel= hostModelDao.getHostTableModelOBJ();loadAll().get(inlocalHdtIndex);
+            hostModel = GreenDaoSupport.getHostTableModelOBJ(locontext,localHdtIndex);
+            //HostModel hostdata =daoSession.getHostModelDao().loadAll().get(0);
+             //hostdata = databaseObj.getHostTableData(inlocalHdtIndex);
             if(!hostModel.getHDT_HOST_ENABLED().equals("1"))
             {
                 Log.i(TAG,"TransDetails::Continue...");
@@ -280,6 +286,7 @@ public class BValidateCard extends AGetCard {
 
         //Calculate how many host(valid & invalid) are there.
         //List down all valid and invalid host
+
         CHReferenceSize = CDT_HDT_REFERENCEVal.length();
         for (i = 0; i < CHReferenceSize; i += 2) {
 
@@ -303,7 +310,6 @@ public class BValidateCard extends AGetCard {
 
 
 
-
         //early exit
         if(inTotalValidInvalidHosts == 0){
             TransactionDetails.responseMessge = "Case 407";
@@ -316,8 +322,9 @@ public class BValidateCard extends AGetCard {
         {
             localHDTIndex= Integer.parseInt(ui8ListOfValinInvalidHosts[i]);
             //List<HostModel> hostdatalist =hostModelDao.loadAll();
-            hostModel=hostModelDao.loadAll().get(0);
-            hostModel = hostModelDao.loadAll().get(localHDTIndex);
+            //hostModel=hostModelDao.loadAll().get(0);
+            //hostModel = hostModelDao.loadAll().get(localHDTIndex);
+            hostModel = GreenDaoSupport.getHostTableModelOBJ(locontext,ui8ListOfValinInvalidHosts[i]);
             //Open HDT file and read structure
             //if(inGetHDTConfig(GET,localHDTIndex, (HDT_STRUCT*)&localHDTStruct)==FALSE)
             if(hostModel == null)

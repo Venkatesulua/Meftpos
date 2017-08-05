@@ -159,7 +159,7 @@ public class TransactionDetails {
 
             CardBinModel cardbinModeldata = new CardBinModel();
             List<CardBinModel> cardbinModeldataList = cardBinModelDao.loadAll();
-            cardbinModeldata=cardbinModeldataList.get(0);
+            cardbinModeldata=cardbinModeldataList.get(i);
             Log.i(TAG,"TransDetails::LLow Value:"+cardbinModeldata.getCDT_LO_RANGE());
             Log.i(TAG,"TransDetails::High Value:"+cardbinModeldata.getCDT_HI_RANGE());
             Log.i(TAG,"TransDetails::PAN:"+TransactionDetails.PAN);

@@ -93,14 +93,27 @@ public static DaoSession daosession;
 		return hostModel;
 	}
 
-	public static EzlinkModel getEzlinkTableModelOBJ(Activity context){
+	public static HostModel getHostTableModelOBJ(Activity context, String hostId){
 		if(daosession == null){
 			getInstance(context);
 		}
-		EzlinkModelDao ezlinkModelDao =daosession.getEzlinkModelDao();
-		EzlinkModel ezlinkModel=new EzlinkModel();
-		ezlinkModel=ezlinkModelDao.loadAll().get(0);
-		return ezlinkModel;
+		HostModel hostModel =new HostModel();
+		QueryBuilder<HostModel> qb = daosession.getHostModelDao().queryBuilder();
+		qb.where(HostModelDao.Properties.HDT_HOST_ID.eq(hostId));
+		if (qb.list().size() > 0) {
+			hostModel= qb.list().get(0);
+		}
+		return hostModel;
+	}
+
+	public static EzlinkModel getEzlinkTableModelOBJ(Activity context){
+			if(daosession == null){
+				getInstance(context);
+			}
+			EzlinkModelDao ezlinkModelDao =daosession.getEzlinkModelDao();
+			EzlinkModel ezlinkModel=new EzlinkModel();
+			ezlinkModel=ezlinkModelDao.loadAll().get(0);
+			return ezlinkModel;
 	}
 
 	public static CurrencyModel getCurrencyTableModelOBJ(Activity context){

@@ -76,6 +76,7 @@ public class AGetCard {
     public TraceModel traceModel = new TraceModel();
     public TransactionControlModel transactionControlModel = new TransactionControlModel();
     public UtilityModel utilityModel = new UtilityModel();
+
     private  DaoSession daoSession;
 
     public HostModelDao hostModelDao;
@@ -97,6 +98,7 @@ public class AGetCard {
     public UtilityModelDao utilityModelDao ;
     public TraceModelDao traceModelDao;
     public PasswordModelDao pwdModelDao;
+
 
     public PacketCreation isoPacket = new PacketCreation();
     public RemoteHost remoteHost = new RemoteHost();
@@ -132,7 +134,7 @@ public class AGetCard {
         pwdModelDao= daoSession.getPasswordModelDao();
 
         merchantModel = GreenDaoSupport.getMerchantModelOBJ(context);
-        ethernetModel = ethernetModelDao.loadAll().get(0);
+        ethernetModel = GreenDaoSupport.getEthernetModelOBJ(context);
         ezlinkModel = ezlinkModelDao.loadAll().get(0);
         httModel = hostTransModelDao.loadAll().get(0);
         limitModel = limitModelDao.loadAll().get(0);
