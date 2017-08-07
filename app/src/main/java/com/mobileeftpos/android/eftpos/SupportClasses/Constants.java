@@ -58,6 +58,7 @@ public class Constants {
 		public static final int BLACKLIST_FIRST_DOWNLOAD = 13;
 		public static final int BLACKLIST_SUBSEQUENT_DOWNLOAD = 14;
 		public static final int EZLINK_SALE = 15;
+		public static final int EZ_iWallet = 16;
 
 	}
 

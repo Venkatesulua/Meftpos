@@ -98,6 +98,9 @@
             android:name=".activity.AlipayCheckPrompt"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activity.EziWalletActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
             tools:replace="screenOrientation" />

@@ -15,6 +15,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.mobileeftpos.android.eftpos.utils.AppUtil;
 
 import org.json.JSONObject;
 
@@ -193,11 +194,10 @@ public abstract class ServiceCall {
         }
     }
 
-    public void makeJsonObjPOSTReq(String url, JSONObject jsonObject, final String VGROWKEY) {
+    public void makeJsonObjPOSTReq(String url, JSONObject jsonObject) {
 
         {
             Log.e(TAG, "URL IS: " + url);
-
             showProgressDialog();
             JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
                     url, jsonObject,
@@ -222,13 +222,11 @@ public abstract class ServiceCall {
                 /**
                  * Passing some request headers
                  */
-                @Override
+               /* @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("VGROWKEY", VGROWKEY);
-
                     return headers;
-                }
+                }*/
             };
             RequestQueue requestQueue = Volley.newRequestQueue(mContext);
             requestQueue.add(jsonObjReq);

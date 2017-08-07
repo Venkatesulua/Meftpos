@@ -17,6 +17,7 @@ public class MenuConstants {
     public static final String EZLINK_TOPUP="EZLINK TOPUP";
     public static final String CEPAS_SALE="CEPAS SALE";
     public static final String ALIPAY_SALE="ALIPAY SALE";
+    public static final String EZ_iWallet="EZ-iWallet";
 
 
 

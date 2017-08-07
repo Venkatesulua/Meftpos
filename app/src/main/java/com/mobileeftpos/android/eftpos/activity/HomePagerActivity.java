@@ -104,7 +104,7 @@ public class HomePagerActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new HomeFragment(),"");
+        adapter.addFrag(new TransactionMenuFragment(),"");
         adapter.addFrag(new ReceiptMenuFragment(), "");
         adapter.addFrag(new TechnicianPasswordFragment(), "");
         adapter.addFrag(new SettingsFragment(), "");
