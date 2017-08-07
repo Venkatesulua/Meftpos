@@ -102,6 +102,7 @@ public class FSaveRecord extends EHostConnectivity {
             //databaseObj.
             GreenDaoSupport.insertBatchModelOBJ(locontext, batchModel);//.insertBatchData(batchModel);
 
+
         return batchModel;
     }
 

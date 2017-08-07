@@ -26,7 +26,7 @@ public class EHostConnectivity extends CPacketHandling {
             return Constants.ReturnValues.RETURN_SEND_RECV_FAILED;
         }
 
-        if (isoPacket.inProcessPacket(byResponseData,TransactionDetails.inFinalLength) != 0) {
+        if (inProcessPacket(byResponseData,TransactionDetails.inFinalLength) != 0) {
             Log.i(TAG,"AlipayActivity::REversal Receive Failed");
             return Constants.ReturnValues.RETURN_SEND_RECV_FAILED;
         }
@@ -39,15 +39,20 @@ public class EHostConnectivity extends CPacketHandling {
 
     public int inHostConnect()
     {
-        TransactionDetails.inFinalLength = inFCreatePacket(byRequestData, Constants.TransType.ALIPAY_SALE,locontext);
+
+        int inError=-1;
+        byRequestData=null;
+        byRequestData= new byte[1512];
+        TransactionDetails.inFinalLength = inFCreatePacket(byRequestData, TransactionDetails.trxType,locontext);
         String IP_Port = GetCommsModel().getCOM_PRIMARY_IP_PORT();
         int indexOffset = IP_Port.indexOf("|");
         if(TransactionDetails.inFinalLength != 0)
         {
-            inConnectSendRecv(IP_Port.substring(0, indexOffset),IP_Port.substring(indexOffset + 1));
+            inError = inConnectSendRecv(IP_Port.substring(0, indexOffset),IP_Port.substring(indexOffset + 1));
         }
 
-        return Constants.ReturnValues.RETURN_OK;
+
+        return inError;
     }
 
     public int inCheckReversal()
@@ -64,7 +69,7 @@ public class EHostConnectivity extends CPacketHandling {
             TransactionDetails.inFinalLength = TransactionDetails.inFinalLength + (byRequestData[1]);
             TransactionDetails.inFinalLength = TransactionDetails.inFinalLength +2;
 
-            return connectSendRecv.inConnectSendRecv(IP_Port.substring(0, indexOffset),IP_Port.substring(indexOffset + 1));
+            return inConnectSendRecv(IP_Port.substring(0, indexOffset),IP_Port.substring(indexOffset + 1));
         }
         return Constants.ReturnValues.RETURN_OK;
     }
@@ -82,10 +87,40 @@ public class EHostConnectivity extends CPacketHandling {
             TransactionDetails.inFinalLength = byRequestData[0] *256;
             TransactionDetails.inFinalLength = TransactionDetails.inFinalLength + (byRequestData[1]);
             TransactionDetails.inFinalLength = TransactionDetails.inFinalLength +2;
-            return connectSendRecv.inConnectSendRecv(IP_Port.substring(0, indexOffset),IP_Port.substring(indexOffset + 1));
+            return inConnectSendRecv(IP_Port.substring(0, indexOffset),IP_Port.substring(indexOffset + 1));
         }
 
 
+        return Constants.ReturnValues.RETURN_OK;
+    }
+
+    public int inSaveUpload(){
+        TransactionDetails.trxType=Constants.TransType.ALIPAY_UPLOAD;
+        TransactionDetails.inFinalLength = inFCreatePacket(byRequestData, Constants.TransType
+                .ALIPAY_UPLOAD,locontext);
+        String result;
+        result = "";
+        for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
+            result = result + String.format("%02x", byRequestData[k]);
+        }
+        Log.i(TAG,"\nSendings:");
+        Log.i(TAG,result);
+        KeyValueDB.setUpload(locontext,new String(result));
+        return Constants.ReturnValues.RETURN_OK;
+    }
+
+    public int inSaveReversal(){
+        TransactionDetails.trxType=Constants.TransType.ALIPAY_UPLOAD;
+        TransactionDetails.inFinalLength = inFCreatePacket(byRequestData, Constants.TransType
+                .REVERSAL,locontext);
+        String result;
+        result = "";
+        for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
+            result = result + String.format("%02x", byRequestData[k]);
+        }
+        Log.i(TAG,"\nSendings:");
+        Log.i(TAG,result);
+        KeyValueDB.setReversal(locontext,new String(result));
         return Constants.ReturnValues.RETURN_OK;
     }
 }

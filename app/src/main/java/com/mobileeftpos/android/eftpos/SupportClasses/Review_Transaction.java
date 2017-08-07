@@ -11,6 +11,7 @@ import com.mobileeftpos.android.eftpos.db.TransactionControlModel;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by venkat on 6/13/2017.
@@ -36,10 +37,16 @@ public class Review_Transaction {
         {
             return Constants.TRANSCATION_NOT_SUPPORTED;
         }*/
-        batchModeldata = GreenDaoSupport.getBatchModelOBJList(activity,STDisplayTranstype).get(0);//Read Transaction
+        //List<BatchModel> batchData = GreenDaoSupport.getBatchModelOBJList(activity,"23");
+
+        batchModeldata = GreenDaoSupport.getBatchModelbyInvoiceOBJ(activity,STDisplayTranstype);//Read Transaction
+
+
         // details
         //batchModeldata = databaseObj.getBatchDataUsngInvoice(STDisplayTranstype);//Read Transaction details
         if(batchModeldata == null)
+            return null;
+        if(batchModeldata.getInvoice_number() == null)
             return null;
         String StHDT = batchModeldata.getHdt_index();
         if(batchModeldata.getVoided().equals(Integer.toString(Constants.TRUE))){

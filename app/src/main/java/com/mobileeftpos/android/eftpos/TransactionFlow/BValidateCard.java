@@ -260,6 +260,7 @@ public class BValidateCard extends AGetCard {
                 SetCommsModel(GreenDaoSupport.getCommsTableIdBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCOM)));
                 SetCurrencyModel(GreenDaoSupport.getCurrencyTableIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCURR)));
                 LoadAll(locontext);
+                TransactionDetails.InvoiceNumber = traceModel.getSYSTEM_TRACE();
                 //open CTT
                 //if(inGetSetCTTConfig(GET,atoi(chCTTIndex)) == FALSE)
                 //return FALSE;
@@ -392,5 +393,47 @@ public class BValidateCard extends AGetCard {
         return inTotalValidHosts;
 
     }//end of vecGetValidCurrVsHDTList
+
+    public int inSearchHost(String lstHostType) {
+        //findout number of host available
+        HostModel hostModel;
+        List<HostModel> hostModelList = GreenDaoSupport.getHostModelOBJList(locontext);
+        for (int i = 0; i < hostModelList.size(); i++) {
+            hostModel = hostModelList.get(i);
+            if (!(hostModel == null || hostModel.equals(""))) {
+                if (hostModel.getHDT_HOST_ENABLED().equalsIgnoreCase("1")) {
+                    //Dynamically add buttons now with the name of hostModel.getHDT_HOST_LABEL();
+                    if(hostModel.getHDT_HOST_TYPE().equals(lstHostType)){
+                        TransactionDetails.inGHDT = Integer.parseInt(hostModel.getHDT_HOST_ID());
+                        TransactionDetails.inGCOM = Integer.parseInt(hostModel.getHDT_COM_INDEX());
+                        TransactionDetails.inGCURR = Integer.parseInt(hostModel.getHDT_CURR_INDEX());
+
+                        SetHostModel(GreenDaoSupport.getHostTableIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGHDT)));
+                        SetCardBinModel(GreenDaoSupport.getCardBinTableIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCDT)));
+                        SetCardTypeModel(GreenDaoSupport.getCardTypeIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCTT)));
+                        SetCommsModel(GreenDaoSupport.getCommsTableIdBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCOM)));
+                        SetCurrencyModel(GreenDaoSupport.getCurrencyTableIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCURR)));
+                        LoadAll(locontext);
+                        TransactionDetails.InvoiceNumber = traceModel.getSYSTEM_TRACE();
+                        return Constants.ReturnValues.RETURN_OK;
+                    }
+                }
+            }
+        }
+
+        return Constants.ReturnValues.RETURN_ERROR;
+
+    }
+
+    public int inCheckSettlementFlag()
+    {
+        //HostModel hostModel = new HostModel();
+        // hostModel = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        //hostModel=GreenDaoSupport.getHostTableModelOBJ(locontext);
+        if(hostModel.getHDT_SETTLEMENT_FLAG().equals("1")){
+            return Constants.ReturnValues.RETURN_SETTLEMENT_NEEDED;
+        }
+        return Constants.ReturnValues.RETURN_OK;
+    }
 
 }

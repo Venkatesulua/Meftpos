@@ -22,6 +22,7 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.Review_Transaction;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.TransactionFlow.HAfterTransaction;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.BatchModel;
 import com.mobileeftpos.android.eftpos.db.CommsModel;
@@ -30,6 +31,7 @@ import com.mobileeftpos.android.eftpos.utils.AppUtil;
 
 public class VoidFlow extends AppCompatActivity {
 
+    public HAfterTransaction afterTranscation = new HAfterTransaction();
     private TransactionDetails transDetails = new TransactionDetails();
     private EditText editInvoice;
     private Button submitButton;
@@ -60,7 +62,7 @@ public class VoidFlow extends AppCompatActivity {
         editInvoice = (EditText) findViewById(R.id.invoice_et);
         submitButton = (Button) findViewById(R.id.invoice_btn);
         submitButton.setOnClickListener(new ClickLIstener());
-        daoSession = GreenDaoSupport.getInstance(VoidFlow.this);
+        //daoSession = GreenDaoSupport.getInstance(VoidFlow.this);
         context = VoidFlow.this;
 
     }
@@ -109,7 +111,7 @@ public class VoidFlow extends AppCompatActivity {
         ;
         }*/
         /* PREPARING TO TRANSMIT MESSAGE TO HOST */
-        payService.vdUpdateSystemTrace(daoSession);
+
         return Constants.TRUE;
     }
     
@@ -153,7 +155,8 @@ public class VoidFlow extends AppCompatActivity {
             // execution of result of Long time consuming operation
             super.onPostExecute(result);
             Log.i(TAG,"GetInvoice::Alipay:onPostExecute");
-            payService.vdUpdateSystemTrace(daoSession);
+
+            afterTranscation.inAfterTrans();
             if(result!=null && result.equals("0"))
             {
                 Log.i(TAG, "GetInvoice:onPostExecute:SUCCESS");
@@ -211,22 +214,39 @@ public class VoidFlow extends AppCompatActivity {
         int inPhase=0;
         boolean whLoop=true;
         String result="";
-        CommsModel comModel = new CommsModel();
+       // CommsModel comModel = new CommsModel();
         //Password Entry
         while(whLoop) {
             switch(inPhase++)
             {
                 case 0://Validation; in force settlement;
-                    Log.i(TAG,"GetInvoice::processRequest_2");
+
+
+                    inError = afterTranscation.inSortPAN();
+                    if (inError != Constants.ReturnValues.RETURN_OK) {
+                        TransactionDetails.responseMessge = "TRANSCATION NOT SUPPORTED or \n CARD NOT READ PROPERLY";
+                    }
+
+                    /*Log.i(TAG,"GetInvoice::processRequest_2");
                     if (trDetails.inSortPAN(daoSession) == 1) {
                         Log.i(TAG,"GetInvoice::ERROR in SORTPAN");
                         inError = 1;
                     }
-                    Log.i(TAG,"GetInvoice::Alipay::inSORTPAN ___OKOK");
+                    Log.i(TAG,"GetInvoice::Alipay::inSORTPAN ___OKOK");*/
                     break;
                 case 1://
 
-                    Log.i(TAG,"GetInvoice::Alipay::COMMUNICATION PARAMS...");
+                    inError = afterTranscation.inCheckReversal();
+                    if (inError != Constants.ReturnValues.RETURN_OK) {
+                        TransactionDetails.responseMessge = "REVERSAL FAILED";
+                        return Constants.ReturnValues.RETURN_REVERSAL_FAILED;
+                    }
+                    inError = afterTranscation.inCheckUpload();
+                    if (inError != Constants.ReturnValues.RETURN_OK) {
+                        TransactionDetails.responseMessge = "UPLOAD FAILED";
+                        return Constants.ReturnValues.RETURN_UPLOAD_FAILED;
+                    }
+                   /* Log.i(TAG,"GetInvoice::Alipay::COMMUNICATION PARAMS...");
                    // comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
                     comModel=GreenDaoSupport.getCommsModelOBJ(VoidFlow.this);
                     Log.i(TAG,"GetInvoice::Alipay::COMMUNICATION PARAMS2...");
@@ -280,19 +300,23 @@ public class VoidFlow extends AppCompatActivity {
                             //redirect to error
                             break;
                         }
-                    }
+                    }*/
 
                     break;
                 case 2://
 
-                    FinalData=null;
-                    FinalData = new byte[1512];
-                    TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants.TransType.VOID,VoidFlow.this);
-                    if(TransactionDetails.inFinalLength == 0)
-                        inError = 1;
+                    if(afterTranscation.inHostConnect() != Constants.ReturnValues.RETURN_OK)
+                        return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
+                    else
+                        KeyValueDB.removeReversal(VoidFlow.this);
+                    //FinalData=null;
+                    //FinalData = new byte[1512];
+                    //TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants.TransType.VOID,VoidFlow.this);
+                   // if(TransactionDetails.inFinalLength == 0)
+                       // inError = 1;
                     break;
                 case 3://
-                    Log.i(TAG, "GetInvoice:inSendRecvPacket:");
+                    /*Log.i(TAG, "GetInvoice:inSendRecvPacket:");
                     if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null) {
                         inError = 1;
                         break;
@@ -303,12 +327,12 @@ public class VoidFlow extends AppCompatActivity {
                         result = result + String.format("%02x", FinalData[k]);
                     }
                     Log.i(TAG,"GetInvoice::\nAlipay_inSendRecvPacket_Received:");
-                    Log.i(TAG,result);
+                    Log.i(TAG,result);*/
 
                     break;
                 case 4://
 
-                    result = "";
+                   /* result = "";
                     for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
                         result = result + String.format("%02x", FinalData[k]);
                     }
@@ -326,7 +350,7 @@ public class VoidFlow extends AppCompatActivity {
                     if (remoteHost.inDisconnection() != 0) {
                         inError = 1;
                         break;
-                    }
+                    }*/
                     break;
                 case 5:
                     Log.i(TAG, "\nSave Record:");
@@ -334,19 +358,29 @@ public class VoidFlow extends AppCompatActivity {
                    // isoPacket.vdSaveRecord(databaseObj);
                     batchModeldata.setVoided(Integer.toString(Constants.TRUE));
                     GreenDaoSupport.insertBatchModelOBJ(VoidFlow.this,batchModeldata);
+                    if(afterTranscation.inSaveUpload() != Constants.ReturnValues.RETURN_OK)
+                        return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
                    // databaseObj.UpdateBatchData(batchModeldata);
                     break;
                 case 6://
                     //Print receipt
                     Log.i(TAG, "\nPrinting Receipt");
                     TransactionDetails.trxType = Constants.TransType.VOID;
-                    printReceipt.inPrintReceipt(daoSession,VoidFlow.this);
+                    afterTranscation.inPrintReceipt();
                     break;
                 case 7://Show the receipt in the display and give option to print or email
+
+
+                    inError = afterTranscation.inCheckUpload();
+                    if (inError == Constants.ReturnValues.RETURN_OK) {
+                        KeyValueDB.removeUpload(VoidFlow.this);
+                    }
+
+
                     //startActivity(new Intent(GetInvoice.this, HomeActivity.class));
                     //Upload void transaction
                     //whLoop=false;
-                    stTrace = payService.pGetSystemTrace(VoidFlow.this);
+                    /*stTrace = payService.pGetSystemTrace(VoidFlow.this);
                     FinalData=null;
                     FinalData = new byte[1512];
 
@@ -382,7 +416,7 @@ public class VoidFlow extends AppCompatActivity {
                     batchModeldata.setUploaded(Integer.toString(Constants.TRUE));
                 //databaseObj.UpdateBatchData(batchModeldata);
                     GreenDaoSupport.insertBatchModelOBJ(VoidFlow.this,batchModeldata);
-                KeyValueDB.removeUpload(VoidFlow.this);
+                KeyValueDB.removeUpload(VoidFlow.this);*/
 
                 break;
                 default:

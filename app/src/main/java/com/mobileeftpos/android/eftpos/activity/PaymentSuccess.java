@@ -11,6 +11,7 @@ import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.TransactionFlow.GPrintReceipt;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.CurrencyModel;
 import com.mobileeftpos.android.eftpos.db.DaoSession;
@@ -75,8 +76,9 @@ public class PaymentSuccess extends Activity {
          printCopy.setOnClickListener(new View.OnClickListener() {
              @Override
              public void onClick(View view) {
-                 PrintReceipt printReceipt = new PrintReceipt();
-                 printReceipt.inPrintReceipt(daoSession,PaymentSuccess.this);
+
+                 GPrintReceipt printReceipt = new GPrintReceipt();
+                 printReceipt.inPrintReceipt();
                  Intent intent = new Intent(PaymentSuccess.this, HomePagerActivity.class);
                  intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                  startActivity(intent);
@@ -107,7 +109,7 @@ public class PaymentSuccess extends Activity {
 
 
 //        curr = databaseObj.getCurrencyData(TransactionDetails.inGCURR);
-        curr = GreenDaoSupport.getCurrencyTableIDBasedModelOBJ(PaymentSuccess.this,Integer.toString(TransactionDetails.inGCURR));
+        curr = GreenDaoSupport.getCurrencyTableIDBasedModelOBJ(PaymentSuccess.this,String.format("%02d",TransactionDetails.inGCURR));
 
         cuLabel = curr.getCURR_LABEL();
 
@@ -160,6 +162,8 @@ public class PaymentSuccess extends Activity {
             Temp3 = Temp3+" ";
         }
         cc = cc + stTemp1 + Temp3+  stTemp2 + "\n";
+
+
 
         stTemp1 = "INVOICE:" + TransactionDetails.InvoiceNumber;
         stTemp2 = "BATCH:"+hostData.getHDT_BATCH_NUMBER();

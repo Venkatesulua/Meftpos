@@ -177,6 +177,8 @@ public class GPrintReceipt extends FSaveRecord {
             inPrintBuffer = inPrintBuffer + stTemp1 + Temp3+  stTemp2 + "\n";
             //inPrintBuffer = inPrintBuffer + "MID:" + hostModel.getHDT_MERCHANT_ID()+" "+"TID:"+hostModel.getHDT_TERMINAL_ID()+"\n";
 
+
+
             stTemp1 = "INVOICE:" + TransactionDetails.InvoiceNumber;
             stTemp2 = "BATCH:"+hostModel.getHDT_BATCH_NUMBER();
             Temp3 ="";

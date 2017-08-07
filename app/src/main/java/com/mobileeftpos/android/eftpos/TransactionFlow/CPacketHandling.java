@@ -10,6 +10,7 @@ import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.BatchModel;
+import com.mobileeftpos.android.eftpos.db.HostModel;
 import com.mobileeftpos.android.eftpos.utils.StringByteUtils;
 
 import org.jpos.iso.ISOException;
@@ -627,4 +628,222 @@ public class CPacketHandling extends BValidateCard{
         Log.i(TAG,result);*/
         return inOffset;
     }
+
+    public int inProcessPacket(byte[] FinalData,int nFinalLength) {
+        //String result="";
+        try {
+            Log.i(TAG,"PacketCreation:::\ninProcessPacket_1:");
+            if(TransactionDetails.trxType!= Constants.TransType.INIT_SETTLEMENT &&
+                    TransactionDetails.trxType!= Constants.TransType.FINAL_SETTLEMENT &&
+                    TransactionDetails.trxType !=  Constants.TransType.ALIPAY_REFUND && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_REFUND &&
+                    TransactionDetails.trxType != Constants.TransType.ALIPAY_SALE && TransactionDetails.inOritrxType != Constants.TransType.ALIPAY_SALE){
+
+                //if(!(hostData.getHDT_HOST_TYPE().equals(Constants.HostType.ALIPAY_HOST))){
+
+                isoMsg.unpack(FinalData);
+                // print the DE list
+                logISOMsg(isoMsg);
+            }else{
+                Log.i(TAG,"PacketCreation:::\ninProcessPacket_2:");
+
+
+
+                inParceAlipyResponse(FinalData,TransactionDetails.inFinalLength);
+
+                //Log.i(TAG,"PacketCreation:::\ninProcessPacket_3:");
+                //Log.i(TAG,"PacketCreation:::\nTerminal-ID:"+trDetails.getResTerminalId());
+
+                if(TransactionDetails.trxType == Constants.TransType.INIT_SETTLEMENT)
+                {
+                    if(TransactionDetails.ResponseCode.equals("95")){
+                        Log.i(TAG,"PacketCreation:::\ninProcessPacket_4-BATCH TRANSFER:");
+                        return Constants.ReturnValues.RETURN_BATCH_TRANSFER;//ERROR
+                    }
+                }
+                if(TransactionDetails.ResponseCode.equals("00")){
+                    Log.i(TAG,"PacketCreation:::\ninProcessPacket_4:");
+                    return Constants.ReturnValues.RETURN_OK;//ERROR
+                }else if (TransactionDetails.ResponseCode.equals("UK")){
+                    return Constants.ReturnValues.RETURN_UNKNOWN;//ERROR
+                }else {
+                    return Constants.ReturnValues.RETURN_ERROR;//ERROR
+                }
+            }
+        } catch (ISOException ex) {
+            Log.i(TAG, "PacketCreation:::ISO EXCEPTION");
+            Log.i(TAG, ex.getMessage());
+        }
+
+        return Constants.ReturnValues.RETURN_OK;
+    }
+    int inParceAlipyResponse(byte[] input,int inLen){
+
+        int incurrentposition = 0;
+        String stTag;
+        String stLen;
+        int inTag = 0;
+        int inLength = 0;
+        //byte[] chtemp = new byte[1024];
+        //for (int i = 0; i < 5; i++) {
+        //chtemp[i] = input[i];
+        //}
+        //tpdu = new String(chtemp);
+        //incurrentposition = 5;
+
+        /*String result = "";
+        for (int k = 0; k < inLen; k++) {
+            result = result + String.format("%02x", input[k]);
+        }
+        Log.i(TAG,"PacketCreation:::\nAlipay_inParceAlipyResponse:");
+        Log.i(TAG,result);*/
+
+        while (true) {
+            inTag = (input[incurrentposition] * 256) + ((input[incurrentposition + 1]));
+            incurrentposition = incurrentposition + 2;
+            inLength = ((input[incurrentposition] & 0xFF) * 256) + ((input[incurrentposition + 1])&0xFF);
+            incurrentposition = incurrentposition + 2;
+            byte[] chtemp = new byte[inLength];
+            Log.i(TAG,"PacketCreation:::inTag inTag :: "+chtemp.length);
+            Log.i(TAG,"PacketCreation:::inTag inLength :: "+inLength);
+            Log.i(TAG,"PacketCreation:::inTag actual Len Initially :: "+chtemp.length);
+            for (int lp = 0; lp < inLength; lp++) {
+                chtemp[lp] = input[incurrentposition + lp];
+            }
+            incurrentposition = incurrentposition + inLength;
+
+            Log.i(TAG,"PacketCreation:::inTag :: "+inTag);
+            Log.i(TAG,"PacketCreation:::inTag_inLength :: "+inLength);
+            Log.i(TAG,"PacketCreation:::inTag actual Len :: "+chtemp.length);
+            Log.i(TAG,"PacketCreation:::inTag actual Value :: "+new String(chtemp));
+
+            switch (inTag) {
+                case 1:// Message type
+                    //trDetails.setMessageType( new String(chtemp));
+                    TransactionDetails.messagetype = new String(chtemp);
+                    break;
+                case 3:// Processing code
+                    TransactionDetails.processingcode = new String(chtemp);
+                    break;
+                case 4:// partner id
+                    //trDetails.setPartnerId( new String(chtemp));
+                    break;
+                case 5:// sellerid
+                    //trDetails.setSellerId( new String(chtemp));
+                    break;
+                case 8:// partnertransid
+                    //trDetails.setPartnerTransId( new String(chtemp));
+                    TransactionDetails.RetrievalRefNumber=new String(chtemp);
+                    break;
+                case 9:// currency
+                    //trDetails.setCurrency( new String(chtemp));
+                    break;
+                case 0x0a:// paymentamount
+                    //trDetails.settrxAmount( new String(chtemp));
+                    break;
+                case 0x0b:// buyerid
+                    //trDetails.setBuyerId( new String(chtemp));
+                    break;
+                case 0x0c:// refundid
+                    TransactionDetails.refundid=new String(chtemp);
+                    //trDetails.setRefundId( new String(chtemp));
+                    break;
+                case 0x0d:// refundreason
+                    TransactionDetails.refundreason=new String(chtemp);
+                    // trDetails.setRefundReason( new String(chtemp));
+                    break;
+                case 0x26:// alipaytransid
+                    //trDetails.setAlipayTransId( new String(chtemp));
+                    TransactionDetails.chApprovalCode = new String(chtemp);
+                    break;
+                case 0x27:// responsecode
+                    //trDetails.setResponseCode( new String(chtemp));
+                    TransactionDetails.ResponseCode=new String(chtemp);
+                    break;
+                case 0x28:// responsemesage
+                    // trDetails.setResponseMesage( new String(chtemp));
+                    TransactionDetails.responseMessge=new String(chtemp);
+                    break;
+                case 0x29:// terminalid
+                    //trDetails.setResTerminalId( new String(chtemp));
+                    break;
+                case 63:// Host Message
+                    TransactionDetails.responseMessge=new String(chtemp);
+                    break;
+                case 72:// Host Message
+                    TransactionDetails.AlipayTag72=new String(chtemp);
+                    break;
+
+            }
+            if (incurrentposition >= inLen)
+                break;
+
+        }
+        return 0;
+    }
+
+    public String pGetSystemTrace(Activity context)
+    {
+        Log.i(TAG,"PayServices::pGetSystemTrace");
+       //TraceModel traceno= GreenDaoSupport.getTraceModelOBJ(context);
+
+
+        Log.i(TAG,"PayServices::pGetSystemTrace_2");
+        if(traceModel.getSYSTEM_TRACE() == null)
+        {
+            //TraceModel traceno1=new TraceModel();
+            //Log.i(TAG,"PayServices::pGetSystemTrace_3");
+            //traceno1.setSYSTEM_TRACE("000001");
+            traceModel.setSYSTEM_TRACE("000001");
+            GreenDaoSupport.insertTraceModelOBJ(context,traceModel);
+            //databaseObj.InsertTraceNumberData(traceno1);
+        }
+        Log.i(TAG,"PayServices::pGetSystemTrace_4::"+traceModel.getSYSTEM_TRACE());
+        Log.i(TAG,"PayServices::getTRACE_UNIQUE_ID::"+traceModel.getTRACE_UNIQUE_ID());
+
+        //traceno=GreenDaoSupport.getTraceModelOBJ(context);// databaseObj.getTraceNumberData(0);
+
+        //Log.i(TAG,"PayServices::pGetSystemTrace_5::"+traceModel.getSYSTEM_TRACE());
+       // Log.i(TAG,"PayServices::pGetSystemTrace_5::"+traceModel.getSYSTEM_TRACE());
+
+        return traceModel.getSYSTEM_TRACE();
+    }
+
+    public void vdUpdateSystemTrace()
+    {
+        //TraceModelDao traceModelDeo= daoSession.getTraceModelDao();
+        //List<TraceModel> traceModelsList= traceModelDeo.loadAll();
+        //TraceModel traceno=traceModelsList.get(0);
+
+        long ulSystemTraceL=0L;
+        if(traceModel.getSYSTEM_TRACE()!=null && !traceModel.getSYSTEM_TRACE().equalsIgnoreCase("null")) {
+            ulSystemTraceL = Integer.parseInt(traceModel.getSYSTEM_TRACE());
+        }
+        if (++ulSystemTraceL>=900000L)
+            ulSystemTraceL=1L;
+
+        String newno = String.format("%06d", ulSystemTraceL);
+        traceModel.setSYSTEM_TRACE(newno);
+        GreenDaoSupport.insertTraceModelOBJ(locontext,traceModel);
+        //traceModelDeo.insertOrReplace(traceModel);
+        //databaseObj.UpdateTraceNumberData(traceno);
+    }
+
+    public void vdUpdateSystemBatch(Activity activity)
+    {
+        //hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
+        //hostData = GreenDaoSupport.getHostTableModelOBJ(activity);
+        long ulSystemTraceL=0L;
+        if(hostModel.getHDT_BATCH_NUMBER()!=null && !hostModel.getHDT_BATCH_NUMBER().equalsIgnoreCase("null")) {
+            ulSystemTraceL = Integer.parseInt(hostModel.getHDT_BATCH_NUMBER());
+        }
+        if (++ulSystemTraceL>=900000L)
+            ulSystemTraceL=1L;
+
+        String newno = String.format("%06d", ulSystemTraceL);
+        hostModel.setHDT_BATCH_NUMBER(newno);
+        //databaseObj.UpdateHostData(hostData);
+        GreenDaoSupport.insertHostModelOBJ(activity,hostModel);
+    }
+
+
 }

@@ -570,6 +570,20 @@ public static DaoSession daosession;
         return commsModel;
     }
 
+    public static BatchModel getBatchModelbyInvoiceOBJ(Activity context, String InVoice){
+        BatchModel batchModel = new BatchModel();
+        if(daosession == null){
+            getInstance(context);
+        }
+        QueryBuilder<BatchModel> qb = daosession.getBatchModelDao().queryBuilder();
+        qb.where(BatchModelDao.Properties.Invoice_number.eq(InVoice));
+        if(qb.list().size()>0){
+
+            batchModel = qb.list().get(0);
+        }
+        return batchModel;
+    }
+
 	public static List<BatchModel> getBatchModelOBJList(Activity context, String hostId){
 		 List<BatchModel> batchModelList = new ArrayList<>();
 		if(daosession == null){

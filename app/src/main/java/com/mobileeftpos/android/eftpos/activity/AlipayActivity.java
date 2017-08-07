@@ -24,6 +24,7 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 //import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.TransactionFlow.CPacketHandling;
 import com.mobileeftpos.android.eftpos.TransactionFlow.HAfterTransaction;
 import com.mobileeftpos.android.eftpos.async.WebServiceCall;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
@@ -229,7 +230,9 @@ public class AlipayActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             // execution of result of Long time consuming operation
             super.onPostExecute(result);
-            payServices.vdUpdateSystemTrace(daoSession);
+
+            afterTranscation.inAfterTrans();
+            //payServices.vdUpdateSystemTrace(daoSession);
             if(result != null) {
                 if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN) {
                     loContext.startActivity(new Intent(loContext, AlipayCheckPrompt.class));
@@ -314,7 +317,6 @@ public class AlipayActivity extends AppCompatActivity {
             while (whLoop) {
                 switch (inPhase++) {
                     case 0://Validation; in force settlement;
-                        TransactionDetails.InvoiceNumber = payServices.pGetSystemTrace(AlipayActivity.this);
                         if (TransactionDetails.trxType == Constants.TransType.ALIPAY_SALE || TransactionDetails.trxType == Constants.TransType.VOID) {
                             afterTranscation.readCard();
                             if (inError != Constants.ReturnValues.RETURN_OK) {
@@ -340,12 +342,15 @@ public class AlipayActivity extends AppCompatActivity {
                         if (inError != Constants.ReturnValues.RETURN_OK) {
                             TransactionDetails.responseMessge = "REVERSAL FAILED";
                             return Constants.ReturnValues.RETURN_REVERSAL_FAILED;
-                        }
+                        }else
+                            KeyValueDB.removeReversal(loContext);//Clear Reversal
+
                         inError = afterTranscation.inCheckUpload();
                         if (inError != Constants.ReturnValues.RETURN_OK) {
                             TransactionDetails.responseMessge = "UPLOAD FAILED";
                             return Constants.ReturnValues.RETURN_UPLOAD_FAILED;
-                        }
+                        }else
+                            KeyValueDB.removeUpload(loContext);//Clear Reversal
 
 
                         break;
@@ -355,9 +360,12 @@ public class AlipayActivity extends AppCompatActivity {
 
 
                     case 4:
-                        if(afterTranscation.inHostConnect() != Constants.ReturnValues.RETURN_OK)
-                        //if(remoteHost.inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK)
-                            return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
+                        inError = afterTranscation.inHostConnect();
+                        if( inError != Constants.ReturnValues.RETURN_OK)
+                            return inError;
+                        else
+                            KeyValueDB.removeReversal(AlipayActivity.this);
+                        break;
                     case 5:
                         afterTranscation.vdSaveRecord();
                         KeyValueDB.removeReversal(loContext);//Clear Reversal
@@ -367,27 +375,11 @@ public class AlipayActivity extends AppCompatActivity {
                         break;
                     case 7:
                         //Increment STAN NUMBER
-                        payServices.vdUpdateSystemTrace(daoSession);
+                        //payServices.vdUpdateSystemTrace(daoSession);
                         break;
                     case 8:
                         //Keep Upload Transcation On
-                        if (TransactionDetails.trxType == Constants.TransType.VOID || TransactionDetails.trxType == Constants.TransType.ALIPAY_REFUND) {
-                            ///stTrace = payServices.pGetSystemTrace(daoSession);
-                            FinalData = null;
-                            FinalData = new byte[1512];
-                            TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants
-                                    .TransType.ALIPAY_UPLOAD,AlipayActivity.this);
-                            result = "";
-                            for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
-                                result = result + String.format("%02x", FinalData[k]);
-                            }
-                            Log.i(TAG, "\nUpload data store::");
-                            Log.i(TAG, result);
-                            KeyValueDB.setUpload(loContext, new String(result));
-                        }
-                        inError = afterTranscation.inCheckUpload();
-                        if (inError != Constants.ReturnValues.RETURN_OK)
-                            break;
+
                         break;
                     default://Show the receipt in the display and give option to print or email
                         whLoop = false;
