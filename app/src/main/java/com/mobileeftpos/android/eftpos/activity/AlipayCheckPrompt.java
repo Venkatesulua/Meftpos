@@ -20,6 +20,7 @@ import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.TransactionFlow.HAfterTransaction;
 import com.mobileeftpos.android.eftpos.database.DBHelper;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.CommsModel;
@@ -36,25 +37,26 @@ public class AlipayCheckPrompt extends AppCompatActivity {
     Button btnCancel1;
     @BindView(R.id.btnCheck)
     Button btnCheck1;
-    private byte[] FinalData = new byte[1512];
-    private static DBHelper databaseObj;
-    private PacketCreation isoPacket = new PacketCreation();
-    private RemoteHost remoteHost = new RemoteHost();
+    //private byte[] FinalData = new byte[1512];
+    //private static DBHelper databaseObj;
+    //private PacketCreation isoPacket = new PacketCreation();
+    //private RemoteHost remoteHost = new RemoteHost();
     private final String TAG = "my_custom_msg";
     private int inInitiation=0;
     public PrintReceipt printReceipt = new PrintReceipt();
     private static final int TIME_OUT = 5000;
     public PayServices payServices = new PayServices();
     public static Context context;
-    private DaoSession daoSession;
+    //private DaoSession daoSession;
+    public HAfterTransaction afterTranscation = new HAfterTransaction();
 
     private CommsModel comModel = new CommsModel();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alipay_check_prompt);
-        daoSession = GreenDaoSupport.getInstance(AlipayCheckPrompt.this);
-        loadDataBaseContent();
+        //daoSession = GreenDaoSupport.getInstance(AlipayCheckPrompt.this);
+        //loadDataBaseContent();
         //databaseObj = new DBHelper(AlipayCheckPrompt.this);
         //comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
 
@@ -107,67 +109,22 @@ public class AlipayCheckPrompt extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... params) {
-            String result = "";
-            int inRet = -1;
-            try {
+            int inError=0;
+             try {
 
                 Log.i(TAG, "AlipayCheckPrompt::Alipay:AsyncTaskRunner");
-                TransactionDetails.inFinalLength=0;
-                FinalData=null;
-                FinalData = new byte[1512];
                 if (inInitiation == 0) {
-
-                    TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants.TransType
-                            .REVERSAL,AlipayCheckPrompt.this);
-                    result = "";
-                    for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
-                        result = result + String.format("%02x", FinalData[k]);
-                    }
-                    Log.i(TAG,"\nSendings:");
-                    Log.i(TAG,result);
-                    KeyValueDB.setReversal(AlipayCheckPrompt.this,new String(result));
-
-                } else
-                    TransactionDetails.inFinalLength = isoPacket.inCreatePacket(FinalData, Constants.TransType
-                            .ALIPAY_SALE_REPEAT,AlipayCheckPrompt.this);
-                if (TransactionDetails.inFinalLength == 0) {
-                    return Integer.toString(Constants.ReturnValues.RETURN_ERROR);
+                    TransactionDetails.trxType = Constants.TransType.REVERSAL;
+                } else{
+                    TransactionDetails.trxType = Constants.TransType.ALIPAY_SALE_REPEAT;
                 }
-                //comModel = databaseObj.getCommsData(TransactionDetails.inGCOM);
-                loadDataBaseContent();
-                String IP_Port = comModel.getCOM_PRIMARY_IP_PORT();
-                int indexOffset = IP_Port.indexOf("|");
-                String ServerIP = IP_Port.substring(0, indexOffset);
-                String Port = IP_Port.substring(indexOffset + 1);
-                if (remoteHost.inConnection(ServerIP, Port) != 0) {
-                    return Integer.toString(Constants.ReturnValues.RETURN_ERROR);
-                }
-                if ((FinalData = remoteHost.inSendRecvPacket(FinalData, TransactionDetails.inFinalLength)) == null) {
-                    return Integer.toString(Constants.ReturnValues.RETURN_ERROR);
-                }
-                inRet = isoPacket.inProcessPacket(FinalData,TransactionDetails.inFinalLength);
-
-                if(inInitiation ==1)
-                    KeyValueDB.removeReversal(AlipayCheckPrompt.this);
-                if (remoteHost.inDisconnection() != 0) {
-
-                    return Integer.toString(Constants.ReturnValues.RETURN_ERROR);
-                }
-                if (inRet == Constants.ReturnValues.RETURN_OK) {
-                    if(inInitiation ==0) {
-                        TransactionDetails.responseMessge="REVERSAL SUCCESSFUL";
-                        KeyValueDB.removeReversal(AlipayCheckPrompt.this);
-                        return Integer.toString(Constants.ReturnValues.RETURN_ERROR);
-                    }
-                    //Save transaction records
-                    isoPacket.vdSaveRecord(AlipayCheckPrompt.this);
-                    return Integer.toString(Constants.ReturnValues.RETURN_OK);
-                }else if(inRet == Constants.ReturnValues.RETURN_UNKNOWN)
-                {//PROMPT CHECK REVERSAL and ENQUIRY
-                    return Integer.toString(Constants.ReturnValues.RETURN_UNKNOWN);
-                }else{
-                    return Integer.toString(Constants.ReturnValues.RETURN_ERROR);
-                }
+                inError = afterTranscation.inHostConnect();
+                 if(inError == Constants.ReturnValues.RETURN_OK)
+                 {
+                     afterTranscation.vdSaveRecord();
+                     afterTranscation.inPrintReceipt();
+                 }
+                return Integer.toString(inError);
                 //return Integer.toString(Constants.ReturnValues.RETURN_OK);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -183,35 +140,9 @@ public class AlipayCheckPrompt extends AppCompatActivity {
             super.onPostExecute(result);
 
 
-            if (result != null && Integer.parseInt(result) == Constants.ReturnValues.RETURN_OK) {
-                printReceipt.inPrintReceipt(daoSession,context);
-                //Redirect to Success Activity
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(AlipayCheckPrompt.this, PaymentSuccess.class);
-                        startActivity(intent);
-
-                        //progressDialog.dismiss();
-                    }
-                }, TIME_OUT);
-            } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_ERROR) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(AlipayCheckPrompt.this, PaymentFailure.class);
-                        startActivity(intent);
-
-                    }
-                }, TIME_OUT);
-            } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN) {
-                startActivity(new Intent(AlipayCheckPrompt.this, AlipayCheckPrompt.class));
-            }
-            payServices.vdUpdateSystemTrace(daoSession);
-            //finish();
+            afterTranscation.inAfterTrans();
             progressDialog.dismiss();
-
-
+            afterTranscation.FinalStatusDisplay(AlipayCheckPrompt.this,result);
         }
 
 
@@ -223,13 +154,6 @@ public class AlipayCheckPrompt extends AppCompatActivity {
                     "Please wait...");
             progressDialog.show();
         }
-    }
-
-    private void loadDataBaseContent(){
-
-        comModel = GreenDaoSupport.getCommsModelOBJ(AlipayCheckPrompt.this);
-
-
     }
 
     }

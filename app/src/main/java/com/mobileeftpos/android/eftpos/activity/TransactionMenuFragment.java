@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.TransactionFlow.HAfterTransaction;
 import com.mobileeftpos.android.eftpos.adapters.TechnicianMenuAdapter;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.DaoSession;
@@ -37,6 +38,7 @@ public class TransactionMenuFragment extends Fragment  {
      private ArrayList<String>homeListData;
     private GridView gridLayout;
     private DaoSession daoSession;
+    public HAfterTransaction afterTranscation = new HAfterTransaction();
     public TransactionMenuFragment() {
         // Required empty public constructor
     }
@@ -115,12 +117,13 @@ public class TransactionMenuFragment extends Fragment  {
         //}
         //homeListData.add(MenuConstants.SETTLEMENT);
         //if("9".equalsIgnoreCase("9")){
+        if(afterTranscation.inSearchHost(Constants.HostType.EZLINK_PAYMENT_HOST)== Constants.ReturnValues.RETURN_OK)
             homeListData.add(MenuConstants.CEPAS_SALE);
        // }
-        //if("10".equalsIgnoreCase("10")){
+        if(afterTranscation.inSearchHost(Constants.HostType.ALIPAY_HOST)== Constants.ReturnValues.RETURN_OK)
             homeListData.add(MenuConstants.ALIPAY_SALE);
 
-            homeListData.add(MenuConstants.EZ_iWallet);
+           // homeListData.add(MenuConstants.EZ_iWallet);
         //}
 
 

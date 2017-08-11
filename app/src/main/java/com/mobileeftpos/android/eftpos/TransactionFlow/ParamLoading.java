@@ -92,7 +92,8 @@ public class ParamLoading  {
         maskingModel = GreenDaoSupport.getMaskingTableModelOBJ(context);//maskModelDao.loadAll().get(0);
     }
 
-    public HostModel GetHostModel() {return hostModel;}
+    public HostModel GetHostModel() {
+        return hostModel;}
     public void SetHostModel(HostModel hostModel) {
         this.hostModel=hostModel;
     }

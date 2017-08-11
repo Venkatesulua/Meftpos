@@ -127,63 +127,8 @@ public class ConfirmRefund extends AppCompatActivity {
             super.onPostExecute(result);
 
             afterTranscation.inAfterTrans();
-            //payServices.vdUpdateSystemTrace(daoSession);
-            if(result != null) {
-                if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN) {
-                    loContext.startActivity(new Intent(loContext, AlipayCheckPrompt.class));
-                }
-                if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_OK) {
-                    //printReceipt.inPrintReceipt(databaseObj);
-                    //Redirect to Success Activity
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(loContext, PaymentSuccess.class);
-                            loContext.startActivity(intent);
-
-                            progressDialog.dismiss();
-                        }
-                    }, TIME_OUT);
-                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_ERROR ||
-                        Integer.parseInt(result) == Constants.ReturnValues.RETURN_REVERSAL_FAILED ||
-                        Integer.parseInt(result) == Constants.ReturnValues.RETURN_REVERSAL_FAILED) {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(loContext, PaymentFailure.class);
-                            loContext.startActivity(intent);
-                            progressDialog.dismiss();
-                        }
-                    }, TIME_OUT);
-                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN) {
-                    loContext.startActivity(new Intent(loContext, AlipayCheckPrompt.class));
-                    progressDialog.dismiss();
-                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_SEND_RECV_FAILED) {
-
-                    TransactionDetails.responseMessge ="SEND RECV FAILED";
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(loContext, PaymentFailure.class);
-                            loContext.startActivity(intent);
-                            progressDialog.dismiss();
-                        }
-                    }, TIME_OUT);
-                }else
-                {
-                    //loContext.startActivity(new Intent(loContext, HomePagerActivity.class));
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(loContext, PaymentFailure.class);
-                            loContext.startActivity(intent);
-                            progressDialog.dismiss();
-                        }
-                    }, TIME_OUT);
-                }
-            }
-
-            //finish();
+            progressDialog.dismiss();
+            afterTranscation.FinalStatusDisplay(ConfirmRefund.this,result);
         }
 
 
@@ -212,7 +157,7 @@ public class ConfirmRefund extends AppCompatActivity {
             while (whLoop) {
                 switch (inPhase++) {
                     case 0://Validation; in force settlement;
-                        if(TransactionDetails.trxType == Constants.TransType.REFUND) {
+                        if(TransactionDetails.trxType == Constants.TransType.ALIPAY_REFUND) {
                             inError = afterTranscation.inSearchHost(Constants.HostType.ALIPAY_HOST);
                         }
 
@@ -271,9 +216,8 @@ public class ConfirmRefund extends AppCompatActivity {
                         break;
                     case 8:
                         //Keep Upload Transcation On
-                        inError = afterTranscation.inCheckUpload();
-                        if (inError != Constants.ReturnValues.RETURN_OK)
-                            break;
+                       afterTranscation.inCheckUpload();
+
                         break;
                     default://Show the receipt in the display and give option to print or email
                         whLoop = false;

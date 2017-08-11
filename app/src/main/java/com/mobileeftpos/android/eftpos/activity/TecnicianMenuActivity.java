@@ -14,6 +14,7 @@ import com.mobileeftpos.android.eftpos.SupportClasses.ESCUtil;
 import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.app.EftposApp;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.AlipayModel;
 import com.mobileeftpos.android.eftpos.db.BatchModel;
@@ -26,6 +27,7 @@ import com.mobileeftpos.android.eftpos.db.HostModel;
 import com.mobileeftpos.android.eftpos.db.MerchantModel;
 import com.mobileeftpos.android.eftpos.db.PasswordModel;
 import com.mobileeftpos.android.eftpos.db.TraceModel;
+import com.mobileeftpos.android.eftpos.db.TransactionControlModel;
 
 import java.util.List;
 
@@ -49,12 +51,13 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
     AlipayModel barcodeModel;
     TraceModel traceNumber;
     BatchModel batchdata;
+    TransactionControlModel transctrlModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_three);
-        daoSession = GreenDaoSupport.getInstance(TecnicianMenuActivity.this);
+        daoSession = ((EftposApp) getApplication()).getDaoSession();//GreenDaoSupport.getInstance(TecnicianMenuActivity.this);
         context = TecnicianMenuActivity.this;
         initView();
 
@@ -150,6 +153,7 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                  barcodeModel = new AlipayModel();
                  traceNumber = new TraceModel();
                  hostModel = new HostModel();
+                transctrlModel = new TransactionControlModel();
                 //Trace number
                 traceNumber.setSYSTEM_TRACE("000001");
                 //Password Values
@@ -159,9 +163,9 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 cbinModel.setCDT_HI_RANGE("9999999999");
                 cbinModel.setCDT_HDT_REFERENCE("01");
                 cbinModel.setCDT_CARD_TYPE_ARRAY("01");
-                cbinModel.setCDT_ID("1");
+                cbinModel.setCDT_ID("01");
                 //CTT Params
-                cttModel.setCTT_ID("1");
+                cttModel.setCTT_ID("01");
                 cttModel.setCTT_CARD_TYPE("Q");
                 cttModel.setCTT_CARD_LABEL("BARCODE");
                 cttModel.setCTT_CARD_FORMAT("4444");
@@ -173,7 +177,7 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 cttModel.setCTT_PAN_MASK_ARRAY("0");
                 cttModel.setCTT_EXPIRY_MASK_ARRAY("0");
                 //COMM Model
-                comModel.setCOMMOS_ID("1");
+                comModel.setCOMMOS_ID("01");
                 comModel.setCOM_DESCRIPTION("ALIPAY");
                 comModel.setCOM_PRIMARY_TYPE("1");
                 comModel.setCOM_SECONDARY_TYPE("1");
@@ -182,8 +186,8 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 comModel.setCOM_MODEM_STRING("0");
                 comModel.setCOM_MODEM_DISABLE_LINE_DETECT("0");
                 comModel.setCOM_MODEM_TIMEOUT("30");
-                comModel.setCOM_PRIMARY_IP_PORT("171.99.133.30|10975");
-                comModel.setCOM_SECONDARY_IP_PORT("171.99.133.30|10975");
+                comModel.setCOM_PRIMARY_IP_PORT("203.151.149.7|20975");
+                comModel.setCOM_SECONDARY_IP_PORT("203.151.149.7|20975");
                 comModel.setCOM_IP_TIMEOUT("30");
                 comModel.setCOM_CONNECT_SECONDARY("0");
                 comModel.setCOM_SSL_INDEX("0");
@@ -193,17 +197,17 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 comModel.setCOM_PPP_MODEM_STRING("0");
                 comModel.setCOM_PPP_TIMEOUT("0");
                 //COMM PARAMS
-                currModel.setCURRENCY_ID("1");
-                currModel.setCURR_LABEL("THB");
+                currModel.setCURRENCY_ID("01");
+                currModel.setCURR_LABEL("MYR");
                 currModel.setCURR_EXPONENT("2");
                 currModel.setCURR_CODE("0764");
                 //Host Parameters
-                hostModel.setHDT_HOST_ID("1");
+                hostModel.setHDT_HOST_ID("01");
                 hostModel.setHDT_HOST_ENABLED("1");
                 hostModel.setHDT_COM_INDEX("1");
                 hostModel.setHDT_REFERRAL_NUMBER("18008350706");
-                hostModel.setHDT_TERMINAL_ID("55555555");
-                hostModel.setHDT_MERCHANT_ID("6666666666");
+                hostModel.setHDT_TERMINAL_ID("22000003");
+                hostModel.setHDT_MERCHANT_ID("220000001");
                 hostModel.setHDT_TPDU("6002540000");
                 hostModel.setHDT_BATCH_NUMBER("000001");
                 hostModel.setHDT_INVOICE_NUMBER("000001");
@@ -230,12 +234,12 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 hostModel.setHDT_REDIRECT_IF_DISABLE("0");
                 //ALIPAY BARCode
 
-                barcodeModel.setALIPAY_ID("1");
+                barcodeModel.setALIPAY_ID("01");
                 barcodeModel.setPARTNER_ID("0000000000000000");
                 barcodeModel.setSELLER_ID("0000000000000000");
                 barcodeModel.setREGION_CODE("RETAIL");
                 //Merchant
-                merchantModel.setMERCHANT_ID("1");
+                merchantModel.setMERCHANT_ID("01");
                 merchantModel.setMERCHANT_NAME("TEST TRANSACTION");
                 merchantModel.setMERCHANT_HEADER1("HEADER1");
                 merchantModel.setMERCHANT_HEADER2("HEADER2");
@@ -243,6 +247,11 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                 merchantModel.setADDRESS_LINE2("ADDRESSLINE2");
                 merchantModel.setADDRESS_LINE3("ADDRESSLINE3");
                 merchantModel.setADDRESS_LINE4("ADDRESSLINE4");
+                //Control Parameters
+                transctrlModel.setVOID_CTRL("1");
+                transctrlModel.setREFUND_CTRL("1");
+                transctrlModel.setSETTLEMENT_CTRL("1");
+
 
 
                 daoSession.getHostModelDao().insert(hostModel);
@@ -254,6 +263,7 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
 	            daoSession.getAlipayModelDao().insert(barcodeModel);
 	            daoSession.getMerchantModelDao().insert(merchantModel);
 	            daoSession.getTraceModelDao().insert(traceNumber);
+                daoSession.getTransactionControlModelDao().insert(transctrlModel);
 
                 Toast.makeText(context,"LOADED DEFAULT SETTINGS",Toast.LENGTH_SHORT).show();
                 this.finish();

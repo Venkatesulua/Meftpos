@@ -254,13 +254,7 @@ public class BValidateCard extends AGetCard {
                 //cardTypeModel = cttModelDao.loadAll().get(TransactionDetails.inGCTT);
                 //comModel = comModelDao.loadAll().get(TransactionDetails.inGCOM);
                 //currencyModel = currModelDao.loadAll().get(TransactionDetails.inGCURR);
-                SetHostModel(GreenDaoSupport.getHostTableIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGHDT)));
-                SetCardBinModel(GreenDaoSupport.getCardBinTableIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCDT)));
-                SetCardTypeModel(GreenDaoSupport.getCardTypeIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCTT)));
-                SetCommsModel(GreenDaoSupport.getCommsTableIdBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCOM)));
-                SetCurrencyModel(GreenDaoSupport.getCurrencyTableIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCURR)));
-                LoadAll(locontext);
-                TransactionDetails.InvoiceNumber = traceModel.getSYSTEM_TRACE();
+                inGetAllRelaventParams();
                 //open CTT
                 //if(inGetSetCTTConfig(GET,atoi(chCTTIndex)) == FALSE)
                 //return FALSE;
@@ -433,6 +427,17 @@ public class BValidateCard extends AGetCard {
         if(hostModel.getHDT_SETTLEMENT_FLAG().equals("1")){
             return Constants.ReturnValues.RETURN_SETTLEMENT_NEEDED;
         }
+        return Constants.ReturnValues.RETURN_OK;
+    }
+
+    public int inGetAllRelaventParams(){
+        SetHostModel(GreenDaoSupport.getHostTableIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGHDT)));
+        SetCardBinModel(GreenDaoSupport.getCardBinTableIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCDT)));
+        SetCardTypeModel(GreenDaoSupport.getCardTypeIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCTT)));
+        SetCommsModel(GreenDaoSupport.getCommsTableIdBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCOM)));
+        SetCurrencyModel(GreenDaoSupport.getCurrencyTableIDBasedModelOBJ(locontext,String.format("%02d",TransactionDetails.inGCURR)));
+        LoadAll(locontext);
+        TransactionDetails.InvoiceNumber = traceModel.getSYSTEM_TRACE();
         return Constants.ReturnValues.RETURN_OK;
     }
 

@@ -234,49 +234,9 @@ public class CepasPayment extends AppCompatActivity {
             //cardRelated.cancelCheckCard();
             cancelCheckCard();
 
-            payServices.vdUpdateSystemTrace(daoSession);
-            if(result != null) {
-                if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_OK) {
-                    //printReceipt.inPrintReceipt(databaseObj);
-                    //Redirect to Success Activity
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(CepasPayment.this, PaymentSuccess.class);
-                            startActivity(intent);
-
-                            progressDialog.dismiss();
-                        }
-                    }, 3000);
-                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_ERROR) {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(CepasPayment.this, PaymentFailure.class);
-                            startActivity(intent);
-                            progressDialog.dismiss();
-                        }
-                    }, 3000);
-                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN) {
-                    startActivity(new Intent(CepasPayment.this, AlipayCheckPrompt.class));
-                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_SEND_RECV_FAILED) {
-
-                    TransactionDetails.responseMessge ="SEND RECV FAILED";
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(CepasPayment.this, PaymentFailure.class);
-                            startActivity(intent);
-                            progressDialog.dismiss();
-                        }
-                    }, 3000);
-                }else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_NOTIFICATION) {
-                    //startActivity(new Intent(AlipayActivity.this,AlipayCheckPrompt.class));
-                }else
-                {
-                    startActivity(new Intent(CepasPayment.this, HomePagerActivity.class));
-                }
-            }
+            //afterTranscation.inAfterTrans();
+            //progressDialog.dismiss();
+            //afterTranscation.FinalStatusDisplay(CepasPayment.this,result);
         }
 
         private int processRequest() {

@@ -54,7 +54,7 @@ public class PacketCreation {
         BatchModel batchModel = new BatchModel();
         //Save transaction
         if(TransactionDetails.trxType != Constants.TransType.VOID) {
-            batchModel.setHdt_index(Integer.toString(TransactionDetails.inGHDT));
+            batchModel.setHdt_index(String.format("%02d",TransactionDetails.inGHDT));
             batchModel.setTrans_type(Integer.toString(TransactionDetails.trxType));
             batchModel.setTrans_mode(Integer.toString(TransactionDetails.inGTrxMode));
             batchModel.setVoided(Integer.toString(Constants.FALSE));

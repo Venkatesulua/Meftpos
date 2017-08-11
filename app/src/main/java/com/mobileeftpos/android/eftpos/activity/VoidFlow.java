@@ -157,39 +157,8 @@ public class VoidFlow extends AppCompatActivity {
             Log.i(TAG,"GetInvoice::Alipay:onPostExecute");
 
             afterTranscation.inAfterTrans();
-            if(result!=null && result.equals("0"))
-            {
-                Log.i(TAG, "GetInvoice:onPostExecute:SUCCESS");
-                Log.i(TAG, "GetInvoice:onPostExecute:SUCCESS");
-                Log.i(TAG, "GetInvoice:onPostExecute:SUCCESS");
-               // printReceipt.inPrintReceipt(databaseObj);
-                //Redirect to Success Activity
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(VoidFlow.this, PaymentSuccess.class);
-                        startActivity(intent);
-
-                        progressDialog.dismiss();
-                    }
-                }, TIME_OUT);
-                //finish();
-            }else
-            {
-                Log.i(TAG, "GetInvoice:onPostExecute:ERROR");
-                Log.i(TAG, "GetInvoice:onPostExecute:ERROR");
-                Log.i(TAG, "GetInvoice:onPostExecute:ERROR");
-
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(VoidFlow.this, PaymentFailure.class);
-                        startActivity(intent);
-                        progressDialog.dismiss();
-                    }
-                }, TIME_OUT);
-            }
-            //progressDialog.dismiss();
+            progressDialog.dismiss();
+            afterTranscation.FinalStatusDisplay(VoidFlow.this,result);
 
 
         }
@@ -371,10 +340,8 @@ public class VoidFlow extends AppCompatActivity {
                 case 7://Show the receipt in the display and give option to print or email
 
 
-                    inError = afterTranscation.inCheckUpload();
-                    if (inError == Constants.ReturnValues.RETURN_OK) {
-                        KeyValueDB.removeUpload(VoidFlow.this);
-                    }
+                    afterTranscation.inCheckUpload();
+
 
 
                     //startActivity(new Intent(GetInvoice.this, HomeActivity.class));

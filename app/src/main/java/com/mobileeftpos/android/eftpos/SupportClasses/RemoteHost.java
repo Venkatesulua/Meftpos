@@ -7,6 +7,7 @@ import org.jpos.iso.ISOException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -22,9 +23,16 @@ public class RemoteHost {
         Log.i(TAG, "Connection");
         Log.i(TAG, ServerIp);
         Log.i(TAG, Port);
+        int connection_time_out=0;
         try {
 
-            smtpSocket = new Socket(ServerIp, Integer.parseInt(Port));
+            if(TransactionDetails.ConnectionTimeout != null && TransactionDetails.ConnectionTimeout.isEmpty() && TransactionDetails.ConnectionTimeout=="")
+                connection_time_out = ((Integer.parseInt(TransactionDetails.ConnectionTimeout )*1000));
+            else
+                connection_time_out = (45000);
+            smtpSocket=new Socket();
+            smtpSocket.connect(new InetSocketAddress(ServerIp,Integer.parseInt(Port)),connection_time_out);
+
         } catch (UnknownHostException e) {
             Log.i(TAG, "UnknownHostException");
             Log.i(TAG, "Don't know about host: hostname");

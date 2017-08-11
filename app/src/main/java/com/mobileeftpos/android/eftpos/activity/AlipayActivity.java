@@ -1,6 +1,7 @@
 package com.mobileeftpos.android.eftpos.activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -69,7 +70,7 @@ public class AlipayActivity extends AppCompatActivity {
     public PayServices payServices = new PayServices();
     //AsyncTaskRunner mAsyncTask;
     public byte[] FinalData = new byte[1512];
-    public static  Context loContext;
+    Activity loContext;
     //private String ServerIP="";
     //private String Port="";
     private DaoSession daoSession;
@@ -232,61 +233,10 @@ public class AlipayActivity extends AppCompatActivity {
             super.onPostExecute(result);
 
             afterTranscation.inAfterTrans();
+            progressDialog.dismiss();
+            afterTranscation.FinalStatusDisplay(loContext,result);
             //payServices.vdUpdateSystemTrace(daoSession);
-            if(result != null) {
-                if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN) {
-                    loContext.startActivity(new Intent(loContext, AlipayCheckPrompt.class));
-                }
-                if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_OK) {
-                    //printReceipt.inPrintReceipt(databaseObj);
-                    //Redirect to Success Activity
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(loContext, PaymentSuccess.class);
-                            loContext.startActivity(intent);
 
-                            progressDialog.dismiss();
-                        }
-                    }, TIME_OUT);
-                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_ERROR ||
-                        Integer.parseInt(result) == Constants.ReturnValues.RETURN_REVERSAL_FAILED ||
-                        Integer.parseInt(result) == Constants.ReturnValues.RETURN_REVERSAL_FAILED) {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(loContext, PaymentFailure.class);
-                            loContext.startActivity(intent);
-                            progressDialog.dismiss();
-                        }
-                    }, TIME_OUT);
-                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN) {
-                    loContext.startActivity(new Intent(loContext, AlipayCheckPrompt.class));
-                    progressDialog.dismiss();
-                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_SEND_RECV_FAILED) {
-
-                    TransactionDetails.responseMessge ="SEND RECV FAILED";
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(loContext, PaymentFailure.class);
-                            loContext.startActivity(intent);
-                            progressDialog.dismiss();
-                        }
-                    }, TIME_OUT);
-                }else
-                {
-                    //loContext.startActivity(new Intent(loContext, HomePagerActivity.class));
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(loContext, PaymentFailure.class);
-                            loContext.startActivity(intent);
-                            progressDialog.dismiss();
-                        }
-                    }, TIME_OUT);
-                }
-            }
 
             //finish();
         }

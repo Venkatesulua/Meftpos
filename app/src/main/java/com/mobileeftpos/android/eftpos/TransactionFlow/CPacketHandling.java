@@ -7,6 +7,7 @@ import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
 import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
 import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
+import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.BatchModel;
@@ -18,6 +19,9 @@ import org.jpos.iso.ISOMsg;
 
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -545,7 +549,7 @@ public class CPacketHandling extends BValidateCard{
         SaleCount=SaleAmount=RefundCount=RefundAmount=0;
         // GetHostModel() = GreenDaoSupport.getHostTableModelOBJ(activity);
         //databaseObj.getHostTableData(TransactionDetails.inGHDT);
-        List<BatchModel> batchModelList= GreenDaoSupport.getBatchModelOBJList(activity,GetHostModel().getHDT_HOST_ID());
+        List<BatchModel> batchModelList= GreenDaoSupport.getBatchModelOBJList(activity,hostModel.getHDT_HOST_ID());
         //databaseObj.getBatchData(GetHostModel().getHDT_HOST_ID());
         if(batchModelList.size() ==0 )
         {
@@ -828,7 +832,7 @@ public class CPacketHandling extends BValidateCard{
         //databaseObj.UpdateTraceNumberData(traceno);
     }
 
-    public void vdUpdateSystemBatch(Activity activity)
+    public void vdUpdateSystemBatch()
     {
         //hostData = databaseObj.getHostTableData(TransactionDetails.inGHDT);
         //hostData = GreenDaoSupport.getHostTableModelOBJ(activity);
@@ -842,8 +846,12 @@ public class CPacketHandling extends BValidateCard{
         String newno = String.format("%06d", ulSystemTraceL);
         hostModel.setHDT_BATCH_NUMBER(newno);
         //databaseObj.UpdateHostData(hostData);
-        GreenDaoSupport.insertHostModelOBJ(activity,hostModel);
+        GreenDaoSupport.insertHostModelOBJ(locontext,hostModel);
     }
+
+
+
+
 
 
 }

@@ -63,18 +63,18 @@ public class TripleDes {
 
     // standard stuff
     public byte[] encrypt(byte[] unencrypted) throws GeneralSecurityException {
-        return doCipher(unencrypted, Cipher.ENCRYPT_MODE);
-    }
+            return doCipher(unencrypted, Cipher.ENCRYPT_MODE);
+        }
 
-    public byte[] decrypt(byte[] encrypted) throws GeneralSecurityException {
-        return doCipher(encrypted, Cipher.DECRYPT_MODE);
-    }
+        public byte[] decrypt(byte[] encrypted) throws GeneralSecurityException {
+            return doCipher(encrypted, Cipher.DECRYPT_MODE);
+        }
 
-    private byte[] doCipher(byte[] original, int mode) throws GeneralSecurityException {
-        Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
-        // IV = 0 is yet another issue, we'll ignore it here
-        IvParameterSpec iv = new IvParameterSpec(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
-        cipher.init(mode, keySpec, iv);
-        return cipher.doFinal(original);
+        private byte[] doCipher(byte[] original, int mode) throws GeneralSecurityException {
+            Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
+            // IV = 0 is yet another issue, we'll ignore it here
+            IvParameterSpec iv = new IvParameterSpec(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
+            cipher.init(mode, keySpec, iv);
+            return cipher.doFinal(original);
     }
 }

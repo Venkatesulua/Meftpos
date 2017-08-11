@@ -570,19 +570,33 @@ public static DaoSession daosession;
         return commsModel;
     }
 
-    public static BatchModel getBatchModelbyInvoiceOBJ(Activity context, String InVoice){
+    public static void DeleteBatchTransactions(Activity context, String Hdt_index){
         BatchModel batchModel = new BatchModel();
         if(daosession == null){
             getInstance(context);
         }
         QueryBuilder<BatchModel> qb = daosession.getBatchModelDao().queryBuilder();
-        qb.where(BatchModelDao.Properties.Invoice_number.eq(InVoice));
+        qb.where(BatchModelDao.Properties.Hdt_index.eq(Hdt_index));
         if(qb.list().size()>0){
 
-            batchModel = qb.list().get(0);
+            qb.buildDelete().executeDeleteWithoutDetachingEntities();
         }
-        return batchModel;
+        return;
     }
+
+	public static BatchModel getBatchModelbyInvoiceOBJ(Activity context, String InVoice){
+		BatchModel batchModel = new BatchModel();
+		if(daosession == null){
+			getInstance(context);
+		}
+		QueryBuilder<BatchModel> qb = daosession.getBatchModelDao().queryBuilder();
+		qb.where(BatchModelDao.Properties.Invoice_number.eq(InVoice));
+		if(qb.list().size()>0){
+
+			batchModel = qb.list().get(0);
+		}
+		return batchModel;
+	}
 
 	public static List<BatchModel> getBatchModelOBJList(Activity context, String hostId){
 		 List<BatchModel> batchModelList = new ArrayList<>();
@@ -627,6 +641,8 @@ public static DaoSession daosession;
  	}
 
 
+
+
 	public static void insertBatchModelOBJ(Activity context, BatchModel batchModel){
 		if(daosession == null){
 			getInstance(context);
@@ -634,6 +650,8 @@ public static DaoSession daosession;
 		BatchModelDao batchModelDao =daosession.getBatchModelDao();
 		batchModelDao.insertOrReplace(batchModel);
 	}
+
+
 
 
 	public static void insertHostModelOBJ(Activity context, HostModel hostModel){

@@ -241,7 +241,7 @@ public class AdminActivity extends Activity {
                            //Increment Batch Number
                            TransactionDetails.inGHDT = Integer.parseInt(hostModel.getHDT_HOST_ID());
                            QueryBuilder<BatchModel> qb = batchModelDao.queryBuilder();
-                           qb.where(BatchModelDao.Properties.Hdt_index.eq(Integer.toString(TransactionDetails.inGHDT)));
+                           qb.where(BatchModelDao.Properties.Hdt_index.eq(String.format("%02d",TransactionDetails.inGHDT)));
                            batchModelList = qb.list();
                            if (batchModelList.size() >0) {
                                BatchPresent = 1;
@@ -1503,4 +1503,6 @@ public class AdminActivity extends Activity {
 
 
     }
+
+
 }
