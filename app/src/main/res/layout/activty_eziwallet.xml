@@ -73,12 +73,12 @@
                 android:layout_marginLeft="7dp"
                 android:layout_weight="0.6"
                 android:gravity="left"
-                android:text="Order No :"
+                android:text="Terminal Id :"
                 android:textColor="@color/colorAccent"
                 android:textSize="20dp" />
 
             <EditText
-                android:id="@+id/eziwallet_orderno"
+                android:id="@+id/terminal_id"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_weight="0.4"

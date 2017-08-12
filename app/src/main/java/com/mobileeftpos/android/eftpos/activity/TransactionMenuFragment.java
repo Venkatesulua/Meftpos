@@ -1,6 +1,5 @@
 package com.mobileeftpos.android.eftpos.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,13 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mobileeftpos.android.eftpos.EziWallet.EziWalletActivity;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
@@ -123,7 +119,7 @@ public class TransactionMenuFragment extends Fragment  {
         if(afterTranscation.inSearchHost(Constants.HostType.ALIPAY_HOST)== Constants.ReturnValues.RETURN_OK)
             homeListData.add(MenuConstants.ALIPAY_SALE);
 
-           // homeListData.add(MenuConstants.EZ_iWallet);
+        homeListData.add(MenuConstants.EZ_iWallet);
         //}
 
 

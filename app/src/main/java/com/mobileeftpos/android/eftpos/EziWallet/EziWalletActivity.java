@@ -1,34 +1,42 @@
-package com.mobileeftpos.android.eftpos.activity;
+package com.mobileeftpos.android.eftpos.EziWallet;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
-import com.mobileeftpos.android.eftpos.Ezlink.CepasPayment;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
-import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.async.ServiceCall;
 import com.mobileeftpos.android.eftpos.scan.SunmiScanner;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 import com.mobileeftpos.android.eftpos.utils.Const;
 import com.mobileeftpos.android.eftpos.utils.EFTPOSLog;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import static com.mobileeftpos.android.eftpos.activity.AlipayActivity.REQUEST_ID_MULTIPLE_PERMISSIONS;
 
 /**
  * Created by Prathap on 4/23/17.
@@ -38,7 +46,7 @@ public class EziWalletActivity extends Activity {
 
 private Button submitBtn;
     public static String amount;
-    private EditText payet,merchantId,storeId,orderNo,desc;
+    private EditText payet,merchantId,storeId,terminalID,desc;
     private String TAG=EziWalletActivity.class.getSimpleName();
     public static int EZiWallet_CONSTANT=111;
     private Context context;
@@ -49,11 +57,12 @@ private Button submitBtn;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activty_eziwallet);
         context=EziWalletActivity.this;
+        checkAndRequestPermissions();
         submitBtn=(Button)findViewById(R.id.eziwallet_submitBtn);
         payet=(EditText)findViewById(R.id.eziwallet_payAmount);
         merchantId=(EditText)findViewById(R.id.eziwallet_merchantid);
         storeId=(EditText)findViewById(R.id.eziwallet_storeid);
-        orderNo=(EditText)findViewById(R.id.eziwallet_orderno);
+        terminalID=(EditText)findViewById(R.id.terminal_id);
         desc=(EditText)findViewById(R.id.eziwallet_desc);
 
         TextView backBtn=(TextView)findViewById(R.id.eziwallet_back_btn);
@@ -125,21 +134,58 @@ private Button submitBtn;
 
     }
 
-    private JSONObject buildJSONRequest() {
+
+    private  String getConstrunctedObject() {
+         String thirdOrderNo = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        System.out.println("thirdOrderNo is " + thirdOrderNo);
+        DeductRequestParam deductRequestParam = new DeductRequestParam();
+        deductRequestParam.setThirdOrderNo(thirdOrderNo); //The order no in your system
+        deductRequestParam.setStoreId(Long.parseLong(storeId.getText().toString())); //store id which is from Ezi,(Fixed value)
+        deductRequestParam.setMerchantId(merchantId.getText().toString()); //merchant id which is from Ezi,(Fixed value)
+        deductRequestParam.setTerminalId(terminalID.getText().toString()); //Terminal Id of your device
+        deductRequestParam.setAmount(Long.parseLong(payet.getText().toString())); //pay amount, without decimal, 188 means $1.88
+        deductRequestParam.setQrcode(scannedCode); //QR Code from Ezi wallet
+        deductRequestParam.setDesc(desc.getText().toString()); //description of this transaction, optional
+
+        //1.get content for sign
+        String signContent = null;
         try {
-            JSONObject object = new JSONObject();
-            object.put("thirdOrderNo",orderNo.getText().toString());
-            object.put("storeId", storeId.getText().toString());
-            object.put("amount", payet.getText().toString());
-            object.put("merchantId", merchantId.getText().toString());
-            object.put("desc", desc.getText().toString());
-            object.put("qrcode", scannedCode);
-            object.put("sign", "testSign");
-            return object;
-        } catch (Exception e) {
-            Log.d(TAG, e + "");
-            return null;
+            signContent = RSAUtil.getSignContent(deductRequestParam);
+        } catch (IllegalAccessException e) {
+            return "failed to get sign content";
         }
+
+        //2.sign the request parameters by private key
+        String signStr = null;
+        try {
+            signStr = RSAUtil.sign(signContent, Const.privateKey);
+        } catch (Exception e) {
+            return "failed to sign param";
+        }
+
+        deductRequestParam.setSign(signStr);
+
+        //3.call the api to deduct
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonStr = mapper.writeValueAsString(deductRequestParam);
+
+            return jsonStr;
+
+        } catch (Exception e) {
+
+        }
+        return null;
+    }
+
+    private void clearFields(){
+        submitBtn.setText("");
+        payet.setText("");
+        merchantId.setText("");
+        storeId.setText("");
+        terminalID.setText("");
+        desc.setText("");
+
     }
 
 
@@ -150,7 +196,7 @@ private Button submitBtn;
                 public void onResp(JSONObject response) {
                     Log.d("Response:::", response.toString());
                     Toast.makeText(context, response.toString(), Toast.LENGTH_LONG).show();
-
+                    clearFields();
                     try {
                         String status = response.getJSONObject("response").getString("status");
                         String message = response.getJSONObject("response").getString("message");
@@ -179,7 +225,13 @@ private Button submitBtn;
             };
 
             if (AppUtil.isNetworkAvailable(context)) {
-                serv.makeJsonObjPOSTReq(Const.URL_BASE_FINAL + Const.METHOD_DEDUCT, buildJSONRequest());
+                JSONObject obj = null;
+                try {
+                    obj = new JSONObject(getConstrunctedObject());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                serv.makeJsonObjPOSTReq(Const.URL_BASE_FINAL + Const.METHOD_DEDUCT, obj);
             } else {
                 AppUtil.showDialogAlert(context, " " + Const.NO_INTERNET);
                 serv.hideProgressDialog();
@@ -187,9 +239,24 @@ private Button submitBtn;
 
         }
 
+
+    private  boolean checkAndRequestPermissions() {
+
+        int locationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (locationPermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.CAMERA);
+        }
+
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
+    }
         private boolean validateDetails(){
 
-            if(orderNo.getText().toString().length()>0 &&  storeId.getText().toString().length()>0 && payet.getText().toString().length()>0 && merchantId.getText().toString().length()>0 && desc.getText().toString().length()>0){
+            if(terminalID.getText().toString().length()>0 &&  storeId.getText().toString().length()>0 && payet.getText().toString().length()>0 && merchantId.getText().toString().length()>0 && desc.getText().toString().length()>0){
                 return true;
             }else {
                 return false;
