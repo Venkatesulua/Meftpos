@@ -101,6 +101,9 @@
             android:name=".EziWallet.EziWalletActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".EziWallet.EziWalletOrderActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
             tools:replace="screenOrientation" />
