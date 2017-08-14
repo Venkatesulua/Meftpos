@@ -10,7 +10,13 @@ import android.widget.LinearLayout;
 
 import com.mobileeftpos.android.eftpos.Ezlink.EzlBalance;
 import com.mobileeftpos.android.eftpos.Ezlink.EzlBlacklist;
+import com.mobileeftpos.android.eftpos.Ezlink.Logon;
 import com.mobileeftpos.android.eftpos.R;
+import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 /**
@@ -52,6 +58,14 @@ public class ReceiptMenuFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onClick(View view) {
+
+        //TransactionDetails transDetails = new TransactionDetails();
+
+        TransactionDetails.vdCleanFields();
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSS");
+        Date date = new Date();
+        String stDate = dateFormat.format(date);
+        TransactionDetails.trxDateTime=stDate;
         switch (view.getId()) {
             case R.id.reprintItem:
                 startActivity(new Intent(getActivity(),ReprintMenuActivity.class));
@@ -66,6 +80,7 @@ public class ReceiptMenuFragment extends Fragment implements View.OnClickListene
                 break;
 
             case R.id.logonItem:
+                startActivity( new Intent(getActivity(), Logon.class));
                 break;
 
             case R.id.blacklistItem:

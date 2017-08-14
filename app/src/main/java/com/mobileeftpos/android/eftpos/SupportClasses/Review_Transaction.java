@@ -26,8 +26,6 @@ public class Review_Transaction {
         //BatchModel batchModeldata = new BatchModel();
         HostModel hostModel = new HostModel();
 
-        PayServices payService = new PayServices();
-        RemoteHost remoteHost = new RemoteHost();
         currModelData = GreenDaoSupport.getCurrencyTableModelOBJ(activity);
 
         //currModelData = databaseObj.getCurrencyData(0);

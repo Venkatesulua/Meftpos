@@ -1,6 +1,7 @@
 package com.mobileeftpos.android.eftpos.EziWallet;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -33,9 +34,21 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+//import javax.net.ssl.X509TrustManager;
+//import javax.security.cert.X509Certificate;
 
 import static com.mobileeftpos.android.eftpos.activity.AlipayActivity.REQUEST_ID_MULTIPLE_PERMISSIONS;
 
@@ -58,6 +71,7 @@ public class EziWalletOrderActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        handleSSLHandshake();
         setContentView(R.layout.activty_eziwallet);
         context = EziWalletOrderActivity.this;
         title = (TextView) findViewById(R.id.ez_title);
@@ -207,7 +221,10 @@ public class EziWalletOrderActivity extends Activity {
         deductRequestParam.setStoreId(Long.parseLong(storeId.getText().toString())); //store id which is from Ezi,(Fixed value)
         deductRequestParam.setMerchantId(merchantId.getText().toString()); //merchant id which is from Ezi,(Fixed value)
         deductRequestParam.setTerminalId(terminalID.getText().toString()); //Terminal Id of your device
-        deductRequestParam.setAmount(Long.parseLong(payet.getText().toString())); //pay amount, without decimal, 188 means $1.88
+        amount = payet.getText().toString();
+        amount =amount.replace("$","");
+        amount =amount.replace(".","");
+        deductRequestParam.setAmount(Long.parseLong(amount)); //pay amount, without decimal, 188 means $1.88
         deductRequestParam.setQrcode(scannedCode); //QR Code from Ezi wallet
         deductRequestParam.setDesc(desc.getText().toString()); //description of this transaction, optional
 
@@ -411,6 +428,51 @@ public class EziWalletOrderActivity extends Activity {
             return true;
         } else {
             return false;
+        }
+    }
+
+    /**
+     * Enables https connections
+     */
+    @SuppressLint("TrulyRandom")
+    public static void handleSSLHandshake() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+                @Override
+                public void checkClientTrusted(java.security.cert.X509Certificate[] x509Certificates, String s) throws CertificateException {
+
+                }
+
+                @Override
+                public void checkServerTrusted(java.security.cert.X509Certificate[] x509Certificates, String s) throws CertificateException {
+
+                }
+
+
+
+               /* @Override
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }*/
+            }};
+
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+            });
+        } catch (Exception ignored) {
         }
     }
 

@@ -387,16 +387,19 @@ public class CardFunctions {
 
     public void Ezlink_vdDecryptCounterData() {
         byte[] InputData =new byte[8];
-        //byte[] OutputData =new byte[8];
-        //byte[] tempbuf=new byte[8];
+        byte[] CounterData =new byte[8];
+        byte[] Output =new byte[8];
+        byte[] tempbuf=new byte[8];
 
         System.arraycopy(TransactionDetails.LastSignCert, 0, InputData, 0, 8);
+        System.arraycopy(TransactionDetails.LastSignCert, 0, tempbuf, 0, 8);
+        System.arraycopy(TransactionDetails.LastCounterData, 0, CounterData, 0, 8);
 
         TripleDes tripleDes=new TripleDes(TransactionDetails.SessionKey);
         try {
-            TransactionDetails.LastSignCert = tripleDes.decrypt(TransactionDetails.LastSignCert);
-            TransactionDetails.LastCounterData = tripleDes.decrypt(TransactionDetails.LastCounterData);
-            TransactionDetails.LastCounterData = vdXorBlock(TransactionDetails.LastCounterData, InputData);
+            TransactionDetails.LastSignCert = tripleDes.decrypt(InputData);
+            Output = tripleDes.decrypt(CounterData);
+            TransactionDetails.LastCounterData = vdXorBlock(Output, tempbuf);
         }catch(Exception e){
 
             String sss=e.getMessage();

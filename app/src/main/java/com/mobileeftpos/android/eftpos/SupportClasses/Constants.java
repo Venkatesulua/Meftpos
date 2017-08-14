@@ -59,6 +59,7 @@ public class Constants {
 		public static final int BLACKLIST_SUBSEQUENT_DOWNLOAD = 14;
 		public static final int EZLINK_SALE = 15;
 		public static final int EZ_iWallet = 16;
+		public static final int LOGON = 17;
 
 	}
 
@@ -86,6 +87,10 @@ public class Constants {
 		public static final int RETURN_ADMIN_MESSAGE= 13;
 		public static final int RETURN_REVERSAL_FAILED = 14;
 		public static final int RETURN_UPLOAD_FAILED = 15;
+		public static final int HOST_NOT_SUPPORTED = 16;
+		public static final int SAM_INIT_ERROR = 17;
+		public static final int EZLINK_SAM_ERROR=18;
+		public static final int BLACKLIST_CONTINUE=19;
 	}
 
 	public class TMSReturnValues {
@@ -119,6 +124,7 @@ public class Constants {
 		public static final String BLACKLIST_FIRST_PROC = "301040";
 		public static final String BLACKLIST_NEXT_PROC = "301041";
 		public static final String EZLINK_PAYMENT_PROC = "403010";
+		public static final String EZLINK_LOGON_PROC = "401000";
 	}
 
 	public class PaymentStatus{

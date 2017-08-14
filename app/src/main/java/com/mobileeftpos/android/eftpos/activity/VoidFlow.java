@@ -16,16 +16,11 @@ import android.widget.Toast;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
-import com.mobileeftpos.android.eftpos.SupportClasses.PacketCreation;
-import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
-import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
-import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.Review_Transaction;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.TransactionFlow.HAfterTransaction;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.BatchModel;
-import com.mobileeftpos.android.eftpos.db.CommsModel;
 import com.mobileeftpos.android.eftpos.db.DaoSession;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 
@@ -40,17 +35,12 @@ public class VoidFlow extends AppCompatActivity {
     private Review_Transaction reviewTrans = new Review_Transaction();
     private BatchModel batchModeldata = new BatchModel();
     private TransactionDetails trDetails = new TransactionDetails();
-    private PayServices payService = new PayServices();
     private final String TAG = "my_custom_msg";
     AsyncTaskRunner mAsyncTask;
-    private PrintReceipt printReceipt = new PrintReceipt();
     private static final int TIME_OUT = 5000;
     
-    private PacketCreation isoPacket = new PacketCreation();
-    private RemoteHost remoteHost = new RemoteHost();
     public byte[] FinalData = new byte[1512];
     //private int TransactionDetails.inFinalLength = 0;
-   // private AsyncTaskRequestResponse ASTask = new AsyncTaskRequestResponse();
     public static Context context;
     private DaoSession daoSession;
 

@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
-import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.TransactionFlow.GPrintReceipt;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;

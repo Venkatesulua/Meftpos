@@ -85,7 +85,7 @@
                 android:layout_height="40dp"
                 android:layout_weight="0.4"
                 android:background="@drawable/all_corner_saleedittext_bg"
-                 android:inputType="numberDecimal"
+                android:text="Terminal 002"
                 android:padding="10dp"
                 android:singleLine="true" />
         </LinearLayout>
@@ -112,7 +112,7 @@
                 android:layout_height="40dp"
                 android:layout_weight="0.4"
                 android:background="@drawable/all_corner_saleedittext_bg"
-                android:inputType="numberDecimal"
+                android:text="100000"
                 android:padding="10dp"
                 android:singleLine="true" />
         </LinearLayout>
@@ -140,7 +140,7 @@
                 android:layout_height="40dp"
                 android:layout_weight="0.4"
                 android:background="@drawable/all_corner_saleedittext_bg"
-                android:inputType="numberDecimal"
+                android:text="M000004"
                 android:padding="10dp"
                 android:singleLine="true" />
         </LinearLayout>
@@ -170,7 +170,6 @@
                 android:layout_weight="0.4"
                 android:background="@drawable/all_corner_saleedittext_bg"
                 android:hint="$0.00"
-                android:inputType="numberDecimal"
                 android:padding="10dp"
                 android:singleLine="true" />
         </LinearLayout>
@@ -197,6 +196,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                  android:background="@drawable/all_corner_saleedittext_bg"
+                android:text="EZi Wallet"
                  android:padding="10dp"
                  />
         </LinearLayout>

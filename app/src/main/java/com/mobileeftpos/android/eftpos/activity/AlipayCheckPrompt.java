@@ -2,10 +2,8 @@ package com.mobileeftpos.android.eftpos.activity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -14,17 +12,9 @@ import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
-import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
-import com.mobileeftpos.android.eftpos.SupportClasses.PacketCreation;
-import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
-import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
-import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.TransactionFlow.HAfterTransaction;
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.CommsModel;
-import com.mobileeftpos.android.eftpos.db.DaoSession;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 
 import butterknife.BindView;
@@ -43,9 +33,7 @@ public class AlipayCheckPrompt extends AppCompatActivity {
     //private RemoteHost remoteHost = new RemoteHost();
     private final String TAG = "my_custom_msg";
     private int inInitiation=0;
-    public PrintReceipt printReceipt = new PrintReceipt();
     private static final int TIME_OUT = 5000;
-    public PayServices payServices = new PayServices();
     public static Context context;
     //private DaoSession daoSession;
     public HAfterTransaction afterTranscation = new HAfterTransaction();

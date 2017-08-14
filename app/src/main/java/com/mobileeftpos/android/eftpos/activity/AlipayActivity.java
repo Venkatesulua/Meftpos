@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -16,25 +15,16 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
-import com.google.gson.Gson;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
-import com.mobileeftpos.android.eftpos.SupportClasses.PacketCreation;
-import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
-import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
 //import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
-import com.mobileeftpos.android.eftpos.TransactionFlow.CPacketHandling;
 import com.mobileeftpos.android.eftpos.TransactionFlow.HAfterTransaction;
 import com.mobileeftpos.android.eftpos.async.WebServiceCall;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
-import com.mobileeftpos.android.eftpos.db.BatchModel;
-import com.mobileeftpos.android.eftpos.db.CommsModel;
-import com.mobileeftpos.android.eftpos.db.CommsModelDao;
 import com.mobileeftpos.android.eftpos.db.DaoSession;
 //import com.mobileeftpos.android.eftpos.db.HTTModel;
-import com.mobileeftpos.android.eftpos.db.HTTModelDao;
 import com.mobileeftpos.android.eftpos.model.AlipayResponceModel;
 import com.mobileeftpos.android.eftpos.scan.SunmiScanner;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
@@ -48,10 +38,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
-import rx.Observer;
-import rx.schedulers.Schedulers;
-
 public class AlipayActivity extends AppCompatActivity {
 
     public HAfterTransaction afterTranscation = new HAfterTransaction();
@@ -61,18 +47,9 @@ public class AlipayActivity extends AppCompatActivity {
     public static boolean isFromBarcodeScanner;
     private final String TAG = "my_custom_msg";
     public static int ALIPAY_CONSTANT=111;
-    //public static String ALIPAY_SCANRESULT="scanResult";
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
-    //public TransactionDetails trDetails = new TransactionDetails();
-    public PacketCreation isoPacket = new PacketCreation();
-    //public RemoteHost remoteHost = new RemoteHost();
-    public PrintReceipt printReceipt = new PrintReceipt();
-    public PayServices payServices = new PayServices();
-    //AsyncTaskRunner mAsyncTask;
     public byte[] FinalData = new byte[1512];
     Activity loContext;
-    //private String ServerIP="";
-    //private String Port="";
     private DaoSession daoSession;
     private static final int TIME_OUT = 1000;
     private static String BASE_URL="https://devapi.prayapay.com/v2?";
@@ -195,7 +172,6 @@ public class AlipayActivity extends AppCompatActivity {
             TransactionDetails.PAN = contents;
             TransactionDetails.trxType = Constants.TransType.ALIPAY_SALE;
             TransactionDetails.inOritrxType = Constants.TransType.ALIPAY_SALE;
-            //AsyncTaskRequestResponse ASTask = new AsyncTaskRequestResponse(context);
             //ASTask.AsyncTaskCreation(context);
             new AsyncTaskRunner().execute();
 

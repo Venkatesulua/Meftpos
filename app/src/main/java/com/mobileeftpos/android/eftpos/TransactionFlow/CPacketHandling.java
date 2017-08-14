@@ -6,33 +6,17 @@ import android.util.Log;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
 import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
-import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
-import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.SupportClasses.TripleDes;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.BatchModel;
-import com.mobileeftpos.android.eftpos.db.HostModel;
 import com.mobileeftpos.android.eftpos.utils.StringByteUtils;
 
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 
 import java.math.BigInteger;
-import java.nio.charset.Charset;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelOption;
-import io.reactivex.netty.protocol.tcp.client.TcpClient;
-import rx.Observable;
-import rx.Observer;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by venkat on 8/2/2017.
@@ -47,6 +31,7 @@ public class CPacketHandling extends BValidateCard{
     int inVoided=0;
 
     private String Field47="";
+    private String TotalBlacklistCount="";
 
     public void setField47(String Field47)
     {
@@ -55,6 +40,14 @@ public class CPacketHandling extends BValidateCard{
     public String getField47()
     {
         return this.Field47;
+    }
+    public void setTotalBlacklistCount(String TotalBlacklistCount)
+    {
+        this.TotalBlacklistCount=TotalBlacklistCount;
+    }
+    public String getTotalBlacklistCount()
+    {
+        return this.TotalBlacklistCount;
     }
 
     public int inFCreatePacket( byte[] FinalData, int inTrxType, Activity activity)
@@ -81,6 +74,7 @@ public class CPacketHandling extends BValidateCard{
 
         String stAlipayExtData="";
         isoMsg.setPackager(packager);
+        isoMsg.unset(39);
         try {
 
             Log.i(TAG,"PacketCreation:::inCreatePacket : ");
@@ -88,6 +82,21 @@ public class CPacketHandling extends BValidateCard{
 
             String staddinfo="";
             switch (inTrxType) {
+                case Constants.TransType.LOGON:
+                    isoMsg.setHeader(hostModel.getHDT_TPDU().getBytes());
+                    isoMsg.setMTI(Constants.MTI.Authorization);
+                    isoMsg.set(3, Constants.PROCESSINGCODE.EZLINK_LOGON_PROC);
+                    isoMsg.set(11, TransactionDetails.InvoiceNumber);
+                    isoMsg.set(12, TransactionDetails.trxDateTime.substring(8,14));
+                    isoMsg.set(13, TransactionDetails.trxDateTime.substring(4,8));
+                    isoMsg.set(24, hostModel.getHDT_TPDU().substring(2,6));
+                    isoMsg.set(25, "00");
+                    isoMsg.set(41, hostModel.getHDT_TERMINAL_ID());
+                    isoMsg.set(42, hostModel.getHDT_MERCHANT_ID());
+                    isoMsg.set(60, "1.00");
+                    isoMsg.set(63, TransactionDetails.responseMessge);
+
+                    break;
                 case Constants.TransType.EZLINK_SALE:
                     isoMsg.setHeader(GetHostModel().getHDT_TPDU().getBytes());
                     isoMsg.setMTI(Constants.MTI.Financial);
@@ -386,7 +395,12 @@ public class CPacketHandling extends BValidateCard{
                     if(Field47.isEmpty())
                         isoMsg.set(47,"FULL000000");
                     else
-                        isoMsg.set(47,Field47);
+                        isoMsg.set(47,getField47());
+                    isoMsg.unset(60);
+                    isoMsg.unset(61);
+                    isoMsg.unset(62);
+
+
                    /* field_47[0] = 0x00; //Ezlink: ABL Changes
                     field_47[1] = 0x10; //Ezlink: ABL Changes
                     if (strlen(stGlobalex.chGAdditionalPrompt) > 0) {
@@ -647,6 +661,24 @@ public class CPacketHandling extends BValidateCard{
                 isoMsg.unpack(FinalData);
                 // print the DE list
                 logISOMsg(isoMsg);
+
+                if(TransactionDetails.trxType == Constants.TransType.BLACKLIST_FIRST_DOWNLOAD || TransactionDetails.trxType == Constants.TransType.BLACKLIST_SUBSEQUENT_DOWNLOAD){
+                    if(isoMsg.hasField(60))
+                   // if(isoMsg.getString(60).length()>0)
+                        setTotalBlacklistCount(isoMsg.getString(60).substring(3,9));
+                    if(isoMsg.getString(47).substring(4,10).length()>0)
+                        setField47(isoMsg.getString(47));
+                }
+                if(isoMsg.getString(39).equals("00"))
+                    return Constants.ReturnValues.RETURN_OK;
+                else if(isoMsg.getString(39).equals("35")) {
+
+                    return Constants.ReturnValues.BLACKLIST_CONTINUE;
+                }
+                else if(isoMsg.getString(39).equals("95"))
+                    return Constants.ReturnValues.RETURN_BATCH_TRANSFER;
+                else
+                    return Constants.ReturnValues.RETURN_ERROR;
             }else{
                 Log.i(TAG,"PacketCreation:::\ninProcessPacket_2:");
 
@@ -848,7 +880,352 @@ public class CPacketHandling extends BValidateCard{
         //databaseObj.UpdateHostData(hostData);
         GreenDaoSupport.insertHostModelOBJ(locontext,hostModel);
     }
+    public byte[] inCreateField63(){
+        //Ezlink header end here
+        //EzlinkModel EzlinkData = databaseObj.getEzlinkData(0);
+        byte[] byDevType = StringByteUtils.HexString2Bytes(ezlinkModel.getEZLINK_PAYMENT_DEVICE_TYPE());
+        byte[] byField63 = new byte[32+112];
+        byte[] byField63Header=new byte[32];
+        byte[] byField63Content=new byte[112];
 
+        System.arraycopy(StringByteUtils.HexString2Bytes("001E"), 0, byField63Header, 0, 2);//Header length
+        System.arraycopy(StringByteUtils.HexString2Bytes("0000"), 0, byField63Header, 2, 2);//Header_Ver
+        System.arraycopy(byDevType, 0, byField63Header, 4, 2);//Device type
+        System.arraycopy(TransactionDetails.SAMSerialNumber, 0, byField63Header, 6, 8);//SAM Serial Number
+        System.arraycopy(StringByteUtils.HexString2Bytes("7000"), 0, byField63Header, 14, 2);//Packet Type
+        System.arraycopy(StringByteUtils.HexString2Bytes("00000002"), 0, byField63Header, 16, 4);//Packet code
+        if(TransactionDetails.trxType == Constants.TransType.LOGON )
+            System.arraycopy(StringByteUtils.HexString2Bytes("00"), 0, byField63Header, 20, 1);//Card type
+        else if(TransactionDetails.CAN[0] != (byte)0x80)
+            System.arraycopy(StringByteUtils.HexString2Bytes("02"), 0, byField63Header, 20, 1);//Card type
+        else
+            System.arraycopy(StringByteUtils.HexString2Bytes("80"), 0, byField63Header, 20, 1);//Card type
+        System.arraycopy(StringByteUtils.HexString2Bytes("00"), 0, byField63Header, 21, 1);//retry count
+        System.arraycopy(StringByteUtils.HexString2Bytes("00"), 0, byField63Header, 22, 1);//Transaction type 00-normal , 01-uncnfirmed
+        System.arraycopy(StringByteUtils.HexString2Bytes("00000095"), 0, byField63Header, 23, 4);//Payload len
+        System.arraycopy(StringByteUtils.HexString2Bytes("00"), 0, byField63Header, 27, 1);//Payload len
+        System.arraycopy(StringByteUtils.HexString2Bytes("0000"), 0, byField63Header, 28, 2);//
+        byte[] byCRC = ComputeCrc(1,byField63Header,30);
+        System.arraycopy(byCRC, 0, byField63Header, 30, 2);
+
+        if(TransactionDetails.trxType == Constants.TransType.LOGON )
+            return byField63Header;
+
+        System.arraycopy(StringByteUtils.HexString2Bytes("0000006C"), 0, byField63Content, 0, 4);//Data len
+        System.arraycopy(TransactionDetails.JulianDate, 0, byField63Content, 4, 4);//Date
+
+        String stTerminalID = hostModel.getHDT_TERMINAL_ID();
+        byte[] byTerminalID = StringByteUtils.HexString2Bytes(stTerminalID);
+        System.arraycopy(byTerminalID, 0, byField63Content,8 , 4);
+        System.arraycopy(TransactionDetails.JulianDate, 0, byField63Content, 12, 4);
+        System.arraycopy(TransactionDetails.CAN, 0, byField63Content, 16, 8);
+        System.arraycopy(TransactionDetails.bBDC, 0, byField63Content, 24, 1);
+        System.arraycopy(StringByteUtils.HexString2Bytes("A0"), 0, byField63Content, 25, 1);
+        System.arraycopy(TransactionDetails.EzlinkPaymentAmt, 0, byField63Content, 26, 3);
+        System.arraycopy(TransactionDetails.JulianDate, 0, byField63Content, 29, 4);
+        System.arraycopy(TransactionDetails.PurseBalance, 0, byField63Content, 33, 3);
+        System.arraycopy(TransactionDetails.CounterData, 0, byField63Content, 36, 8);
+        System.arraycopy(TransactionDetails.SignCert, 0, byField63Content, 44, 8);
+        System.arraycopy(TransactionDetails.LastCreditHeader, 0, byField63Content, 52, 8);
+        System.arraycopy(TransactionDetails.LastCreditTRP, 0, byField63Content, 60, 4);
+        System.arraycopy(TransactionDetails.LastPruseStatus, 0, byField63Content, 64, 1);
+        System.arraycopy(TransactionDetails.LastHeader, 0, byField63Content, 65, 8);
+        System.arraycopy(TransactionDetails.LastTRP, 0, byField63Content, 73, 4);
+        System.arraycopy(TransactionDetails.bOrigBal, 0, byField63Content, 77, 3);
+        System.arraycopy(TransactionDetails.LastCounterData, 0, byField63Content, 80, 8);
+        System.arraycopy(TransactionDetails.LastSignCert, 0, byField63Content, 88, 8);
+        System.arraycopy(TransactionDetails.LastOptions, 0, byField63Content, 96, 1);
+        System.arraycopy(TransactionDetails.AutoLoadAmt, 0, byField63Content, 97, 3);
+        System.arraycopy(TransactionDetails.PaymentTRP, 0, byField63Content, 100, 4);
+        byte[] byMAC=inCalculateEZMAC(byField63Content,104,StringByteUtils.HexString2Bytes("0000000000000000"));
+        System.arraycopy(byMAC, 0, byField63Content, 104, 8);
+
+        System.arraycopy(byField63Header, 0, byField63, 0, 32);
+        System.arraycopy(byField63Content, 0, byField63, 32, 112);
+
+
+        return byField63;
+    }
+
+    byte[] ComputeCrc(int CRCType, byte[] Data, int Length) {
+        byte[] byRet = new byte[2];
+        byte chBlock;
+        int wCrc;
+        int i=0;
+        switch (CRCType) {
+            case 0:
+                wCrc = 0x6363; // ITU-V.41
+                break;
+            case 1:
+                wCrc = 0xFFFF; // ISO 3309
+                break;
+            default:
+                return null;
+        }
+        do {
+            chBlock = Data[i++];
+            wCrc = UpdateCrc(chBlock, wCrc);
+            Length = Length-1;
+        } while (Length !=0);
+        if (CRCType == 1)
+            wCrc = ~wCrc; // ISO 3309
+        if(wCrc<0)
+            wCrc=65536 + wCrc;
+        byRet[0] = (byte) (wCrc & 0xFF);
+        byRet[1] = (byte) ((wCrc >> 8) & 0xFF);
+        return byRet;
+    }
+    int UpdateCrc(byte ch, int lpwCrc) {
+        int hi=0;
+
+        ch = (byte)(ch ^ ((byte) (lpwCrc & 0x00FF)));
+
+        ch = (byte)(ch ^ (byte)((ch << 4)));
+        if(ch<0) {
+            hi = 256 + ch;
+        }else
+            hi =ch;
+        lpwCrc = (lpwCrc >> 8) ^ ((int) hi << 8) ^ ((int) hi << 3) ^ ((int) hi >> 4);
+        return (lpwCrc);
+    }
+    public int vdRecordDebitCRC()
+    {
+        byte[] data=new byte[24];
+        int i=0;
+        byte[] temp;
+
+        System.arraycopy(TransactionDetails.PaymentTRP,0,data,0,4);
+        data[4] = 0x00; //Debit Options
+        data[5] = 0x03;
+        data[6] = 0x14;
+        data[7] = 0x03;
+        data[8] = (byte)0xA0;//txn type
+        System.arraycopy(TransactionDetails.EzlinkPaymentAmt,0,data,9,3);
+        System.arraycopy(TransactionDetails.JulianDate,0,data,12,4);
+        byte[] userdata = new byte[8];
+        userdata = Constants.Ezlink.User_Data.getBytes();
+        //userdata[7] = 0x20;
+        System.arraycopy(userdata,0,data,16,8);
+
+        //int crcRes = calculate_crc(data);
+        //System.out.println(Integer.toHexString(crcRes));
+
+        //TransactionDetails.GtxnCRC[0] = (byte) ((crcRes & 0x000000ff));
+        //TransactionDetails.GtxnCRC[1] = (byte) ((crcRes & 0x0000ff00) >>> 8);
+
+        //System.out.printf("%02X\n%02X", TransactionDetails.GtxnCRC[0],TransactionDetails.GtxnCRC[1]);
+
+        //int CRC = crc16(data);
+        //System.out.println("hhhhh");
+        TransactionDetails.GtxnCRC = ComputeCrc(1, data, 24);
+        //String hxStr = Integer.toHexString(inCRC);
+        //byte[] GtxnCRC = hxStr.getBytes();
+        //ComputeCrc(CRC_B,data,24,GtxnCRC,GtxnCRC+1);
+        return Constants.ReturnValues.RETURN_OK;
+    }
+
+
+
+
+
+    ///YYMMDD format for ascii date
+    long ulGetJulianDate(byte[] AsciiDate, byte[] JulianDate)
+    {
+        int Year;
+        int Month;
+        int Day;
+        long lnJulDt;
+        Year = (AsciiDate[0] -'0')*10;
+        Year = Year + (AsciiDate[1] -'0');
+        Year = Year -1; //add uptio last year only, this year is not finished yet
+
+        Month = (AsciiDate[2] -'0')*10;
+        Month = Month + (AsciiDate[3] -'0');
+
+        Day = (AsciiDate[4] -'0')*10;
+        Day = Day + (AsciiDate[5] -'0');
+
+        lnJulDt = 0;
+        lnJulDt = lnJulDt + (365*Year);
+        lnJulDt = lnJulDt + (Year/4);
+
+        switch(Month)
+        {
+            case 1:
+                //nothing to add here
+                break;
+            case 2:
+                lnJulDt = lnJulDt +31;
+                break;
+            case 3:
+                lnJulDt = lnJulDt +31+28;
+                break;
+            case 4:
+                lnJulDt = lnJulDt +31+28+31;
+                break;
+            case 5:
+                lnJulDt = lnJulDt +31+28+31+30;
+                break;
+            case 6:
+                lnJulDt = lnJulDt +31+28+31+30+31;
+                break;
+            case 7:
+                lnJulDt = lnJulDt +31+28+31+30+31+30;
+                break;
+            case 8:
+                lnJulDt = lnJulDt +31+28+31+30+31+30+31;
+                break;
+            case 9:
+                lnJulDt = lnJulDt +31+28+31+30+31+30+31+31;
+                break;
+            case 10:
+                lnJulDt = lnJulDt +31+28+31+30+31+30+31+31+30;
+                break;
+            case 11:
+                lnJulDt = lnJulDt +31+28+31+30+31+30+31+31+30+31;
+                break;
+            case 12:
+                lnJulDt = lnJulDt +31+28+31+30+31+30+31+31+30+31+30;
+                break;
+        }
+        if( ( ((Year+1) %4) ==0) && (Month >2)) //current year is leap year
+            lnJulDt = lnJulDt+1 ; //added extra day for feb
+        lnJulDt = lnJulDt + Day;
+        lnJulDt = lnJulDt + 2192-1;//JAN01 - 0x890
+        vdLongToHex(lnJulDt,JulianDate,4);
+        return lnJulDt;
+    }
+
+    ///YYMMDD format for ascii date, HHMMSS for Time
+    public long ulGetJulianSeconds(byte[] AsciiDate,byte[] AsciiTime, byte[] JulianSeconds)
+    {
+        int Hour;
+        int Minute;
+        int Second;
+        long lnJulDt;
+        lnJulDt = ulGetJulianDate(AsciiDate,JulianSeconds);
+        lnJulDt = lnJulDt*24*60*60; //convert julian date to julian seconds
+
+
+        Hour = (AsciiTime[0] -'0')*10;
+        Hour = Hour + (AsciiTime[1] -'0');
+
+        Minute = (AsciiTime[2] -'0')*10;
+        Minute = Minute + (AsciiTime[3] -'0');
+
+        Second = (AsciiTime[4] -'0')*10;
+        Second = Second + (AsciiTime[5] -'0');
+
+        lnJulDt = lnJulDt + (Hour*60*60) + (Minute*60) + Second;
+        vdLongToHex(lnJulDt,JulianSeconds,4);
+        return lnJulDt;
+    }
+
+    void vdLongToHexAmt(long src,byte[] dst)
+    {
+        byte[] tempdst = new byte[10];
+        int i;
+        i =0;
+        int inValidDigits;
+        if(src<0)
+            src = src + 0x1000000;
+        while(src !=0)
+        {
+            tempdst[i] =(byte)(src%256);
+            src = src/256;
+            i++;
+        }
+        inValidDigits = i;
+        for(i=inValidDigits; i<3; i++)
+            tempdst[i] = 0x00;
+        ///reverse the digits to get correct order
+        for(i=0; i<3; i++)
+            dst[i] = tempdst[3-(i+1)];
+    }
+
+    void vdLongToHex(long src,byte[] dst, int len)
+    {
+        byte[] tempdst = new byte[10];
+        int i;
+        i =0;
+        int inValidDigits;
+        while(src !=0)
+        {
+            tempdst[i] =(byte)(src%256);
+            src = src/256;
+            i++;
+        }
+        inValidDigits = i;
+        for(i=inValidDigits; i<len; i++)
+            tempdst[i] = 0x00;
+        ///reverse the digits to get correct order
+        for(i=0; i<len; i++)
+            dst[i] = tempdst[len-(i+1)];
+    }
+
+    byte[] inCalculateEZMAC(byte[] chData2MAC, int inLength, byte[] chInVector) {
+
+        byte[] chLeftKey=new byte[8];
+        byte[] chRightKey=new byte[8];
+        byte[] chMacKey=new byte[16];
+        byte[] chBlock=new byte[8];
+        byte[] chDestination=new byte[8];
+        int inTotalMACLen = 0, iCnt = 0;
+        //Load HostStruct
+        // pad the data to MAC to multiples of 8
+        while ((inLength % 8) != 0) {
+            chData2MAC[inLength++] = 0;
+        }
+        TripleDes tripleDes=new TripleDes(TransactionDetails.SessionKey);
+        inTotalMACLen = inLength;
+
+        //EzlinkModel EzlinkData = databaseObj.getEzlinkData(0);
+        //if(TransactionDetails.trxType == Constants.TransType.EZLINK_SALE)
+        //{
+        // chMacKey= EzlinkData.getEZLINK_PAYMENT_MAC_KEY().getBytes();
+        //}
+        //get MAC Key
+        /*memset(chLeftKey, 0, sizeof(chLeftKey));
+        memset(chRightKey, 0, sizeof(chRightKey));
+        //vdStrToHex((char*)chMacKey,(char*)stGHostStruct.HDT_EZ_MAC_KEY,32);
+        //vdStrToHex((char*)chMacKey,(char*)stGHDTStruct.HDT_PEK,32);
+        if(stGlobalex.inGTransaction == EZLINK_SALE)//VENKAT ADDED
+            memcpy((char*)chMacKey,(char*)stGEZLINKConfig.EZLINK_PAYMENT_MAC_KEY,16);
+		else
+        memcpy((char*)chMacKey,(char*)stGEZLINKConfig.EZLINK_TOPUP_MAC_KEY, 16);
+        memcpy(chLeftKey, chMacKey, 8);
+        memcpy(chRightKey, chMacKey + 8, 8);
+        //INIT DES
+        //OS_DesKey(chLeftKey);
+        deskey((unsigned char*) chLeftKey, EN0);
+        memset(chDestination, 0, sizeof(chDestination));
+        while (inLength > 0) {
+            memcpy(chBlock, chData2MAC, 8);
+
+            for (iCnt = 0; iCnt < 8; iCnt++)
+                chDestination[iCnt] = chDestination[iCnt] ^ chBlock[iCnt];
+            //encrypt block
+
+            //OS_DesEncrypt(chDestination);
+            des(chDestination, chDestination);
+            chData2MAC += 8;
+            inLength -= 8;
+
+        }
+        //INIT DES
+        deskey((unsigned char*) chRightKey, DE1);
+        //Decrypt Last 8 byte block to get MAC
+        des(chDestination, chDestination);
+
+        //INIT DES
+        deskey((unsigned char*) chLeftKey, EN0); //Ezlink: ABL Changes
+        //Encrypt LAst 8 byte block to complete 3des MAC
+        des(chDestination, chDestination);
+
+        memcpy(chResult, chDestination, 8);*/
+
+        return StringByteUtils.HexString2Bytes("0000000000000000");
+    }
 
 
 

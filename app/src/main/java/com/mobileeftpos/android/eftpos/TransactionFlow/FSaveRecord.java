@@ -1,24 +1,11 @@
 package com.mobileeftpos.android.eftpos.TransactionFlow;
 
 import android.app.Activity;
-import android.util.Log;
 
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
-import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
-import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
-import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
-import com.mobileeftpos.android.eftpos.db.AlipayModel;
 import com.mobileeftpos.android.eftpos.db.BatchModel;
-import com.mobileeftpos.android.eftpos.db.HostModel;
-import com.mobileeftpos.android.eftpos.utils.StringByteUtils;
-
-import org.jpos.iso.ISOException;
-import org.jpos.iso.ISOMsg;
-
-import java.math.BigInteger;
-import java.util.List;
 
 /**
  * Created by venkat on 8/2/2017.
@@ -48,15 +35,15 @@ public class FSaveRecord extends EHostConnectivity {
             batchModel.setUploaded(Integer.toString(Constants.FALSE));
             batchModel.setProc_code(TransactionDetails.processingcode);
 
-            String aa = payServices.pGetSystemTrace(locontext);
-            batchModel.setInvoice_number(payServices.pGetSystemTrace(locontext));
+            String aa = TransactionDetails.InvoiceNumber;//payServices.pGetSystemTrace(locontext);
+            batchModel.setInvoice_number(TransactionDetails.InvoiceNumber);
             batchModel.setAmount(TransactionDetails.trxAmount);
             batchModel.setTip_amount(TransactionDetails.tipAmount);
             batchModel.setTime(TransactionDetails.trxDateTime.substring(8, 14));
             batchModel.setDate(TransactionDetails.trxDateTime.substring(4, 8));
             batchModel.setYear(TransactionDetails.trxDateTime.substring(0, 4));
             batchModel.setOrg_mess_id(TransactionDetails.messagetype);
-            batchModel.setSys_trace_num(payServices.pGetSystemTrace(locontext));
+            batchModel.setSys_trace_num(TransactionDetails.InvoiceNumber);
             batchModel.setDate_exp(TransactionDetails.ExpDate);
 
             batchModel.setRetr_ref_num(TransactionDetails.RetrievalRefNumber);

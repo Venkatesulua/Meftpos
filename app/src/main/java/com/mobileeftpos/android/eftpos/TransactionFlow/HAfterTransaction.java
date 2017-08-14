@@ -66,6 +66,12 @@ public class HAfterTransaction extends GPrintReceipt {
                     TransactionDetails.responseMessge ="TRANSACTION NOT SUPPORTED";
                 else if(Integer.parseInt(result) == Constants.ReturnValues.TRANSACTION_NOT_SUPPORTED)
                     TransactionDetails.responseMessge ="TRANSACTION NOT SUPPORTED";
+                else if(Integer.parseInt(result) == Constants.ReturnValues.HOST_NOT_SUPPORTED)
+                    TransactionDetails.responseMessge ="HOST NOT SUPPORTED";
+                else if(Integer.parseInt(result) == Constants.ReturnValues.SAM_INIT_ERROR)
+                    TransactionDetails.responseMessge ="SAM INIT ERROR";
+                else if(Integer.parseInt(result) == Constants.ReturnValues.EZLINK_SAM_ERROR)
+                    TransactionDetails.responseMessge ="EZLINK SAM ERROR APP";
                 loContext.startActivity(new Intent(loContext, PaymentFailure.class));
             }
         }

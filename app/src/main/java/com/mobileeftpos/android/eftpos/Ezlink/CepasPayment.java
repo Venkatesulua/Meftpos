@@ -16,25 +16,18 @@ import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
-import com.mobileeftpos.android.eftpos.SupportClasses.PacketCreation;
-import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
-import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
+
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.TransactionFlow.HAfterTransaction;
 import com.mobileeftpos.android.eftpos.activity.AlipayCheckPrompt;
 import com.mobileeftpos.android.eftpos.activity.HomePagerActivity;
 import com.mobileeftpos.android.eftpos.activity.MyApplication;
 import com.mobileeftpos.android.eftpos.activity.PaymentFailure;
 import com.mobileeftpos.android.eftpos.activity.PaymentSuccess;
-import com.mobileeftpos.android.eftpos.async.AsyncTaskRequestResponse;
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
-import com.mobileeftpos.android.eftpos.db.AlipayModel;
-import com.mobileeftpos.android.eftpos.db.CommsModel;
-import com.mobileeftpos.android.eftpos.db.CurrencyModel;
+
 import com.mobileeftpos.android.eftpos.db.DaoSession;
-import com.mobileeftpos.android.eftpos.db.EzlinkModel;
-import com.mobileeftpos.android.eftpos.db.HostModel;
-import com.mobileeftpos.android.eftpos.db.MerchantModel;
+
+import com.mobileeftpos.android.eftpos.scan.SoundUtils;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 import com.mobileeftpos.android.eftpos.utils.StringByteUtils;
 import com.sunmi.pay.hardware.aidl.AidlConstants;
@@ -46,6 +39,7 @@ import sunmi.sunmiui.utils.LogUtil;
 
 public class CepasPayment extends AppCompatActivity {
 
+    public HAfterTransaction afterTranscation = new HAfterTransaction();
     private CardFunctions cardRelated =new CardFunctions();
     private SamFunctions samRelated =new SamFunctions();
     public TextView TvStatus,TvTransAmt,TvCurBal,TvNewBal;
@@ -53,19 +47,10 @@ public class CepasPayment extends AppCompatActivity {
     private ReadCardOpt mReadCardOpt;
     private byte[] apduByte, apduOutByte;
     public Context context;
-    AsyncTaskRequestResponse TaskReqRes;
-    private DBHelper databaseObj;
-    public TransactionDetails trDetails = new TransactionDetails();
-    private AlipayModel barcode = new AlipayModel();
-    private CurrencyModel currModel = new CurrencyModel();
-    private HostModel hostData = new HostModel();
-    private CommsModel commData = new CommsModel();
-    private MerchantModel merchantData = new MerchantModel();
-    public PacketCreation isoPacket = new PacketCreation();
-    private PrintReceipt printReceipt = new PrintReceipt();
-    private PayServices payServices = new PayServices();
+
     private Activity activity;
     private DaoSession daoSession;
+	SoundUtils soundUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,48 +61,43 @@ public class CepasPayment extends AppCompatActivity {
         TvCurBal =(TextView)findViewById(R.id.currentBalance);
         TvNewBal =(TextView)findViewById(R.id.newBalance);
         TvStatus = (TextView)findViewById(R.id.payStatus);
-        TaskReqRes=new AsyncTaskRequestResponse();
+        initBeepSound();
         int inAmount = Integer.parseInt(TransactionDetails.trxAmount);
         String inAmtDisplay = "AMOUNT SGD: "+String.format("%01d",(inAmount/100))+"."+String.format("%02d",(inAmount%100));
         TvTransAmt.setText(inAmtDisplay);
-        daoSession = GreenDaoSupport.getInstance(CepasPayment.this);
+        //daoSession = GreenDaoSupport.getInstance(CepasPayment.this);
 
         //Salect SAM CARd
         activity = CepasPayment.this;
-        int inError = TaskReqRes.inSearchHost(Constants.HostType.EZLINK_PAYMENT_HOST);
+
+        int inError = afterTranscation.inSearchHost(Constants.HostType.EZLINK_PAYMENT_HOST);
         if(inError != Constants.ReturnValues.RETURN_OK)
         {
-            Toast.makeText(this,"HOST NOT SUPPORTED",Toast.LENGTH_LONG).show();
-            startActivity(new Intent(this, HomePagerActivity.class));
-            finish();
+            afterTranscation.FinalStatusDisplay(activity,Integer.toString(inError));
             return;
         }
-        if(samRelated.initPSAMCard(mReadCardOpt) != Constants.ReturnValues.RETURN_OK)
+        inError = samRelated.initPSAMCard(mReadCardOpt);
+        if(inError != Constants.ReturnValues.RETURN_OK)
         {
-            Toast.makeText(this,"SAM INITILIATION FAILED",Toast.LENGTH_LONG).show();
-            startActivity(new Intent(this, HomePagerActivity.class));
-            finish();
+            afterTranscation.FinalStatusDisplay(activity,Integer.toString(inError));
             return;
         }
-        if(samRelated.SelectEzlSAMApp(mReadCardOpt) != Constants.ReturnValues.RETURN_OK)
+        inError = samRelated.SelectEzlSAMApp(mReadCardOpt);
+        if(inError != Constants.ReturnValues.RETURN_OK)
         {
-            Toast.makeText(this,"SAM INITILIATION FAILED",Toast.LENGTH_LONG).show();
-            startActivity(new Intent(this, HomePagerActivity.class));
-            finish();
+            afterTranscation.FinalStatusDisplay(activity,Integer.toString(inError));
             return;
         }
-        if(samRelated.SelectEzlSAMGetId(mReadCardOpt) != Constants.ReturnValues.RETURN_OK)
+        inError = samRelated.SelectEzlSAMGetId(mReadCardOpt);
+        if(inError != Constants.ReturnValues.RETURN_OK)
         {
-            Toast.makeText(this,"SAM INITILIATION FAILED",Toast.LENGTH_LONG).show();
-            startActivity(new Intent(this, HomePagerActivity.class));
-            finish();
+            afterTranscation.FinalStatusDisplay(activity,Integer.toString(inError));
             return;
         }
-        if(samRelated.SelectEzlSAMEnable(mReadCardOpt) != Constants.ReturnValues.RETURN_OK)
+        inError = samRelated.SelectEzlSAMEnable(mReadCardOpt);
+        if(inError != Constants.ReturnValues.RETURN_OK)
         {
-            Toast.makeText(this,"SAM INITILIATION FAILED",Toast.LENGTH_LONG).show();
-            startActivity(new Intent(this, HomePagerActivity.class));
-            finish();
+            afterTranscation.FinalStatusDisplay(activity,Integer.toString(inError));
             return;
         }
 
@@ -131,16 +111,11 @@ public class CepasPayment extends AppCompatActivity {
 
         String Date = TransactionDetails.trxDateTime.substring(2,8);
         String Time = TransactionDetails.trxDateTime.substring(8,14);
-        samRelated.ulGetJulianSeconds(Date.getBytes(),Time.getBytes(),TransactionDetails.JulianDate);
+        afterTranscation.ulGetJulianSeconds(Date.getBytes(),Time.getBytes(),TransactionDetails.JulianDate);
 
-        //EzlinkModel EzlinkData = databaseObj.getEzlinkData(0);
-        EzlinkModel EzlinkData = GreenDaoSupport.getEzlinkTableModelOBJ(activity);
-        TransactionDetails.PaymentTRP = StringByteUtils.HexString2Bytes(EzlinkData.getEZLINK_PAYMENT_TRP());
+
         //Host Enabled or not
         checkCard();
-
-
-
     }
 
 
@@ -206,6 +181,12 @@ public class CepasPayment extends AppCompatActivity {
         }
     };
 
+    private void initBeepSound() {
+        if (soundUtils == null) {
+            soundUtils = new SoundUtils(this, SoundUtils.RING_SOUND);
+            soundUtils.putSound(0, R.raw.beep);
+        }
+    }
     private class AsyncTaskRunner extends AsyncTask<String, Void, String> {
 
         private String resp;
@@ -234,9 +215,60 @@ public class CepasPayment extends AppCompatActivity {
             //cardRelated.cancelCheckCard();
             cancelCheckCard();
 
-            //afterTranscation.inAfterTrans();
-            //progressDialog.dismiss();
-            //afterTranscation.FinalStatusDisplay(CepasPayment.this,result);
+            //payServices.vdUpdateSystemTrace(databaseObj);
+            if(result != null) {
+                if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_OK) {
+                    //printReceipt.inPrintReceipt(databaseObj);
+                    //Redirect to Success Activity
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(CepasPayment.this, PaymentSuccess.class);
+                            startActivity(intent);
+
+                            progressDialog.dismiss();
+                        }
+                    }, 3000);
+                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_ERROR) {
+                    int i=0;
+                    while(i<5) {
+                        playBeepSoundAndVibrate();
+                        try {
+                            Thread.sleep(50);
+                        } catch (Exception e) {
+                        }
+                        i++;
+                    }
+
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(CepasPayment.this, PaymentFailure.class);
+                            startActivity(intent);
+                            progressDialog.dismiss();
+                        }
+                    }, 3000);
+                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_UNKNOWN) {
+                    startActivity(new Intent(CepasPayment.this, AlipayCheckPrompt.class));
+                } else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_SEND_RECV_FAILED) {
+
+                    TransactionDetails.responseMessge ="SEND RECV FAILED";
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(CepasPayment.this, PaymentFailure.class);
+                            startActivity(intent);
+                            progressDialog.dismiss();
+                        }
+                    }, 3000);
+                }else if (Integer.parseInt(result) == Constants.ReturnValues.RETURN_NOTIFICATION) {
+                    //startActivity(new Intent(AlipayActivity.this,AlipayCheckPrompt.class));
+                }else
+                {
+                    startActivity(new Intent(CepasPayment.this, HomePagerActivity.class));
+                }
+            }else
+                progressDialog.dismiss();
         }
 
         private int processRequest() {
@@ -244,8 +276,10 @@ public class CepasPayment extends AppCompatActivity {
             //print receipt
             //message display
             int keytype=0;
+            int inDecryptLast=0;
 
             String stB,stN;
+            playBeepSoundAndVibrate();
             if(cardRelated.inGetChallenge(mReadCardOpt) != Constants.ReturnValues.RETURN_OK) {
                 //TvStatus.setText("GET Challenge Failed !!!");
                 //Toast.makeText(CepasPayment.this,"GET Challenge Failed !!!",Toast.LENGTH_LONG).show();
@@ -264,16 +298,16 @@ public class CepasPayment extends AppCompatActivity {
                 return Constants.ReturnValues.RETURN_ERROR;
             }
 
-                    /*if(samRelated.Ezlink_inGetSessionKey(mReadCardOpt,keytype) != Constants.ReturnValues.RETURN_OK)
-                    {
-                        Toast.makeText(CepasPayment.this,"GET SESSION KEY FAILED!!!",Toast.LENGTH_LONG).show();
-                        startActivity(new Intent(CepasPayment.this, HomePagerActivity.class));
-                    }
-                    cardRelated.Ezlink_vdDecryptCounterData();*/
+            if(samRelated.Ezlink_inGetSessionKey(mReadCardOpt,keytype,inDecryptLast) != Constants.ReturnValues.RETURN_OK)
+            {
+                Toast.makeText(CepasPayment.this,"GET SESSION KEY FAILED!!!",Toast.LENGTH_LONG).show();
+                startActivity(new Intent(CepasPayment.this, HomePagerActivity.class));
+            }
+            cardRelated.Ezlink_vdDecryptCounterData();
 
             //Sort PAN
             TransactionDetails.PAN = StringByteUtils.bytesToHexString(TransactionDetails.CAN);
-            int inError = trDetails.inSortPAN(daoSession);
+            int inError = afterTranscation.inSortPAN();
             if(inError != Constants.ReturnValues.RETURN_OK) {
                 //Toast.makeText(CepasPayment.this,"CARD NOT SUPPORTED",Toast.LENGTH_LONG).show();
                 TransactionDetails.responseMessge="CARD NOT SUPPORTED";
@@ -284,7 +318,7 @@ public class CepasPayment extends AppCompatActivity {
 
 
 
-            samRelated.vdRecordDebitCRC();
+            afterTranscation.vdRecordDebitCRC();
 
             if (TransactionDetails.LastPruseStatus[0] == 0x03) //autoload transaction
             {
@@ -306,8 +340,9 @@ public class CepasPayment extends AppCompatActivity {
                 TransactionDetails.responseMessge="SAM INITILIATION FAILED";
                 return Constants.ReturnValues.RETURN_ERROR;
             }
+            inDecryptLast=1;
 
-            if(samRelated.Ezlink_inGetSessionKey(mReadCardOpt,keytype) != Constants.ReturnValues.RETURN_OK)
+            if(samRelated.Ezlink_inGetSessionKey(mReadCardOpt,keytype,inDecryptLast) != Constants.ReturnValues.RETURN_OK)
             {
                 //Toast.makeText(CepasPayment.this,"GET SESSION KEY FAILED!!!",Toast.LENGTH_LONG).show();
                 TransactionDetails.responseMessge="GET SESSION KEY FAILED!!!";
@@ -320,7 +355,7 @@ public class CepasPayment extends AppCompatActivity {
             if(inRet == Constants.ReturnValues.RETURN_OK)
             {
                // hostData  = databaseObj.getHostTableData(TransactionDetails.inGHDT);
-                hostData=GreenDaoSupport.getHostTableModelOBJ(activity);
+                //hostData=GreenDaoSupport.getHostTableModelOBJ(activity);
                 int inN = inBal - Integer.parseInt(TransactionDetails.trxAmount);
                 stN = "NEW BALANCE SGD: " + String.format("%01d", inN / 100) + "." + String.format("%02d", inN % 100);
                 //TvNewBal.setText(stN);
@@ -332,58 +367,61 @@ public class CepasPayment extends AppCompatActivity {
             }
             TransactionDetails.RetrievalRefNumber = TransactionDetails.trxDateTime.substring(4,8) + TransactionDetails.trxDateTime.substring(8,14);
 
-            TransactionDetails.responseMessge = StringByteUtils.bytesToHexString(samRelated.inCreateField63(activity));
-            String stTrace = payServices.pGetSystemTrace(activity);
-            TransactionDetails.InvoiceNumber = stTrace;
-            isoPacket.vdSaveRecord(activity);
-            //TaskReqRes.inStoreReversal();
-            String stNum =hostData.getHDT_PAY_TERM();
-            if(stNum==null || stNum.isEmpty() || stNum=="") {
-                stNum = "0";
-            }
-            int inNum = Integer.parseInt(stNum) + 1;
-            stNum = Integer.toString(inNum);
-            hostData.setHDT_PAY_TERM(stNum);
-            daoSession.getHostModelDao().delete(hostData);
-            //databaseObj.UpdateHostData(hostData);
+            TransactionDetails.responseMessge = StringByteUtils.bytesToHexString(afterTranscation.inCreateField63());
+            //String stTrace = payServices.pGetSystemTrace(activity);
+            //TransactionDetails.InvoiceNumber = stTrace;
+            afterTranscation.vdSaveRecord();
+            final int percent=100;
+            CepasPayment.this.runOnUiThread(new Runnable() {
 
-            printReceipt.inPrintReceipt(daoSession,CepasPayment.this);
-            //Check Need to send to host
-            stNum = hostData.getHDT_CUSTOM_OPTIONS();
-            String stNoofOfflineAllowed = stNum.substring(1,4);
-            int inNoofOffineAllowed = Integer.parseInt(stNoofOfflineAllowed);
-
-            if(inNum >= inNoofOffineAllowed)
-            {
-                TransactionDetails.inGTrxMode=Constants.TransMode.BARCODE;
-
-                //Connect & send recv
-                //commData = databaseObj.getCommsData(TransactionDetails.inGCOM);
-                commData=GreenDaoSupport.getCommsModelOBJ(activity);
-                String IP_Port = commData.getCOM_PRIMARY_IP_PORT();
-                int indexOffset = IP_Port.indexOf("|");
-                String ServerIP = IP_Port.substring(0,indexOffset);
-                String Port = IP_Port.substring(indexOffset+1);
-                if(isoPacket.UploadOffline(ServerIP,Port,activity) != Constants.ReturnValues.RETURN_OK)
-                {
-                   // Toast.makeText(CepasPayment.this,"PAYMENT UPLOAD FAILED",Toast.LENGTH_LONG).show();
-
+                @Override
+                public void run() {
+                    progressDialog.setProgress(percent);
+                    progressDialog.incrementProgressBy(percent);
+                    progressDialog.setTitle("Payment Done");
+                    progressDialog.setMessage("REMOVE CARD");
 
                 }
+            });
+            playBeepSoundAndVibrate();
+            afterTranscation.inPrintReceipt();
+            afterTranscation.inEzlinkUpload();
+            //TaskReqRes.inStoreReversal();
 
-
-            }
+                while(cardRelated.inGetChallenge(mReadCardOpt) == Constants.ReturnValues.RETURN_OK)
+                {
+                    try {
+                        Thread.sleep(1000);
+                    }catch(Exception e){}
+                }
             return Constants.ReturnValues.RETURN_OK;
         }
 
 
         @Override
         protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(CepasPayment.this,
+            /*progressDialog = ProgressDialog.show(CepasPayment.this,
                     "Payment Processing",
                     "Please wait...");
+            progressDialog.show();*/
+            progressDialog = new ProgressDialog(CepasPayment.this);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progressDialog.setTitle("Payment Processing");
+            progressDialog.setMessage("Please wait...");
+            progressDialog.setCancelable(false);
+            progressDialog.setProgress(0);
+            progressDialog.setIndeterminate(false);
             progressDialog.show();
         }
+    }
+
+    private static final long VIBRATE_DURATION = 200L;
+
+    private void playBeepSoundAndVibrate() {
+        if (soundUtils != null) {
+            soundUtils.playSound(0, SoundUtils.SINGLE_PLAY);
+        }
+
     }
 
     private ReadCardCallback readCardCallback = new ReadCardCallback.Stub() {

@@ -1,7 +1,6 @@
 package com.mobileeftpos.android.eftpos.activity;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,7 +11,6 @@ import android.widget.Toast;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.ESCUtil;
 import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
-import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.app.EftposApp;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
@@ -39,7 +37,6 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
     private final String TAG = TecnicianMenuActivity.class.getSimpleName();
     private LinearLayout reversalBtn, batchBtn, printConfigBtn, mmsBtn, secureBtn, KeyManagementBtn,LoadDefaultBtn;
     public static Activity context;
-    private PayServices payService = new PayServices();
     HostModel hostModel;
     private DaoSession daoSession;
     PasswordModel pwdModel;
@@ -111,7 +108,7 @@ public class TecnicianMenuActivity extends Activity implements View.OnClickListe
                             {
                                 BatchPresent =1;
                             }
-                payService.vdUpdateSystemBatch(context);
+                //payService.vdUpdateSystemBatch(context);
                     }
                 }
               }

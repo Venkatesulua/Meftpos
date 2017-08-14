@@ -20,7 +20,6 @@ import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.TransactionFlow.HAfterTransaction;
 import com.mobileeftpos.android.eftpos.app.EftposApp;
-import com.mobileeftpos.android.eftpos.async.AsyncTaskRequestResponse;
 import com.mobileeftpos.android.eftpos.db.DaoSession;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 
@@ -34,7 +33,6 @@ public class ConfirmRefund extends AppCompatActivity {
     private DaoSession daoSession;
     private Activity activity;
 
-    private AsyncTaskRequestResponse ASTask = new AsyncTaskRequestResponse();
     public Context loContext;
     public HAfterTransaction afterTranscation = new HAfterTransaction();
     private final String TAG = "my_custom_msg";

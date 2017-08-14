@@ -4,10 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,22 +19,15 @@ import android.widget.Toast;
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
-import com.mobileeftpos.android.eftpos.SupportClasses.PacketCreation;
-import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
-import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
-import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.Review_Transaction;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.TransactionFlow.HAfterTransaction;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.BatchModel;
-import com.mobileeftpos.android.eftpos.db.BatchModelDao;
 import com.mobileeftpos.android.eftpos.db.CommsModel;
-import com.mobileeftpos.android.eftpos.db.DaoSession;
 import com.mobileeftpos.android.eftpos.db.HostModel;
 import com.mobileeftpos.android.eftpos.utils.AppUtil;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,10 +40,8 @@ public class SettlementFlow extends AppCompatActivity {
     private Review_Transaction reviewTrans = new Review_Transaction();
     private BatchModel batchModeldata = new BatchModel();
     private TransactionDetails trDetails = new TransactionDetails();
-    private PayServices payService = new PayServices();
     private final String TAG = "my_custom_msg";
     AsyncTaskRunner mAsyncTask;
-    private PrintReceipt printReceipt = new PrintReceipt();
     private static final int TIME_OUT = 5000;
 
     public HAfterTransaction afterTranscation = new HAfterTransaction();

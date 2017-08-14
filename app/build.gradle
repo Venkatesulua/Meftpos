@@ -126,17 +126,21 @@ dependencies {
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
     compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
-   // apt "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
+    // apt "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
 
     //compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
     //transitive = true;
     //}
 
     //compile files('libs/sunmiscan.jar')
-    compile 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    compile('io.reactivex:rxnetty-tcp:0.5.2') {
+        exclude group: 'org.openjdk.jmh'
+    }
+
     compile 'com.android.support:appcompat-v7:25.3.1'
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.google.code.gson:gson:2.8.0'
@@ -150,14 +154,11 @@ dependencies {
     compile 'com.sunmi:sunmiui:1.1.22'
     compile 'com.sunmi:PayLib:1.0.23'
     compile 'org.greenrobot:greendao:3.2.2'
-    testCompile 'junit:junit:4.12'
-    compile('io.reactivex:rxnetty-tcp:0.5.2') {
-        exclude group: 'org.openjdk.jmh'
-    }
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.0'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'io.reactivex:rxjava:1.1.6'
-
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    testCompile 'junit:junit:4.12'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.0'
 }
 
 

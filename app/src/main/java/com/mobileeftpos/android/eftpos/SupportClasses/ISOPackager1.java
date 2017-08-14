@@ -69,7 +69,7 @@ public class ISOPackager1 extends ISOBasePackager {
 			/* 043 */ new IFB_LLCHAR(99, "Card acceptor name/location"),
 			/* 044 */ new IFB_LLCHAR(99, "Additional response data"), /* 045 */ new IFB_LLCHAR(76, "Track 1 data"),
 			/* 046 */ new IFB_LLLCHAR(204, "Amounts, Fees"),
-			/* 047 */ new IFB_LLCHAR(99, "Additional data - national"),
+			/* 047 */ new IFB_LLLCHAR(99, "Additional data - national"),
 			/* 048 */ new IFB_LLLCHAR(999, "Additional data - private"),
 			/* 049 */ new IF_CHAR(3, "Currency code, Transaction"),
 			/* 050 */ new IF_CHAR(3, "Currency code, Reconciliation"),

@@ -5,12 +5,17 @@ import android.util.Log;
 
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.KeyValueDB;
-import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
 import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.BatchModel;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,24 +29,135 @@ public class EHostConnectivity extends CPacketHandling {
 
     private Activity locontext;
     int inError=0;
-    public int inConnectSendRecv(String ServerIP, String Port){
-        if(remoteHost.inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK)
+    private Socket smtpSocket = new Socket();
+
+    public int inConnection(String ServerIp,String Port) {
+        Log.i(TAG, "Connection");
+        Log.i(TAG, ServerIp);
+        Log.i(TAG, Port);
+        int ConnectTimeout=0;
+        try {
+
+            if(TransactionDetails.ConnectionTimeout != null && TransactionDetails.ConnectionTimeout.isEmpty() && TransactionDetails.ConnectionTimeout=="")
+                ConnectTimeout = (Integer.parseInt(TransactionDetails.ConnectionTimeout )*1000);
+            else
+                ConnectTimeout = 45000;
+            smtpSocket.connect(new InetSocketAddress(ServerIp, Integer.parseInt(Port)), ConnectTimeout);
+            //smtpSocket = new Socket(ServerIp, Integer.parseInt(Port));
+        } catch (UnknownHostException e) {
+            Log.i(TAG, "UnknownHostException");
+            Log.i(TAG, "Don't know about host: hostname");
             return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
+        } catch (IOException e) {
+            Log.i(TAG, "Couldn't get I/O for the connection to: hostname");
+            return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
+        }
+        return Constants.ReturnValues.RETURN_OK;
+    }
+
+    public byte[] inSendRecvPacket(byte[] FinalData,int nFinalLength) {
+        OutputStream os = null;
+        InputStream is = null;
+        try {
+            os = smtpSocket.getOutputStream();
+            is = smtpSocket.getInputStream();
+
+            String result;
+            result = "";
+            for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
+                result = result + String.format("%02x", FinalData[k]);
+            }
+            Log.i(TAG,"\nSendings:");
+            Log.i(TAG,result);
+
+            if (smtpSocket != null && os != null && is != null) {
+
+
+                os.write(FinalData, 0, TransactionDetails.inFinalLength);
+                FinalData = new byte[1512];
+                byte[] recvData = new byte[1512];
+                TransactionDetails.inFinalLength = 0;
+                //long timeNow = System.currentTimeMillis();
+
+                if(TransactionDetails.ConnectionTimeout != null && TransactionDetails.ConnectionTimeout.isEmpty() && TransactionDetails.ConnectionTimeout=="")
+                    smtpSocket.setSoTimeout ((Integer.parseInt(TransactionDetails.ConnectionTimeout )*1000));
+                else
+                    smtpSocket.setSoTimeout(45000);
+                //do {
+                TransactionDetails.inFinalLength = is.read(FinalData, 0, 2);
+                TransactionDetails.inFinalLength = is.read(FinalData, 0, 5);
+                TransactionDetails.inFinalLength = is.read(FinalData);
+                //} while (TransactionDetails.inFinalLength <= 0);
+
+                if(TransactionDetails.inFinalLength <= 0)
+                    return null;
+                //TransactionDetails.inFinalLength = recvData[0] *256;
+                //TransactionDetails.inFinalLength = TransactionDetails.inFinalLength + (recvData[1]);
+                //TransactionDetails.inFinalLength = TransactionDetails.inFinalLength -5;
+                //for (int k = 0; k < TransactionDetails.inFinalLength-7; k++) {
+                //FinalData[k]  = recvData[k+7];
+                //}
+
+                result = "";
+                for (int k = 0; k < TransactionDetails.inFinalLength; k++) {
+                    result = result + String.format("%02x", FinalData[k]);
+                }
+                Log.i(TAG,"\nRECEIVED:");
+                Log.i(TAG,result);
+            }
+            if (os != null)
+                os.close();
+            if (is != null)
+                is.close();
+        } catch (UnknownHostException e) {
+            Log.i(TAG, "Don't know about host: hostname");
+            return null;
+        } catch (IOException e) {
+            Log.i(TAG, "Couldn't get I/O for the connection to: hostname");
+            return null;
+        }
+        return FinalData;
+    }
+
+    public int inDisconnection() {
+        try {
+            if (smtpSocket != null) {
+                if(smtpSocket.isClosed())
+                    Log.i(TAG,"\nRemoveHost::inDisconnection_Closed:");
+                smtpSocket.close();
+                if(smtpSocket.isClosed())
+                    Log.i(TAG,"\nRemoveHost::inDisconnection_Closed_2:");
+            }
+        } catch (UnknownHostException e) {
+            Log.i(TAG, "Don't know about host: hostname");
+            return Constants.ReturnValues.RETURN_ERROR;
+        } catch (IOException e) {
+            Log.i(TAG, "Couldn't get I/O for the connection to: hostname");
+            return Constants.ReturnValues.RETURN_ERROR;
+        }
+        return Constants.ReturnValues.RETURN_OK;
+    }
+    public int inConnectSendRecv(String ServerIP, String Port){
+        if(inConnection(ServerIP, Port) != Constants.ReturnValues.RETURN_OK) {
+
+            return Constants.ReturnValues.RETURN_CONNECTION_ERROR;
+        }
         //FinalData = UploadData.getBytes();
 
-        if ((byResponseData = remoteHost.inSendRecvPacket(byRequestData,TransactionDetails.inFinalLength)) ==null) {
+        if ((byResponseData = inSendRecvPacket(byRequestData,TransactionDetails.inFinalLength)) ==null) {
+            inDisconnection();
             Log.i(TAG,"EHostConnectivity:: Send Failed");
             return Constants.ReturnValues.RETURN_SEND_RECV_FAILED;
         }
 
         inError = inProcessPacket(byResponseData,TransactionDetails.inFinalLength);
         if (inError != Constants.ReturnValues.RETURN_OK) {
-            remoteHost.inDisconnection();
+            inDisconnection();
             Log.i(TAG,"EHostConnectivity::Process Packet Failed");
             return inError;
         }
 
-        if (remoteHost.inDisconnection() != 0) {
+        if (inDisconnection() != 0) {
             return Constants.ReturnValues.RETURN_ERROR;
         }
         return Constants.ReturnValues.RETURN_OK;
@@ -60,7 +176,6 @@ public class EHostConnectivity extends CPacketHandling {
         {
             inError = inConnectSendRecv(IP_Port.substring(0, indexOffset),IP_Port.substring(indexOffset + 1));
         }
-
 
         return inError;
     }
@@ -138,7 +253,7 @@ public class EHostConnectivity extends CPacketHandling {
 
         BatchModel batchModeldata;
         byte[] FinalData = new byte[1512];
-        RemoteHost remoteHost = new RemoteHost();
+        //RemoteHost remoteHost = new RemoteHost();
         List<BatchModel> batchModelList= GreenDaoSupport.getBatchModelOBJList(context);//databaseObj.getBatchData(hostData.getHDT_HOST_ID());
 
         for(int i=0;i<batchModelList.size();i++) {
@@ -183,6 +298,111 @@ public class EHostConnectivity extends CPacketHandling {
                 }
 
             }
+        }
+        return Constants.ReturnValues.RETURN_OK;
+    }
+
+    public int UploadOffline(Activity activity)
+    {
+
+        BatchModel batchModeldata = new BatchModel();
+        com.mobileeftpos.android.eftpos.db.HostModel hostData= GreenDaoSupport.getHostTableModelOBJ(activity);
+        byte[] FinalData = new byte[1512];
+        //RemoteHost remoteHost = new RemoteHost();
+        int inUploaded=0;
+        List<BatchModel> batchModelList=GreenDaoSupport.getBatchModelOBJList(activity,hostData
+                .getHDT_HOST_ID());//databaseObj.getBatchData(hostData.getHDT_HOST_ID());
+
+        for(int i=0;i<batchModelList.size();i++) {
+            batchModeldata = batchModelList.get(i);
+            if( !(batchModeldata ==null || batchModeldata.equals(""))) {
+                TransactionDetails.trxType = Integer.parseInt(batchModeldata.getTrans_type());
+                inUploaded = Integer.parseInt(batchModeldata.getUploaded());
+
+                if(inUploaded == 1)
+                    continue;
+                //inUploaded = Integer.parseInt(batchModeldata.getVOIDED());
+                TransactionDetails.inOritrxType = Integer.parseInt(batchModeldata.getTrans_type());
+                TransactionDetails.inGTrxMode = Integer.parseInt(batchModeldata.getTrans_mode());
+                TransactionDetails.processingcode = batchModeldata.getProc_code();
+                TransactionDetails.trxAmount = batchModeldata.getAmount();
+                TransactionDetails.tipAmount = batchModeldata.getTip_amount();
+                TransactionDetails.trxDateTime = batchModeldata.getYear();
+                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getDate();
+                TransactionDetails.trxDateTime = TransactionDetails.trxDateTime + batchModeldata.getTime();
+                TransactionDetails.messagetype = batchModeldata.getOrg_mess_id();
+//        batchModeldata.getSYS_TRACE_NUM(payServices.pGetSystemTrace(databaseObj));
+                TransactionDetails.ExpDate = batchModeldata.getDate_exp();
+                TransactionDetails.RetrievalRefNumber = batchModeldata.getRetr_ref_num();
+                TransactionDetails.chApprovalCode = batchModeldata.getAuth_id_resp();
+                TransactionDetails.ResponseCode = batchModeldata.getResp_code();
+                TransactionDetails.PAN = batchModeldata.getAcct_number();
+                TransactionDetails.PersonName = batchModeldata.getPerson_name();
+                TransactionDetails.trxAmount = batchModeldata.getOriginal_amount();
+                TransactionDetails.responseMessge = batchModeldata.getAdditional_data();
+                //batchModeldata.getPAYMENT_TERM_INFO(res.getString(res.getColumnIndex(DBStaticField.PAYMENT_TERM_INFO)));
+                TransactionDetails.PAN = batchModeldata.getPri_acct_num();
+                TransactionDetails.POSEntryMode = batchModeldata.getPos_ent_mode();
+                TransactionDetails.NII = batchModeldata.getNII();
+                TransactionDetails.POS_COND_CODE = batchModeldata.getPos_cond_code();
+
+                DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSS");
+                Date date = new Date();
+                String stDate = dateFormat.format(date);
+                TransactionDetails.trxDateTime=stDate;
+
+                inHostConnect();
+               /* TransactionDetails.inFinalLength = inFCreatePacket(FinalData, TransactionDetails.trxType,activity);
+                if(TransactionDetails.inFinalLength == 0)
+                    return Constants.ReturnValues.RETURN_ERROR;
+
+                if (remoteHost.inConnection(ServerIP, Port) != 0)
+                    return Constants.ReturnValues.RETURN_ERROR;
+
+                if ((FinalData = remoteHost.inSendRecvPacket(FinalData,TransactionDetails.inFinalLength)) ==null)
+                    return Constants.ReturnValues.RETURN_ERROR;
+
+                int inRet = inProcessPacket(FinalData,TransactionDetails.inFinalLength);
+                if(inRet != Constants.ReturnValues.RETURN_OK) {
+                    return Constants.ReturnValues.RETURN_ERROR;
+                }
+                if (remoteHost.inDisconnection() != Constants.ReturnValues.RETURN_OK) {
+                    return Constants.ReturnValues.RETURN_ERROR;
+                }*/
+                batchModeldata.setUploaded(Integer.toString(Constants.TRUE));
+                //databaseObj.UpdateBatchData(batchModeldata);
+                GreenDaoSupport.insertBatchModelOBJ(activity,batchModeldata);
+            }
+        }
+
+        return Constants.ReturnValues.RETURN_OK;
+    }
+
+    public int inEzlinkUpload(){
+        String stNum =hostModel.getHDT_PAY_TERM();
+        if(stNum==null || stNum.isEmpty() || stNum=="") {
+            stNum = "0";
+        }
+        int inNum = Integer.parseInt(stNum) + 1;
+        stNum = Integer.toString(inNum);
+        hostModel.setHDT_PAY_TERM(stNum);
+        GreenDaoSupport.insertHostModelOBJ(locontext,hostModel);
+        //daoSession.getHostModelDao().delete(hostData);
+        //databaseObj.UpdateHostData(hostData);
+        //Check Need to send to host
+        stNum = hostModel.getHDT_CUSTOM_OPTIONS();
+        String stNoofOfflineAllowed = stNum.substring(1,4);
+        int inNoofOffineAllowed = Integer.parseInt(stNoofOfflineAllowed);
+
+        if(inNum >= inNoofOffineAllowed)
+        {
+            TransactionDetails.inGTrxMode=Constants.TransMode.BARCODE;
+            if(UploadOffline(locontext) != Constants.ReturnValues.RETURN_OK)
+            {
+                return Constants.ReturnValues.RETURN_UPLOAD_FAILED;
+            }
+
+
         }
         return Constants.ReturnValues.RETURN_OK;
     }

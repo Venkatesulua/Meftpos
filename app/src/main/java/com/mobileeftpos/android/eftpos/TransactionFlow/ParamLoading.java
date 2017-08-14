@@ -2,11 +2,7 @@ package com.mobileeftpos.android.eftpos.TransactionFlow;
 
 import android.app.Activity;
 
-import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
-import com.mobileeftpos.android.eftpos.SupportClasses.PacketCreation;
-import com.mobileeftpos.android.eftpos.SupportClasses.PayServices;
-import com.mobileeftpos.android.eftpos.SupportClasses.PrintReceipt;
-import com.mobileeftpos.android.eftpos.SupportClasses.RemoteHost;
+import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
 import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
 import com.mobileeftpos.android.eftpos.db.AlipayModel;
 import com.mobileeftpos.android.eftpos.db.BatchModel;
@@ -27,6 +23,7 @@ import com.mobileeftpos.android.eftpos.db.ReportModel;
 import com.mobileeftpos.android.eftpos.db.TraceModel;
 import com.mobileeftpos.android.eftpos.db.TransactionControlModel;
 import com.mobileeftpos.android.eftpos.db.UtilityModel;
+import com.mobileeftpos.android.eftpos.utils.StringByteUtils;
 
 /**
  * Created by venkat on 8/2/2017.
@@ -55,15 +52,6 @@ public class ParamLoading  {
     protected TraceModel traceModel = new TraceModel();
     protected TransactionControlModel transactionControlModel = new TransactionControlModel();
     protected UtilityModel utilityModel = new UtilityModel();
-
-
-
-    public PacketCreation isoPacket = new PacketCreation();
-    public RemoteHost remoteHost = new RemoteHost();
-    public PrintReceipt printReceipt = new PrintReceipt();
-    public PayServices payServices = new PayServices();
-
-
     public byte[] byRequestData = new byte[1512];
     public byte[] byResponseData = new byte[1512];
 
@@ -90,6 +78,8 @@ public class ParamLoading  {
         traceModel = GreenDaoSupport.getTraceModelOBJ(context);//traceModelDao.loadAll().get(0);
         passwordModel = GreenDaoSupport.getPasswordModelOBJ(context);//pwdModelDao.loadAll().get(0);
         maskingModel = GreenDaoSupport.getMaskingTableModelOBJ(context);//maskModelDao.loadAll().get(0);
+
+        TransactionDetails.PaymentTRP = StringByteUtils.HexString2Bytes(ezlinkModel.getEZLINK_PAYMENT_TRP());
     }
 
     public HostModel GetHostModel() {

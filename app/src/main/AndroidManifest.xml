@@ -115,8 +115,9 @@
         <activity android:name=".activity.RefundFlow" />
         <activity android:name=".activity.ConfirmRefund" />
         <activity android:name=".Ezlink.EzlBalance" />
-        <activity android:name=".Ezlink.EzlBlacklist" />
-        <activity android:name=".Ezlink.CepasPayment"></activity>
+        <activity android:name=".Ezlink.CepasPayment" />
+        <activity android:name=".Ezlink.Logon" />
+        <activity android:name=".Ezlink.EzlBlacklist"></activity>
     </application>
 
 </manifest>
