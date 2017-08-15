@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="300dp"
+    android:background="@drawable/splash_bg">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Key-in the Payment Code:"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="12dp"
+        android:textSize="18dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"/>
+
+    <EditText
+        android:id="@+id/alert_et"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="7dp"
+        android:inputType="number"
+        android:background="@drawable/all_corner_saleedittext_bg"
+        android:layout_margin="10dp"/>
+
+    <Button
+        android:id="@+id/alert_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/all_corner_button_bg"
+        android:text="Submit"
+        android:textColor="#FFF"
+        android:layout_gravity="center"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"/>
+
+</LinearLayout>

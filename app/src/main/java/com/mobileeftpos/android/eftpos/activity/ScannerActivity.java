@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.mobileeftpos.android.eftpos.R;
-import com.mobileeftpos.android.eftpos.scanner.ZBarScannerActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +55,7 @@ public class ScannerActivity extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFrag(new FullScannerFragment(),"QR or BAR Code");
-        adapter.addFrag(new ThreeFragment(), "Enter Manually");
+        adapter.addFrag(new SettingsFragment(), "Enter Manually");
         viewPager.setAdapter(adapter);
     }
 

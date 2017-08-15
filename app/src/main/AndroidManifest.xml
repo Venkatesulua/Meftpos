@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.mobileeftpos.android.eftpos">
+
+    <uses-sdk android:minSdkVersion="10" />
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".app.EftposApp"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/app_logo"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -19,23 +28,96 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.HomeActivity" />
-        <activity android:name=".activity.LoginActivity" />
-        <activity android:name=".activity.SaleActivity" />
-        <activity android:name=".activity.ScannerActivity" />
-        <activity android:name=".activity.FullScannerActivity" />
-        <activity android:name=".activity.SignUpActivity" />
-        <activity android:name=".activity.ForgotScreenActivity" />
-        <activity android:name=".activity.AdminActivity" />
-        <activity android:name=".activity.PaymentScreen" />
-
+        <activity
+            android:name=".activity.LoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HomePagerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SaleActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".scan.SunmiScanner"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ScannerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.FullScannerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SignUpActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ForgotScreenActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AdminActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.PaymentScreen"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AlipayActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.PaymentFailure"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.PaymentSuccess"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ReportActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ReprintMenuActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.TecnicianMenuActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ChangePasswordActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activity.SettingsActivity"
-            android:label="@string/title_activity_settings" />
+            android:label="@string/title_activity_settings"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activity.TransactionType"
             android:label="@string/title_activity_transaction_type"
-            android:theme="@style/AppTheme"></activity>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".activity.VoidFlow"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SettlementFlow"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AlipayCheckPrompt"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".EziWallet.EziWalletActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".EziWallet.EziWalletOrderActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:screenOrientation="portrait"
+            tools:replace="screenOrientation" />
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="9ae83f84f38427891bbb8bedebf7172679eb24f6" />
+
+        <activity android:name=".activity.RefundFlow" />
+        <activity android:name=".activity.ConfirmRefund" />
+        <activity android:name=".Ezlink.EzlBalance" />
+        <activity android:name=".Ezlink.CepasPayment" />
+        <activity android:name=".Ezlink.Logon" />
+        <activity android:name=".Ezlink.EzlBlacklist"></activity>
     </application>
 
 </manifest>

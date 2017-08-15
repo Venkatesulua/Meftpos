@@ -36,7 +36,11 @@
 
 
     </RelativeLayout>
-
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_below="@+id/relativr_layout"
+        android:background="@drawable/line_bg"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -63,9 +67,9 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:gravity="left"
-
+                    android:textColor="#000"
                     android:text="USER ID : "
-                    android:textColor="@color/cremywhite" />
+                     />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -88,7 +92,7 @@
                      android:layout_weight="1"
                     android:gravity="center"
                     android:text="(or) "
-                    android:textColor="@color/cremywhite" />
+                    />
 
 
 
@@ -108,8 +112,9 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:gravity="left"
+                    android:textColor="#000"
                     android:text="EMAIL :"
-                    android:textColor="@color/cremywhite" />
+                     />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -131,9 +136,7 @@
                     android:layout_height="wrap_content"
                      android:layout_weight="1"
                     android:gravity="center"
-                    android:text="(or)"
-
-                    android:textColor="@color/cremywhite" />
+                    android:text="(or)" />
 
 
 
@@ -153,8 +156,9 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:gravity="left"
+                    android:textColor="#000"
                     android:text="PHONE : "
-                    android:textColor="@color/cremywhite" />
+                     />
 
                 <EditText
                     android:layout_width="match_parent"
@@ -182,6 +186,7 @@
                     android:layout_weight="1"
                     android:background="@drawable/all_corner_button_red_bg"
                     android:gravity="center"
+                    android:visibility="gone"
                     android:text="CANCEL"
                     android:textColor="@color/cremywhite" />
 

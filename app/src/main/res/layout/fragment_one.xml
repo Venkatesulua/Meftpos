@@ -2,72 +2,57 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
+    android:background="@drawable/splash_bg"
     android:orientation="vertical">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/colorPrimary">
 
-    <TextView
-        android:id="@+id/welcome_text"
-        style="@style/TextViewAppearance.Headline3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:layout_marginTop="90dp"
-        android:gravity="center"
-        android:text="@string/app_name"
-        android:textStyle="bold"
-        android:textColor="@color/colorPrimary"
-        android:textSize="50sp" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TRANSACTION MENU"
+            android:drawablePadding="5dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:textColor="#FFF"
+            android:textSize="18dp"
+            android:textStyle="bold"/>
+
+
+
+    </RelativeLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_below="@+id/relativr_layout"
+        android:background="@drawable/line_bg"/>
+
 
     <LinearLayout
+
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="90dp"
+        android:layout_height="match_parent"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:id="@+id/saleItem"
-            android:background="@drawable/all_corner_home_button_bg"
+        <GridView
+            android:id="@+id/grid_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
             android:gravity="center"
+            android:horizontalSpacing="2dp"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="2dp" />
 
-            android:padding="10dp">
 
-            <ImageView
-                android:layout_width="128dp"
-                android:layout_height="128dp"
-                android:src="@drawable/sale_img" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:id="@+id/refundItem"
-            android:background="@drawable/all_corner_home_button_bg"
-            android:gravity="center"
-            android:padding="10dp">
-
-            <ImageView
-                android:layout_width="128dp"
-                android:layout_height="128dp"
-                android:src="@drawable/refund_img" />
-
-        </LinearLayout>
     </LinearLayout>
 
-    <TextView
-        style="@style/TextViewAppearance.Headline3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Version V.1.0"
-        android:textColor="#FF583E"
-        android:textSize="13sp" />
 </LinearLayout>

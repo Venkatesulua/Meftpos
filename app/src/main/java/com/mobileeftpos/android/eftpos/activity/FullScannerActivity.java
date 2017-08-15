@@ -1,6 +1,7 @@
 package com.mobileeftpos.android.eftpos.activity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -11,13 +12,20 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.mobileeftpos.android.eftpos.R;
+import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +48,9 @@ public class FullScannerActivity extends BaseScannerActivity implements MessageD
     private ArrayList<Integer> mSelectedIndices;
     private int mCameraId = -1;
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
+    EditText alertinputField;
+    AlertDialog alertDialog;
+    private TextView txtManualentry;
 
     @Override
     public void onCreate(Bundle state) {
@@ -61,7 +72,13 @@ public class FullScannerActivity extends BaseScannerActivity implements MessageD
 
         setContentView(R.layout.activity_simple_scanner);
         setupToolbar();
-
+        txtManualentry=(TextView)findViewById(R.id.manual_txtview);
+        txtManualentry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showCustomDialog();
+            }
+        });
         ViewGroup contentFrame = (ViewGroup) findViewById(R.id.content_frame);
         mScannerView = new ZXingScannerView(this);
         setupFormats();
@@ -173,7 +190,15 @@ public class FullScannerActivity extends BaseScannerActivity implements MessageD
             Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
             r.play();
         } catch (Exception e) {}
-        showMessageDialog("Contents = " + rawResult.getText() + ", Format = " + rawResult.getBarcodeFormat().toString());
+        String barCodeValue=rawResult.getText();
+
+        if(barCodeValue!=null && barCodeValue.length()>0){
+            Intent i = new Intent(this, AlipayActivity.class);
+            i.putExtra(Constants.QRCODE.BARCODE_INTENT_RESULT_KEY, barCodeValue);
+            setResult(111, i);
+            finish();
+         }
+       // showMessageDialog("Contents = " + rawResult.getText() + ", Format = " + rawResult.getBarcodeFormat().toString());
     }
 
     public void showMessageDialog(String message) {
@@ -240,5 +265,34 @@ public class FullScannerActivity extends BaseScannerActivity implements MessageD
         mScannerView.stopCamera();
         closeMessageDialog();
         closeFormatsDialog();
+    }
+
+
+    public void showCustomDialog(){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this,R.style.full_screen_dialog);
+// ...Irrelevant code for customizing the buttons and title
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.custom_layout, null);
+        dialogBuilder.setView(dialogView);
+
+        alertinputField = (EditText) dialogView.findViewById(R.id.alert_et);
+        Button alertButton = (Button) dialogView.findViewById(R.id.alert_btn);
+        alertButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(alertinputField.getText().toString()!=null && alertinputField.getText().toString().length()>0){
+
+                    Intent i = new Intent(FullScannerActivity.this, AlipayActivity.class);
+                    i.putExtra(Constants.QRCODE.BARCODE_INTENT_RESULT_KEY, alertinputField.getText().toString());
+                    setResult(111, i);
+                    alertDialog.dismiss();
+                    finish();
+                }
+            }
+        });
+
+        alertDialog = dialogBuilder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
     }
 }

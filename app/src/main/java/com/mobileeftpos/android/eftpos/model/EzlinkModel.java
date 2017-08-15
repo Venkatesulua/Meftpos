@@ -9,7 +9,7 @@ import java.io.Serializable;
 public class EzlinkModel implements Serializable {
 
 
-    String Ezlink_ID,EZLINK_ENABLE,EZLINK_SAM_KEY,EZLINK_PAYMENT_TRP,
+    String Ezlink_ID,EZLINK_ENABLE,EZLINK_PAYMENT_MAC_KEY,EZLINK_TOPUP_MAC_KEY,EZLINK_SAM_KEY,EZLINK_PAYMENT_TRP,
             EZLINK_TOPUP_TRP,EZLINK_PAYMENT_DEVICE_TYPE,
             EZLINK_TOPUP_DEVICE_TYPE,
             EZLINK_BLACK_LIST_LAST_UPDATE,
@@ -85,5 +85,19 @@ public class EzlinkModel implements Serializable {
 
     public void setEZLINK_TOPUP_PAYMENT_MODE(String EZLINK_TOPUP_PAYMENT_MODE) {
         this.EZLINK_TOPUP_PAYMENT_MODE = EZLINK_TOPUP_PAYMENT_MODE;
+    }
+    public String getEZLINK_PAYMENT_MAC_KEY() {
+        return EZLINK_PAYMENT_MAC_KEY;
+    }
+
+    public void setEZLINK_PAYMENT_MAC_KEY(String EZLINK_PAYMENT_MAC_KEY) {
+        this.EZLINK_PAYMENT_MAC_KEY = EZLINK_PAYMENT_MAC_KEY;
+    }
+    public String getEZLINK_TOPUP_MAC_KEY() {
+        return EZLINK_TOPUP_MAC_KEY;
+    }
+
+    public void setEZLINK_TOPUP_MAC_KEY(String EZLINK_TOPUP_MAC_KEY) {
+        this.EZLINK_TOPUP_MAC_KEY = EZLINK_TOPUP_MAC_KEY;
     }
 }

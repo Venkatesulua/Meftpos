@@ -2,12 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-     android:background="@drawable/login_bg"
+     android:background="@drawable/splash_bg"
     android:orientation="vertical">
 
     <LinearLayout android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#CC000000"
         android:orientation="vertical">
 
 
@@ -22,6 +21,7 @@
             android:layout_marginBottom="@dimen/activity_scroll_normal_margin"
             android:scrollbarStyle="insideOverlay"
             android:animateLayoutChanges="true"
+            android:scrollbars="none"
             >
 
 
@@ -35,12 +35,12 @@
                 android:layout_marginTop="60dp"
                 android:paddingBottom="@dimen/activity_extra_large_margin">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="40dp"
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="123dp"
+                    android:layout_marginBottom="20dp"
                     android:gravity="center"
-                    android:text="@string/app_name"
+                    android:src="@drawable/logo"
                     android:textStyle="bold"
                     android:textColor="@color/colorPrimary"
                     android:textSize="56sp" />
@@ -62,9 +62,10 @@
                         android:background="@drawable/all_corner_edittext_bg"
                         android:padding="10dp"
                         android:hint="UserID"
-                        android:textColor="#FFF"
-                         android:textColorHint="@color/cremywhite"
-                        android:drawableStart="@drawable/user_icon"
+                        android:textColor="#000"
+                        android:inputType="textCapSentences"
+                         android:textColorHint="#A9A9A9"
+                        android:drawableStart="@drawable/user"
                         android:drawablePadding="8dp"
                         android:singleLine="true" />
 
@@ -79,10 +80,10 @@
                         android:layout_marginTop="20dp"
                         android:drawablePadding="8dp"
                          android:background="@drawable/all_corner_edittext_bg"
-                        android:textColor="#FFF"
+                        android:textColor="#000"
                         android:hint="Password"
-                        android:textColorHint="@color/cremywhite"
-                        android:drawableStart="@drawable/key"
+                        android:textColorHint="#A9A9A9"
+                        android:drawableStart="@drawable/padlock"
                         android:inputType="textPassword"
                         android:singleLine="true" />
 
@@ -129,7 +130,7 @@
                         android:textAllCaps="false"
                         android:gravity="center"
                         android:textSize="16sp"
-                        android:textColor="@color/cremywhite" />
+                        android:textColor="#000" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -146,7 +147,7 @@
                             android:textAllCaps="false"
                             android:gravity="center"
                             android:textSize="15sp"
-                            android:textColor="@color/cremywhite" />
+                            android:textColor="#000" />
 
                         <TextView
                             android:id="@+id/btn_create_an_account"
@@ -159,7 +160,7 @@
                             android:paddingLeft="5dp"
                             android:gravity="center"
                             android:textSize="15sp"
-                            android:textColor="@color/colorAccent" />
+                            android:textColor="@color/appthemecolor" />
                     </LinearLayout>
 
                 </LinearLayout>

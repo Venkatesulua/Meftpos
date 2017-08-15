@@ -8,40 +8,18 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.VolleyError;
 import com.mobileeftpos.android.eftpos.R;
-import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
-import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
-import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
-import com.mobileeftpos.android.eftpos.SupportClasses.j8583Params;
-import com.mobileeftpos.android.eftpos.activity.HomeActivity;
+import com.mobileeftpos.android.eftpos.activity.HomePagerActivity;
 import com.mobileeftpos.android.eftpos.activity.LoginActivity;
 import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
-
-
-import org.jpos.iso.ISOMsg;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.Socket;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
 
 public class SplashActivity extends Activity {
 
@@ -66,21 +44,18 @@ public class SplashActivity extends Activity {
             public void run() {
                 try {
 
-                    Intent i = new Intent(SplashActivity.this, LoginActivity.class);
-                    startActivity(i);
-                    overridePendingTransition(R.anim.right_enter, R.anim.left_out);
 
-                    /*if (SharedPreferenceStore.getEncryptedSharedPref("LoginStatus").equalsIgnoreCase
-                            ("true") || SharedPreferenceStore.getEncryptedSharedPref("LoginStatus").equalsIgnoreCase
-                            ("Skipped")) {
-                        Intent i = new Intent(SplashActivity.this, HomeActivity.class);
+
+                    if (SharedPreferenceStore.getEncryptedSharedPref(SharedPreferenceStore.KEY_LOGIN_STATUS).equalsIgnoreCase
+                            ("true")) {
+                        Intent i = new Intent(SplashActivity.this, HomePagerActivity.class);
                         startActivity(i);
                         overridePendingTransition(R.anim.right_enter, R.anim.left_out);
                     } else {
                         Intent i = new Intent(SplashActivity.this, LoginActivity.class);
                         startActivity(i);
                         overridePendingTransition(R.anim.right_enter, R.anim.left_out);
-                    }*/
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

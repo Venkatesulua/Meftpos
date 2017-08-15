@@ -2,17 +2,23 @@ package com.mobileeftpos.android.eftpos.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v4.content.IntentCompat;
+import android.support.v7.app.AlertDialog;
+
 import com.mobileeftpos.android.eftpos.activity.LoginActivity;
 import com.mobileeftpos.android.eftpos.sharedpreference.SharedPreferenceStore;
 import org.json.JSONObject;
 import java.io.IOException;
- import java.util.List;
+import java.util.ArrayList;
+import java.util.List;
 
 
 
@@ -85,6 +91,26 @@ public class AppUtil {
         }
 
     }
+
+    public static boolean isNetworkAvailable(Context con) {
+        ConnectivityManager connectivityManager;
+        NetworkInfo wifiInfo, mobileInfo;
+        try {
+            connectivityManager = (ConnectivityManager) con.getSystemService(Context.CONNECTIVITY_SERVICE);
+            wifiInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            mobileInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+            if (wifiInfo.isConnected() || mobileInfo.isConnected()) {
+                return true;
+            }
+        } catch (Exception e) {
+            System.out.println("CheckConnectivity Exception: " + e.getMessage());
+        }
+
+        return false;
+    }
+
+
 
     /**
      * playNotificationSound: This method will play default notification sound.
@@ -261,5 +287,34 @@ public class AppUtil {
 		}
 	}*/
 
+	public static List<String> loadNetworks(){
+
+        List<String> list = new ArrayList<String>();
+        list.add(NetworkTypes.M2M_NETWORK);
+        list.add(NetworkTypes.PUBLIC_NETWORK);
+        list.add(NetworkTypes.OFFICE_NETWORK);
+        list.add(NetworkTypes.DIRECT_NETWORK);
+        list.add(NetworkTypes.CLOUD_NETWORK);
+        return list;
+    }
+
+    public static void showDialogAlert(Context context, String message) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(message);
+        builder.setTitle("EFTPOS");
+        builder.setCancelable(true);
+
+        builder.setPositiveButton(
+                "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
 
 }

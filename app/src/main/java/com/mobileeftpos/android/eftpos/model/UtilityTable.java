@@ -11,7 +11,7 @@ public class UtilityTable implements Serializable {
     String UTILITY_ID,ADDITIONAL_PROMPT,DAILY_SETTLEMENT_FLAG,
             LAST_4_DIGIT_PROMPT_FLAG,INSERT_2_SWIPE,PIGGYBACK_FLAG,PINBYPASS,
             AUTO_SETTLE_TIME,LAST_AUTO_SETTLEMENT_DATETIME,UTRN_PREFIX,
-            SYSTEM_TRACE,DEFAULT_APPROVAL_CODE;
+            DEFAULT_APPROVAL_CODE;
 
     public String getUTILITY_ID() {
         return UTILITY_ID;
@@ -93,13 +93,7 @@ public class UtilityTable implements Serializable {
         this.UTRN_PREFIX = UTRN_PREFIX;
     }
 
-    public String getSYSTEM_TRACE() {
-        return SYSTEM_TRACE;
-    }
 
-    public void setSYSTEM_TRACE(String SYSTEM_TRACE) {
-        this.SYSTEM_TRACE = SYSTEM_TRACE;
-    }
 
     public String getDEFAULT_APPROVAL_CODE() {
         return DEFAULT_APPROVAL_CODE;

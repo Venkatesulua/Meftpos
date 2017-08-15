@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/splash_bg"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/relativr_layout"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:background="@color/colorPrimary">
+
+                <TextView
+                    android:id="@+id/back_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:drawableLeft="@drawable/back"
+                    android:drawablePadding="5dp"
+                    android:paddingLeft="10dp"
+                    android:text="Back"
+                    android:textColor="#FFF"
+                    android:textSize="18dp"
+                    android:visibility="gone" />
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:drawablePadding="5dp"
+                    android:text="TRANSACTION SUCCESSFUL"
+                    android:textColor="#FFF"
+                    android:textSize="18dp"
+                    android:textStyle="bold" />
+
+
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_below="@+id/relativr_layout"
+                android:background="@drawable/line_bg" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/imageView2"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
+
+
+                <TextView
+                    android:id="@+id/MerDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="0dp"
+                    android:drawablePadding="5dp"
+                    android:gravity="center"
+                    android:textColor="#000"
+                    android:textSize="15dp"
+                    android:typeface="serif" />
+
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#000"
+                    android:layout_gravity="center"
+                    android:drawablePadding="5dp"
+                    android:textSize="25dp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:typeface="serif"
+                    android:layout_marginBottom="0dp"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true"
+                    />
+
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/ContentDetails"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginTop="0dp"
+                        android:drawablePadding="5dp"
+                        android:gravity="left"
+
+                        android:textColor="#000"
+                        android:textSize="15dp" />
+
+                </RelativeLayout>
+
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/FooterDetails"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="left"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="0dp"
+                        android:drawablePadding="5dp"
+                        android:gravity="left"
+                        android:textColor="#000"
+                        android:textSize="15dp" />
+
+
+                </RelativeLayout>
+
+
+                <TextView
+                    android:id="@+id/disclaimerMsg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#000"
+                    android:layout_gravity="center"
+                    android:drawablePadding="5dp"
+                    android:textSize="10dp"
+                    android:gravity="center"
+                    android:typeface="serif"
+                    android:layout_marginBottom="5dp"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true"
+                    />
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="48sp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    >
+
+
+                    <Button
+                        android:id="@+id/sharebtn"
+                        android:layout_width="110dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/all_corner_edittext_bg"
+                        android:text="Share Transaction"
+                        android:drawablePadding="5dp"
+                        android:padding="5dp"
+                        android:textColor="@color/colorPrimary" />
+
+                    <Button
+                        android:id="@+id/customercopy"
+                        android:layout_marginLeft="120dp"
+                        android:layout_width="110dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/all_corner_edittext_bg"
+                        android:text="Customer Copy"
+                        android:drawablePadding="5dp"
+                        android:padding="5dp"
+                        android:textColor="@color/colorPrimary" />
+
+                    <Button
+                        android:id="@+id/complete"
+                        android:layout_marginLeft="240dp"
+                        android:layout_width="110dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/all_corner_edittext_bg"
+                        android:text="Home Screen"
+                        android:drawablePadding="5dp"
+                        android:padding="5dp"
+                        android:textColor="@color/colorPrimary" />
+
+                </RelativeLayout>
+
+
+
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

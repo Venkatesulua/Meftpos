@@ -84,4 +84,10 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="title_activity_transaction_type">TransactionType</string>
 
+    <string-array name="connection_array">
+        <item>3G/GPRS</item>
+        <item>WIFI</item>
+        <item>ETHERNET</item>
+        <item>PHONELINE</item>
+    </string-array>
 </resources>

@@ -2,43 +2,74 @@ package com.mobileeftpos.android.eftpos.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobileeftpos.android.eftpos.R;
 import com.mobileeftpos.android.eftpos.SupportClasses.Constants;
 import com.mobileeftpos.android.eftpos.SupportClasses.GlobalVar;
 import com.mobileeftpos.android.eftpos.SupportClasses.ISOPackager1;
-import com.mobileeftpos.android.eftpos.database.DBHelper;
-import com.mobileeftpos.android.eftpos.model.CardBinModel;
-import com.mobileeftpos.android.eftpos.model.CardTypeModel;
-import com.mobileeftpos.android.eftpos.model.CommsModel;
-import com.mobileeftpos.android.eftpos.model.CurrencyModel;
-import com.mobileeftpos.android.eftpos.model.EthernetLabel;
-import com.mobileeftpos.android.eftpos.model.EzlinkModel;
-import com.mobileeftpos.android.eftpos.model.HostModel;
-import com.mobileeftpos.android.eftpos.model.HostTransmissionModel;
-import com.mobileeftpos.android.eftpos.model.LimitModel;
-import com.mobileeftpos.android.eftpos.model.MaskingModel;
-import com.mobileeftpos.android.eftpos.model.MerchantModel;
-import com.mobileeftpos.android.eftpos.model.PasswordModel;
-import com.mobileeftpos.android.eftpos.model.ReceiptModel;
-import com.mobileeftpos.android.eftpos.model.ReportsModel;
-import com.mobileeftpos.android.eftpos.model.TransactionControlModel;
-import com.mobileeftpos.android.eftpos.model.TransactionDetails;
-import com.mobileeftpos.android.eftpos.model.UtilityTable;
+import com.mobileeftpos.android.eftpos.SupportClasses.TransactionDetails;
+import com.mobileeftpos.android.eftpos.app.EftposApp;
+import com.mobileeftpos.android.eftpos.database.GreenDaoSupport;
+import com.mobileeftpos.android.eftpos.db.AlipayModel;
+import com.mobileeftpos.android.eftpos.db.AlipayModelDao;
+import com.mobileeftpos.android.eftpos.db.BatchModel;
+import com.mobileeftpos.android.eftpos.db.BatchModelDao;
+import com.mobileeftpos.android.eftpos.db.CardBinModel;
+import com.mobileeftpos.android.eftpos.db.CardBinModelDao;
+import com.mobileeftpos.android.eftpos.db.CardTypeModel;
+import com.mobileeftpos.android.eftpos.db.CardTypeModelDao;
+import com.mobileeftpos.android.eftpos.db.CommsModel;
+import com.mobileeftpos.android.eftpos.db.CommsModelDao;
+import com.mobileeftpos.android.eftpos.db.CurrencyModel;
+import com.mobileeftpos.android.eftpos.db.CurrencyModelDao;
+import com.mobileeftpos.android.eftpos.db.DaoSession;
+import com.mobileeftpos.android.eftpos.db.EthernetModel;
+import com.mobileeftpos.android.eftpos.db.EthernetModelDao;
+import com.mobileeftpos.android.eftpos.db.EzlinkModel;
+import com.mobileeftpos.android.eftpos.db.EzlinkModelDao;
+import com.mobileeftpos.android.eftpos.db.HTTModel;
+import com.mobileeftpos.android.eftpos.db.HTTModelDao;
+import com.mobileeftpos.android.eftpos.db.HostModel;
+import com.mobileeftpos.android.eftpos.db.HostModelDao;
+import com.mobileeftpos.android.eftpos.db.LimitModel;
+import com.mobileeftpos.android.eftpos.db.LimitModelDao;
+import com.mobileeftpos.android.eftpos.db.MaskingModel;
+import com.mobileeftpos.android.eftpos.db.MaskingModelDao;
+import com.mobileeftpos.android.eftpos.db.MerchantModel;
+import com.mobileeftpos.android.eftpos.db.MerchantModelDao;
+import com.mobileeftpos.android.eftpos.db.PasswordModel;
+import com.mobileeftpos.android.eftpos.db.PasswordModelDao;
+import com.mobileeftpos.android.eftpos.db.ReceiptModel;
+import com.mobileeftpos.android.eftpos.db.ReceiptModelDao;
+import com.mobileeftpos.android.eftpos.db.ReportModel;
+import com.mobileeftpos.android.eftpos.db.ReportModelDao;
+import com.mobileeftpos.android.eftpos.db.TraceModel;
+import com.mobileeftpos.android.eftpos.db.TraceModelDao;
+import com.mobileeftpos.android.eftpos.db.TransactionControlModel;
+import com.mobileeftpos.android.eftpos.db.TransactionControlModelDao;
+import com.mobileeftpos.android.eftpos.db.UtilityModel;
+import com.mobileeftpos.android.eftpos.db.UtilityModelDao;
+import com.mobileeftpos.android.eftpos.utils.AppUtil;
+import com.mobileeftpos.android.eftpos.utils.EFTPOSLog;
+import com.mobileeftpos.android.eftpos.utils.NetworkTypes;
 
+import org.greenrobot.greendao.query.QueryBuilder;
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -49,6 +80,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Prathap on 5/21/17.
@@ -56,138 +88,341 @@ import java.util.Date;
 
 public class AdminActivity extends Activity {
 
-    EditText appName, terminalId, connectionType, connectionTo;
-    Button clearBtn, submitBtn;
-    private final String TAG = "my_custom_msg";
-    //public j8583Params j8583param = new j8583Params();
-    public GlobalVar globalVar = new GlobalVar();
-
-    public byte[] FinalData = new byte[1512];
-    public int inFinalLength = 0;
-    public Socket smtpSocket = null;
-    ISOPackager1 packager = new ISOPackager1();
-    ISOMsg isoMsg = new ISOMsg();
-    private static DBHelper databaseObj;
-    public static Context context;
+    private EditText appName, terminalId;
+    private Spinner connectionType, connectionTo;
+    private Button clearBtn, submitBtn;
+    private TextView backBtn;
+    double progressValue=0;
+    private ProgressDialog progress;
+    private final String TAG = AdminActivity.class.getSimpleName();
+    private GlobalVar globalVar = new GlobalVar();
+    private byte[] FinalData = new byte[1512];
+    private int inFinalLength = 0;
+    private Socket smtpSocket = null;
+    private ISOPackager1 packager = new ISOPackager1();
+    private ISOMsg isoMsg = new ISOMsg();
+    public static Activity context;
+    private String connectToStr;
+    private int TIME_OUT = 1000;
+    private DaoSession daoSession;
+    private List<HostModel> hostModelList;
+    private List<BatchModel> batchModelList;
+    private HostModelDao hostModelDao;
+    private BatchModelDao batchModelDao;
+    private CardTypeModelDao cttModelDao;
+    private CommsModelDao comModelDao;
+    private CurrencyModelDao currModelDao ;
+    private EthernetModelDao ethernetModelDao ;
+    private EzlinkModelDao ezlinkModelDao ;
+    private HTTModelDao hostTransModelDao ;
+    private LimitModelDao limitModelDao;
+    private MaskingModelDao maskModelDao ;
+    private AlipayModelDao alipayModelDao ;
+    private MerchantModelDao merchantModelDao ;
+    private ReceiptModelDao receiptModelDao ;
+    private ReportModelDao reportModelDao ;
+    private TransactionControlModelDao transctrlModelDao ;
+    private UtilityModelDao utilityModelDao ;
+    private TraceModelDao traceModelDao;
+    private PasswordModelDao pwdModelDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.activity_adminlayout);
-        databaseObj = new DBHelper(AdminActivity.this);
+        daoSession = ((EftposApp) getApplication()).getDaoSession();
         context = AdminActivity.this;
-        appName = (EditText) findViewById(R.id.etappname);
-        terminalId = (EditText) findViewById(R.id.etterminalid);
-        connectionType = (EditText) findViewById(R.id.etconnectiontype);
-        connectionTo = (EditText) findViewById(R.id.etconnectionto);
-        clearBtn = (Button) findViewById(R.id.btnClear);
-        submitBtn = (Button) findViewById(R.id.btnSubmit);
-        submitBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new AsyncTaskRunner().execute();
-            }
-        });
-
+        initView();
 
     }
 
+    //Initializing the view Components
+   private void initView(){
 
-    private void processRequest() {
+       appName = (EditText) findViewById(R.id.etappname);
+       terminalId = (EditText) findViewById(R.id.etterminalid);
+       connectionType = (Spinner) findViewById(R.id.etconnectiontype);
+       connectionTo = (Spinner) findViewById(R.id.etconnectionto);
+       clearBtn = (Button) findViewById(R.id.btnClear);
+       submitBtn = (Button) findViewById(R.id.btnSubmit);
+       backBtn = (TextView) findViewById(R.id.backBtn);
+
+       submitBtn.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+
+               MMSDownload();
+           }
+       });
+
+       backBtn.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+               finish();
+           }
+       });
+
+       connectionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+           @Override
+           public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+               setConnections();
+           }
+
+           @Override
+           public void onNothingSelected(AdapterView<?> adapterView) {
+
+           }
+       });
+
+   }
+
+   //Loading database dao objets
+   private void loadDaoObjects(){
+       pwdModelDao = daoSession.getPasswordModelDao();
+       cttModelDao = daoSession.getCardTypeModelDao();
+       comModelDao = daoSession.getCommsModelDao();
+       currModelDao = daoSession.getCurrencyModelDao();
+       ethernetModelDao = daoSession.getEthernetModelDao();
+       ezlinkModelDao = daoSession.getEzlinkModelDao();
+       hostTransModelDao = daoSession.getHTTModelDao();
+       limitModelDao = daoSession.getLimitModelDao();
+       maskModelDao = daoSession.getMaskingModelDao();
+       alipayModelDao = daoSession.getAlipayModelDao();
+       merchantModelDao = daoSession.getMerchantModelDao();
+       receiptModelDao =daoSession.getReceiptModelDao();
+       reportModelDao = daoSession.getReportModelDao();
+       transctrlModelDao = daoSession.getTransactionControlModelDao();
+       utilityModelDao = daoSession.getUtilityModelDao();
+       traceModelDao=daoSession.getTraceModelDao();
+       GreenDaoSupport.deleteAllTablesData(AdminActivity.this);
+   }
 
 
+   // Initializing connection for connecting terminal
+   private void setConnections(){
+
+       if (!connectionType.getSelectedItem().toString().equalsIgnoreCase("PHONELINE")) {
+
+           final ArrayAdapter<String> localAdapter = new ArrayAdapter<String>(AdminActivity.this, android.R.layout.simple_spinner_item, AppUtil.loadNetworks());
+           localAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+           localAdapter.notifyDataSetChanged();
+           connectionTo.setAdapter(localAdapter);
+       } else {
+
+           List<String> list = new ArrayList<String>();
+           list.add("No Options");
+           final ArrayAdapter<String> localAdapter = new ArrayAdapter<String>(AdminActivity.this, android.R.layout.simple_spinner_item, list);
+           localAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+           localAdapter.notifyDataSetChanged();
+           connectionTo.setAdapter(localAdapter);
+       }
+
+   }
+
+   //Downloading all required data for transactions
+   private void MMSDownload(){
+
+       if (connectionTo.getSelectedItem().toString().equals("DIRECT 8585") && (connectionType.getSelectedItem().toString().equals("3G/GPRS") || connectionType.getSelectedItem().toString().equals("WIFI"))) {
+           if (((appName.getText().toString().length() > 0) && (terminalId.getText().toString().length() > 0) &&
+                   (connectionType.getSelectedItem().toString().length() > 0) && (!connectionTo.getSelectedItem().toString().equalsIgnoreCase("No Options")) && (connectionTo.getSelectedItem().toString().length() > 0))) {
+               int BatchPresent = 0;
+                HostModel hostModel = new HostModel();
+               hostModelList = new ArrayList<>();
+               hostModelDao = daoSession.getHostModelDao();
+               batchModelDao = daoSession.getBatchModelDao();
+               hostModelList.addAll(hostModelDao.loadAll());
+               for (int i = 0; i < hostModelList.size(); i++) {
+                   hostModel = hostModelList.get(i);
+                   if (!(hostModel == null || hostModel.equals(""))) {
+                       if (hostModel.getHDT_HOST_ENABLED().equalsIgnoreCase("1")) {
+
+                           //Dynamically add buttons now with the name of hostModel.getHDT_HOST_LABEL();
+                           //Increment Batch Number
+                           TransactionDetails.inGHDT = Integer.parseInt(hostModel.getHDT_HOST_ID());
+                           QueryBuilder<BatchModel> qb = batchModelDao.queryBuilder();
+                           qb.where(BatchModelDao.Properties.Hdt_index.eq(String.format("%02d",TransactionDetails.inGHDT)));
+                           batchModelList = qb.list();
+                           if (batchModelList.size() >0) {
+                               BatchPresent = 1;
+                               break;
+                           }
+
+                       }
+                   }
+               }
+               if (BatchPresent == 1) {
+                   TransactionDetails.responseMessge = "PLZ SETTLE FIRST";
+                   new Handler().postDelayed(new Runnable() {
+                       @Override
+                       public void run() {
+                           Intent intent = new Intent(AdminActivity.this, PaymentFailure.class);
+                           startActivity(intent);
+                       }
+                   }, TIME_OUT);
+               } else
+                   new AsyncTaskRunner().execute();
+           } else {
+               Toast.makeText(AdminActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+           }
+       }
+       else{
+           Toast.makeText(AdminActivity.this,"COMM NOT SUPPORTED",Toast.LENGTH_SHORT).show();
+       }
+   }
+
+   // Validating input params to process download
+   private boolean validateInputParams(){
+       if(((appName.getText().toString().length() > 0) && (terminalId.getText().toString().length() > 0) &&
+               (connectionType.getSelectedItem().toString().length() > 0) && (connectionTo.getSelectedItem().toString().length() > 0))){
+           return true;
+       }else{
+           return false;
+       }
+
+   }
+
+
+   // Async background task in downloading data
+    private String processRequest() {
+
+        loadDaoObjects();
         //Validation for null
-        if (!((appName.getText().toString().length() > 0) && (terminalId.getText().toString().length() > 0) &&
-                (connectionType.getText().toString().length() > 0) && (connectionTo.getText().toString().length() > 0))) {
-            //ERROR MISSING TMS PARAMETERS
-            Log.i(TAG, "ERROR MISSING TMS PARAMETERS");
-            return;
-        }
-        globalVar.tmsParam.setTMS_APPLICATION(appName.getText().toString());
-        globalVar.tmsParam.setTMS_FILENAME(terminalId.getText().toString());
-        globalVar.tmsParam.setTMS_TERMINAL_ID(terminalId.getText().toString());
-        globalVar.tmsParam.setTMS_CONNECTION_TYPE(connectionType.getText().toString());
-        globalVar.tmsParam.setTMS_CONNECTION_TO(connectionTo.getText().toString());
+        if (validateInputParams()) {
+            globalVar.tmsParam.setTMS_APPLICATION(appName.getText().toString());
+            globalVar.tmsParam.setTMS_FILENAME(terminalId.getText().toString());
+            globalVar.tmsParam.setTMS_TERMINAL_ID(terminalId.getText().toString());
+            globalVar.tmsParam.setTMS_CONNECTION_TYPE(connectionType.getSelectedItem().toString());
+            connectToStr=connectionTo.getSelectedItem().toString();
 
+            if (connectToStr.equalsIgnoreCase(NetworkTypes.M2M_NETWORK)) {
+                connectToStr = "202.160.225.218|15525";
 
-        // Initialize at the booting time
-        isoMsg.setPackager(packager);
-        globalVar.setGTransactionType(Constants.TransType.TMS_INITIAL_PACKET);
-        boolean msg_ok = false;
-        while (true) {
+            } else if (connectToStr.equalsIgnoreCase(NetworkTypes.PUBLIC_NETWORK)) {
+                connectToStr = "203.125.211.121|15443";
 
-            if (globalVar.getGTransactionType() == Constants.TransType.TMS_SUBSEQUENT_PACKET) {
-                if (globalVar.getGTotalNumberofTMSparts() == globalVar.getGPartToDownload()) {
-                    msg_ok = true;
-                    break;
-                } else {
-                    // increase counter to download next part
-                    int inGPartToDownload = globalVar.getGPartToDownload();
-                    inGPartToDownload++;
-                    globalVar.setGPartToDownload(inGPartToDownload);
-                }
+            } else if (connectToStr.equalsIgnoreCase(NetworkTypes.OFFICE_NETWORK)) {
+                connectToStr = " 192.168.0.2|8589";
+
+            } else if (connectToStr.equalsIgnoreCase(NetworkTypes.DIRECT_NETWORK)) {
+                connectToStr = "203.125.11.228|8585";
+
+            } else if (connectToStr.equalsIgnoreCase(NetworkTypes.CLOUD_NETWORK)) {
+                connectToStr = "52.163.63.18|8589";
+
             }
 
-            inCreatePacket();
-            // Connection to Host
-            if (inConnection() != 0) {
-                return;
-            }
-            if (inSendRecvPacket() != 0) {
-                return;
-            }
-            if (inProcessPacket() != 0) {
-                return;
-            }
-            String stTemp = isoMsg.getString(39);
-            if (stTemp.equals("00")) {
-                if (globalVar.getGTransactionType() == Constants.TransType.TMS_INITIAL_PACKET) {
-                    globalVar.setGPartToDownload(0);
-                    int inret = vdProcessDownloadResponse(Constants.TransType.TMS_INITIAL_PACKET);
-                    if (inret == Constants.TMSReturnValues.TMS_RESPONSE_DL_NOT_REQUIRED) {
-                        // save the date of when we last check for parameter
-                        // updates
-                        DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-                        Date date = new Date();
-                        String stDate = dateFormat.format(date).substring(2);
-                        globalVar.setLastCheckedDate(stDate);
-                        // todo save into file
-                        // Nothing to download
-                        globalVar.setGTotalNumberofTMSparts(0);
+
+            globalVar.tmsParam.setTMS_CONNECTION_TO(connectToStr);
+            globalVar.TmsData = "";
+            isoMsg.setPackager(packager);
+            TransactionDetails.trxType = (Constants.TransType.TMS_INITIAL_PACKET);
+            boolean msg_ok = false;
+            while (true) {
+                if (TransactionDetails.trxType == Constants.TransType.TMS_SUBSEQUENT_PACKET) {
+                    if (globalVar.getGTotalNumberofTMSparts() == globalVar.getGPartToDownload()) {
+                        msg_ok = true;
                         break;
-
-                        // goto lblNoChanges;
-                    } else if (inret == Constants.TMSReturnValues.TMS_RESPONSE_DL_REQUIRED) {
-                        globalVar.setGTransactionType(Constants.TransType.TMS_SUBSEQUENT_PACKET);
-
                     } else {
-                        msg_ok = false;
-                        break;
-                    }
-                } else {
-                    int inret = vdProcessDownloadResponse(Constants.TransType.TMS_SUBSEQUENT_PACKET);
-                    if (inret != Constants.TMSReturnValues.TMS_RESPONSE_OK) {
-                        msg_ok = false;
-                        break;
+                        double a=globalVar.getGPartToDownload();
+                        double b=globalVar.getGTotalNumberofTMSparts();
+                        double c=(a/b)*100;
+                        // increase counter to download next part
+                        progressValue=progressValue+c;
+                        final int percent=(int)Math.round(c);
+                        AdminActivity.this.runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                progress.setProgress(percent);
+                                progress.incrementProgressBy(percent);
+                            }
+                        });
+                        int inGPartToDownload = globalVar.getGPartToDownload();
+                        inGPartToDownload++;
+                        globalVar.setGPartToDownload(inGPartToDownload);
                     }
                 }
+
+                inCreatePacket();
+                int indexOffset = connectToStr.indexOf("|");
+                String ServerIP = connectToStr.substring(0,indexOffset);
+                String Port = connectToStr.substring(indexOffset+1);
+                // Connection to Host
+                if (inConnection(ServerIP,Integer.parseInt(Port)) != 0) {
+                    return "FAILED";
+                }
+
+                if (inSendRecvPacket() != 0) {
+                    return "FAILED";
+                }
+
+                if (inProcessPacket() != 0) {
+                    return "FAILED";
+                }
+
+                String stTemp = isoMsg.getString(39);
+                if (stTemp.equals("00")) {
+                    if (TransactionDetails.trxType == Constants.TransType.TMS_INITIAL_PACKET) {
+                        globalVar.setGPartToDownload(0);
+                        int inret = vdProcessDownloadResponse(Constants.TransType.TMS_INITIAL_PACKET);
+                        if (inret == Constants.TMSReturnValues.TMS_RESPONSE_DL_NOT_REQUIRED) {
+                            // save the date of when we last check for parameter
+                            // updates
+                            DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+                            Date date = new Date();
+                            String stDate = dateFormat.format(date).substring(2);
+                            globalVar.setLastCheckedDate(stDate);
+                            // todo save into file
+                            // Nothing to download
+                            globalVar.setGTotalNumberofTMSparts(0);
+                            break;
+
+                            // goto lblNoChanges;
+                        } else if (inret == Constants.TMSReturnValues.TMS_RESPONSE_DL_REQUIRED) {
+                            //globalVar.setGTransactionType(MenuConstants.TransType.TMS_SUBSEQUENT_PACKET);
+                            TransactionDetails.trxType = Constants.TransType.TMS_SUBSEQUENT_PACKET;
+
+                        } else {
+                            msg_ok = false;
+                            break;
+                        }
+                    } else {
+                        int inret = vdProcessDownloadResponse(Constants.TransType.TMS_SUBSEQUENT_PACKET);
+                        if (inret != Constants.TMSReturnValues.TMS_RESPONSE_OK) {
+                            msg_ok = false;
+                            break;
+                        }
+                    }
+                }
+                if (inDisconnection() != 0) {
+                    return "FAILED";
+                }
             }
+            if (inDisconnection() != 0) {
+                return "FAILED";
+            }
+
+            if (msg_ok == true) {
+                // Parce the TMS data and keep the data in the DATABASE.
+                EFTPOSLog.d(TAG, "FInal Output:\n");
+                EFTPOSLog.d(TAG, globalVar.TmsData);
+                vdStoreParameters();
+                return "OK";
+            }
+
+
+        }else{
+            EFTPOSLog.d(TAG, "ERROR MISSING TMS PARAMETERS");
+            return "FAILED";
         }
 
-        if (inDisconnection() != 0) {
-            return;
-        }
 
-        if (msg_ok == true) {
-            // Parce the TMS data and keep the data in the DATABASE.
-            Log.i(TAG, "FInal Output:\n");
-            Log.i(TAG, globalVar.TmsData);
-            vdStoreParameters();
-        }
-
+        return "FAILED";
     }
 
 
+    //vdStoreParameters
     void vdStoreParameters() {
         int l_iNumParams = 0;
         int inCounter = 0;
@@ -199,68 +434,36 @@ public class AdminActivity extends Activity {
         String stLines = globalVar.TmsData.substring(inindex + ("NUMBER_OF_LINES=".length()));
         l_iNumParams = Integer.parseInt(stLines);
 
-  ///Intilizing arraylist objects
+     
 
-        /*ArrayList<PasswordModel> passwordModelObjList = new ArrayList<>();
-
-
-        for (inCounter = 0; inCounter < l_iNumParams; inCounter++) {
-            globalVar.TmsData = globalVar.TmsData.substring(tms_offset);
-            param = globalVar.TmsData.indexOf('=');
-            value = globalVar.TmsData.indexOf(0x0A);
-
-            stParam = globalVar.TmsData.substring(0, param);
-            stValue = globalVar.TmsData.substring(param + 1, value);
-            tms_offset = value + 1;
-
-            Log.i(TAG, "Param:" + stParam);
-            Log.i(TAG, "Value:" + stValue);
-
-            PasswordModel pwdModel = new PasswordModel();
-            pwdModel.setBALANCE_PASSWORD("Test1");
-            pwdModel.setCASH_ADVANCED_PASSWORD("Test2");
-            pwdModel.setDEFAULT_PASSWORD("Test3");
-            pwdModel.setEDITOR_PASSWORD("Test4");
-            pwdModel.setMANUAL_ENTRY_PASSWORD("Test5");
-            pwdModel.setBALANCE_PASSWORD("Test6");
-            pwdModel.setOFFLINE_PASSWORD("Test7");
-            pwdModel.setREFUND_PASWORD("Test8");
-            pwdModel.setTERMINAL_POWERON_PASSWORD("Test9");
-
-            //passwordModelObj.add(pwdModel);
-            //or
-            //For Data Insertion
-
-            databaseObj.insertPasswordData(pwdModel);
-
-
-            // to check whether data exist or not
-
-            passwordModelObjList = databaseObj.getAllPasswordrelatedData();
-
-            if (passwordModelObjList.size() > 0) {
-
-                Toast.makeText(context, passwordModelObjList.size() + " Number of records exist", Toast.LENGTH_LONG).show();
-            }*/
-
-        PasswordModel pwdModel = new PasswordModel();
-        CardBinModel cbinModel= new CardBinModel();
-        CardTypeModel cttModel= new CardTypeModel();
-        CommsModel comModel= new CommsModel();
-        CurrencyModel currModel= new CurrencyModel();
-        EthernetLabel ethernetModel= new EthernetLabel();
-        EzlinkModel ezlinkModel= new EzlinkModel();
-        HostModel hostModel= new HostModel();
-        HostTransmissionModel hostTransModel= new HostTransmissionModel();
-        LimitModel limitModel= new LimitModel();
-        MaskingModel maskModel= new MaskingModel();
-        MerchantModel merchantModel= new MerchantModel();
+         PasswordModel pwdModel = new PasswordModel();
+         HTTModel hostTransModel = new HTTModel();
+        LimitModel limitModel = new LimitModel();
+        MaskingModel maskModel = new MaskingModel();
+         MerchantModel merchantModel = new MerchantModel();
         ReceiptModel receiptModel = new ReceiptModel();
-        ReportsModel reportModel = new ReportsModel();
+        ReportModel reportModel = new ReportModel();
         TransactionControlModel transctrlModel = new TransactionControlModel();
-        UtilityTable utilModel = new UtilityTable();
+        UtilityModel utilModel = new UtilityModel();
+
+
+
+        EFTPOSLog.d(TAG, "DELETE ALL THE CONTENT FROM  THE FILE");
+
+
 
         for (inCounter = 0; inCounter < l_iNumParams; inCounter++) {
+            CardBinModel cbinModel = new CardBinModel();
+            CardTypeModel cttModel = new CardTypeModel();
+            CommsModel comModel = new CommsModel();
+            CurrencyModel currModel = new CurrencyModel();
+            EthernetModel ethernetModel = new EthernetModel();
+            EzlinkModel ezlinkModel = new EzlinkModel();
+            HostModel hostModel = new HostModel();
+            AlipayModel alipayModel =new AlipayModel();
+            TraceModel traceModel = new TraceModel();
+
+            CardBinModelDao cbinModelDao = daoSession.getCardBinModelDao();
             globalVar.TmsData = globalVar.TmsData.substring(tms_offset);
             param = globalVar.TmsData.indexOf('=');
             value = globalVar.TmsData.indexOf(0x0A);
@@ -269,10 +472,10 @@ public class AdminActivity extends Activity {
             stValue = globalVar.TmsData.substring(param + 1, value);
             tms_offset = value + 1;
 
-            Log.i(TAG,"Param:" + stParam);
-            Log.i(TAG,"Value:" + stValue);
+            EFTPOSLog.d(TAG, "Param:" + stParam);
+            EFTPOSLog.d(TAG, "Value:" + stValue);
 
-            if(stParam.length()==2) {
+            if (stParam.length() == 2) {
 
             }
             if (stParam.equals("TON"))
@@ -381,163 +584,206 @@ public class AdminActivity extends Activity {
                 limitModel.setMAXIMUM_PREAUTH_AMOUNT(stValue);
             } else if (stParam.equals("MAXIMUM_REFUND")) {
                 limitModel.setMAXIMUM_REFUND_AMOUNT(stValue);
-            }else if (stParam.equals("ADD1")) {
+            } else if (stParam.equals("ADD1")) {
                 utilModel.setADDITIONAL_PROMPT(stValue);
-            }else if (stParam.equals("BDTE")) {
+            } else if (stParam.equals("BDTE")) {
                 utilModel.setDAILY_SETTLEMENT_FLAG(stValue);
-            }else if (stParam.equals("LFDC")) {
+            } else if (stParam.equals("LFDC")) {
                 utilModel.setLAST_4_DIGIT_PROMPT_FLAG(stValue);
-            }else if (stParam.equals("2INS")) {
+            } else if (stParam.equals("2INS")) {
                 utilModel.setINSERT_2_SWIPE(stValue);
-            }else if (stParam.equals("PIGGY")) {
+            } else if (stParam.equals("PIGGY")) {
                 utilModel.setPIGGYBACK_FLAG(stValue);
-            }else if (stParam.equals("PINBY")) {
+            } else if (stParam.equals("PINBY")) {
                 utilModel.setPINBYPASS(stValue);
-            }else if (stParam.equals("AUTO_SETTLE")) {
+            } else if (stParam.equals("AUTO_SETTLE")) {
                 utilModel.setAUTO_SETTLE_TIME(stValue);
-            }else if (stParam.equals("UTRN")) {
+            } else if (stParam.equals("UTRN")) {
                 utilModel.setUTRN_PREFIX(stValue);
-            }else if (stParam.equals("ST")) {
-                utilModel.setSYSTEM_TRACE(stValue);
-            }else if (stParam.equals("DAPP")) {
+            } else if (stParam.equals("ST")) {
+                traceModel.setSYSTEM_TRACE(stValue);
+                traceModelDao.insert(traceModel);
+            } else if (stParam.equals("DAPP")) {
                 utilModel.setDEFAULT_APPROVAL_CODE(stValue);
-            }
-            else if (stParam.contains("HDT")) {
+            } else if (stParam.contains("HDT")) {
+
+                EFTPOSLog.d(TAG, "HOST ID::" + stParam.substring(3, 5));
+                hostModel.setHDT_HOST_ID(stParam.substring(3, 5)+"");
+
+
                 inindex = stValue.indexOf(' ');
                 hostModel.setHDT_HOST_ENABLED(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_COM_INDEX(stValue.substring(0, inindex));
+                hostModel.setHDT_COM_INDEX(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_REFERRAL_NUMBER(stValue.substring(0, inindex));
-                stValue=stValue.substring(inindex + 1);
-
-                inindex = stValue.indexOf(' ');
-               hostModel.setHDT_TERMINAL_ID(stValue.substring(0, inindex));
+                hostModel.setHDT_REFERRAL_NUMBER(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_MERCHANT_ID(stValue.substring(0, inindex));
+                hostModel.setHDT_TERMINAL_ID(stValue.substring(0, inindex)+"");
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_TPDU(stValue.substring(0, inindex));
+                hostModel.setHDT_MERCHANT_ID(stValue.substring(0, inindex)+"");
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_BATCH_NUMBER(stValue.substring(0, inindex));
+                hostModel.setHDT_TPDU(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_INVOICE_NUMBER(stValue.substring(0, inindex));
+                hostModel.setHDT_BATCH_NUMBER(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_PROCESSING_CODE(stValue.substring(0, inindex));
+                hostModel.setHDT_INVOICE_NUMBER(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_HOST_TYPE(stValue.substring(0, inindex));
+                hostModel.setHDT_PROCESSING_CODE(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_HOST_LABEL(stValue.substring(0, inindex));
+                hostModel.setHDT_HOST_TYPE(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_MANUAL_ENTRY_FLAG(stValue.substring(0, inindex));
+                hostModel.setHDT_HOST_LABEL(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_REVERSAL_FLAG(stValue.substring(0, inindex));
+                hostModel.setHDT_MANUAL_ENTRY_FLAG(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_SETTLEMENT_FLAG(stValue.substring(0, inindex));
+                hostModel.setHDT_REVERSAL_FLAG(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_BATCH_MAX_TOTAL(stValue.substring(0, inindex));
+                hostModel.setHDT_SETTLEMENT_FLAG(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_BATCH_STL_LAST(stValue.substring(0, inindex));
+                hostModel.setHDT_BATCH_MAX_TOTAL(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_BATCH_CURR_TOTAL(stValue.substring(0, inindex));
+                hostModel.setHDT_BATCH_STL_LAST(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_BATCH_NO_TRANS(stValue.substring(0, inindex));
+                hostModel.setHDT_BATCH_CURR_TOTAL(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_DESCRIPTION(stValue.substring(0, inindex));
+                hostModel.setHDT_BATCH_NO_TRANS(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_PAY_TERM(stValue.substring(0, inindex));
+                hostModel.setHDT_DESCRIPTION(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_PEK(stValue.substring(0, inindex));
+                hostModel.setHDT_PAY_TERM(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_MEK(stValue.substring(0, inindex));
+                hostModel.setHDT_PEK(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_MAC_INDEX(stValue.substring(0, inindex));
+                hostModel.setHDT_MEK(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_CUSTOM_OPTIONS(stValue.substring(0, inindex));
+                hostModel.setHDT_MAC_INDEX(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 inindex = stValue.indexOf(' ');
-               hostModel.setHDT_CURR_INDEX(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
-
-                inindex = stValue.indexOf(' ');
-               hostModel.setHDT_PIGGYBACK_FLAG(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
-
-                inindex = stValue.indexOf(' ');
-               hostModel.setHDT_MINIMUM_AMT(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
-
-                inindex = stValue.indexOf(' ');
-               hostModel.setHDT_RATE(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
-
-                inindex = stValue.indexOf(' ');
-               hostModel.setHDT_REDIRECT_IF_DISABLE(stValue.substring(0, inindex));
+                hostModel.setHDT_CUSTOM_OPTIONS(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                   hostModel.setHDT_REVERSAL_COUNT(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        hostModel.setHDT_CURR_INDEX(stValue);
+                    else
+                        hostModel.setHDT_CURR_INDEX(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                   hostModel.setHDT_SIGCAP_INDEX(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        hostModel.setHDT_PIGGYBACK_FLAG(stValue);
+                    else
+                        hostModel.setHDT_PIGGYBACK_FLAG(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                   hostModel.setHDT_BATCH_GROUP_NUMBER(stValue.substring(0, inindex));
-                   // stValue = stValue.substring(inindex + 1);
+                    if (inindex == -1)
+                        hostModel.setHDT_MINIMUM_AMT(stValue);
+                    else
+                        hostModel.setHDT_MINIMUM_AMT(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
                 }
-                databaseObj.InsertHostTablelData(hostModel);
+
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if (inindex == -1)
+                        hostModel.setHDT_RATE(stValue);
+                    else
+                        hostModel.setHDT_RATE(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if (inindex == -1)
+                        hostModel.setHDT_REDIRECT_IF_DISABLE(stValue);
+                    else
+                        hostModel.setHDT_REDIRECT_IF_DISABLE(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if (inindex == -1)
+                        hostModel.setHDT_REVERSAL_COUNT(stValue);
+                    else
+                        hostModel.setHDT_REVERSAL_COUNT(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if (inindex == -1)
+                        hostModel.setHDT_SIGCAP_INDEX(stValue);
+                    else
+                        hostModel.setHDT_SIGCAP_INDEX(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if (inindex == -1)
+                        hostModel.setHDT_BATCH_GROUP_NUMBER(stValue);
+                    else
+                        hostModel.setHDT_BATCH_GROUP_NUMBER(stValue.substring(0, inindex));
+                    // stValue = stValue.substring(inindex + 1);
+                }
+                hostModelDao.insert(hostModel);
             } else if (stParam.contains("CDT")) {
+
+                EFTPOSLog.d(TAG, "CDT ID::" + stParam.substring(3, 5));
+                cbinModel.setCDT_ID(stParam.substring(3, 5)+"");
+
                 inindex = stValue.indexOf(' ');
                 cbinModel.setCDT_LO_RANGE(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
@@ -552,17 +798,27 @@ public class AdminActivity extends Activity {
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    cbinModel.setCDT_CARD_TYPE_ARRAY(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        cbinModel.setCDT_CARD_TYPE_ARRAY(stValue);
+                    else
+                        cbinModel.setCDT_CARD_TYPE_ARRAY(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    cbinModel.setCDT_CARD_NAME(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        cbinModel.setCDT_CARD_NAME(stValue);
+                    else
+                        cbinModel.setCDT_CARD_NAME(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
-                databaseObj.InsertCardBinData(cbinModel);
+                cbinModelDao.insert(cbinModel);
             } else if (stParam.contains("CTT")) {
+
+                EFTPOSLog.d(TAG, "CTT ID::" + stParam.substring(3, 5));
+                cttModel.setCTT_ID(stParam.substring(3, 5)+"");
+
                 inindex = stValue.indexOf(' ');
                 cttModel.setCTT_CARD_TYPE(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
@@ -589,46 +845,73 @@ public class AdminActivity extends Activity {
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    cttModel.setCTT_CUSTOM_OPTIONS(stValue.substring(0, inindex));
-                    stValue = stValue.substring(inindex + 1);
-                }
-
-                inindex = stValue.indexOf(' ');
-                cttModel.setCTT_CVV_FDBC_ENABLE(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
-
-                if (!stValue.isEmpty()) {
-                    inindex = stValue.indexOf(' ');
-                    cttModel.setCTT_PAN_MASK_ARRAY(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        cttModel.setCTT_CUSTOM_OPTIONS(stValue);
+                    else
+                        cttModel.setCTT_CUSTOM_OPTIONS(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    cttModel.setCTT_EXPIRY_MASK_ARRAY(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        cttModel.setCTT_CVV_FDBC_ENABLE(stValue);
+                    else
+                        cttModel.setCTT_CVV_FDBC_ENABLE(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    cttModel.setCTT_QPSL(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        cttModel.setCTT_PAN_MASK_ARRAY(stValue);
+                    else
+                        cttModel.setCTT_PAN_MASK_ARRAY(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    cttModel.setCTT_DISABLE_EXPIRY_CHECK(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        cttModel.setCTT_EXPIRY_MASK_ARRAY(stValue);
+                    else
+                        cttModel.setCTT_EXPIRY_MASK_ARRAY(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    cttModel.setCTT_MC501(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        cttModel.setCTT_QPSL(stValue);
+                    else
+                        cttModel.setCTT_QPSL(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if (inindex == -1)
+                        cttModel.setCTT_DISABLE_EXPIRY_CHECK(stValue);
+                    else
+                        cttModel.setCTT_DISABLE_EXPIRY_CHECK(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if (inindex == -1)
+                        cttModel.setCTT_MC501(stValue);
+                    else
+                        cttModel.setCTT_MC501(stValue.substring(0, inindex));
                     //stValue = stValue.substring(inindex + 1);
                 }
 
-                databaseObj.InsertCardTypeData(cttModel);
+                cttModelDao.insert(cttModel);
             } else if (stParam.contains("COM")) {
+
+                EFTPOSLog.d(TAG, "COM ID::" + stParam.substring(3, 5));
+                comModel.setCOMMOS_ID(stParam.substring(3, 5)+"");
+
                 inindex = stValue.indexOf(' ');
                 comModel.setCOM_DESCRIPTION(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
@@ -675,53 +958,77 @@ public class AdminActivity extends Activity {
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_IP_TIMEOUT(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        comModel.setCOM_IP_TIMEOUT(stValue);
+                    else
+                        comModel.setCOM_IP_TIMEOUT(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_CONNECT_SECONDARY(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        comModel.setCOM_CONNECT_SECONDARY(stValue);
+                    else
+                        comModel.setCOM_CONNECT_SECONDARY(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_SSL_INDEX(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        comModel.setCOM_SSL_INDEX(stValue);
+                    else
+                        comModel.setCOM_SSL_INDEX(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_MODEM_INDEX(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        comModel.setCOM_MODEM_INDEX(stValue);
+                    else
+                        comModel.setCOM_MODEM_INDEX(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_PPP_USER_ID(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        comModel.setCOM_PPP_USER_ID(stValue+"");
+                    else
+                        comModel.setCOM_PPP_USER_ID(stValue.substring(0, inindex)+"");
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_PPP_PASSWORD(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        comModel.setCOM_PPP_PASSWORD(stValue);
+                    else
+                        comModel.setCOM_PPP_PASSWORD(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_PPP_MODEM_STRING(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        comModel.setCOM_PPP_MODEM_STRING(stValue);
+                    else
+                        comModel.setCOM_PPP_MODEM_STRING(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
 
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    comModel.setCOM_PPP_TIMEOUT(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        comModel.setCOM_PPP_TIMEOUT(stValue);
+                    else
+                        comModel.setCOM_PPP_TIMEOUT(stValue.substring(0, inindex));
                     //stValue = stValue.substring(inindex + 1);
                 }
 
-                databaseObj.InsertCommsData(comModel);
+                comModelDao.insert(comModel);
 
             } else if (stParam.contains("ETH")) {
                 if (!stValue.isEmpty()) {
@@ -736,39 +1043,73 @@ public class AdminActivity extends Activity {
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    ethernetModel.setGATEWAY(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        ethernetModel.setGATEWAY(stValue);
+                    else
+                        ethernetModel.setGATEWAY(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    ethernetModel.setDNS1(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        ethernetModel.setDNS1(stValue);
+                    else
+                        ethernetModel.setDNS1(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    ethernetModel.setDNS2(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        ethernetModel.setDNS2(stValue);
+                    else
+                        ethernetModel.setDNS2(stValue.substring(0, inindex));
                     //stValue = stValue.substring(inindex + 1);
                 }
-                databaseObj.InsertEthernetData(ethernetModel);
+                ethernetModelDao.insert(ethernetModel);
 
             } else if (stParam.contains("CUR")) {
+                EFTPOSLog.d(TAG, "CURR ID::" + stParam.substring(4, 6));
+                currModel.setCURRENCY_ID(stParam.substring(4, 6)+"");
+
                 inindex = stValue.indexOf(' ');
                 currModel.setCURR_LABEL(stValue.substring(0, inindex));
                 stValue = stValue.substring(inindex + 1);
 
-                inindex = stValue.indexOf(' ');
-                currModel.setCURR_EXPONENT(stValue.substring(0, inindex));
-                stValue = stValue.substring(inindex + 1);
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    //currModel.setCURR_CODE(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        currModel.setCURR_EXPONENT(stValue);
+                    else
+                        currModel.setCURR_EXPONENT(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
 
-                inindex = stValue.indexOf(' ');
-                currModel.setCURR_CODE(stValue.substring(0, inindex));
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    //currModel.setCURR_CODE(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        currModel.setCURR_CODE(stValue);
+                    else
+                        currModel.setCURR_CODE(stValue.substring(0, inindex));
+                }
                 //stValue = stValue.substring(inindex + 1);
-                databaseObj.InsertCurrencyData(currModel);
+                currModelDao.insert(currModel);
 
             } else if (stParam.contains("EZL")) {
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
                     ezlinkModel.setEZLINK_ENABLE(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    ezlinkModel.setEZLINK_PAYMENT_MAC_KEY(stValue.substring(0, inindex));
+                    stValue = stValue.substring(inindex + 1);
+                }
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    ezlinkModel.setEZLINK_TOPUP_MAC_KEY(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
                 if (!stValue.isEmpty()) {
@@ -788,82 +1129,100 @@ public class AdminActivity extends Activity {
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    ezlinkModel.setEZLINK_PAYMENT_DEVICE_TYPE(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        ezlinkModel.setEZLINK_PAYMENT_DEVICE_TYPE(stValue);
+                    else
+                        ezlinkModel.setEZLINK_PAYMENT_DEVICE_TYPE(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    ezlinkModel.setEZLINK_TOPUP_DEVICE_TYPE(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        ezlinkModel.setEZLINK_TOPUP_DEVICE_TYPE(stValue);
+                    else
+                        ezlinkModel.setEZLINK_TOPUP_DEVICE_TYPE(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    ezlinkModel.setEZLINK_BLACK_LIST_LAST_UPDATE(stValue.substring(0, inindex));
+                    if (inindex == -1)
+                        ezlinkModel.setEZLINK_BLACK_LIST_LAST_UPDATE(stValue);
+                    else
+                        ezlinkModel.setEZLINK_BLACK_LIST_LAST_UPDATE(stValue.substring(0, inindex));
                     stValue = stValue.substring(inindex + 1);
                 }
                 if (!stValue.isEmpty()) {
                     inindex = stValue.indexOf(' ');
-                    ezlinkModel.setEZLINK_TOPUP_PAYMENT_MODE(stValue.substring(0, inindex));
-                    stValue = stValue.substring(inindex + 1);
+                    if (inindex == -1)
+                        ezlinkModel.setEZLINK_TOPUP_PAYMENT_MODE(stValue);
+                    else
+                        ezlinkModel.setEZLINK_TOPUP_PAYMENT_MODE(stValue.substring(0, inindex));
                 }
 
-                databaseObj.InsertEzlinkData(ezlinkModel);
+                ezlinkModelDao.insert(ezlinkModel);
+            } else if (stParam.contains("BARCODE")) {
+
+                EFTPOSLog.d(TAG, "BAR DOCDE::" + stValue);
+                inindex = stValue.indexOf(' ');
+                alipayModel.setPARTNER_ID(stValue.substring(0, inindex)+"");
+                stValue = stValue.substring(inindex + 1);
+
+                inindex = stValue.indexOf(' ');
+                alipayModel.setSELLER_ID(stValue.substring(0, inindex)+"");
+                stValue = stValue.substring(inindex + 1);
+
+                if (!stValue.isEmpty()) {
+                    inindex = stValue.indexOf(' ');
+                    if (inindex == -1)
+                        alipayModel.setREGION_CODE(stValue);
+                    else
+                        alipayModel.setREGION_CODE(stValue.substring(0, inindex));
+                }
+                alipayModelDao.insert(alipayModel);
             }
-		}
+        }
 
-        databaseObj.insertMerchantData(merchantModel);
-        databaseObj.insertPasswordData(pwdModel);
-        databaseObj.InsertTransactionCtrlData(transctrlModel);
-        databaseObj.InsertReportCtrlData(reportModel);
-        databaseObj.InsertHostTransmissionModelData(hostTransModel);
-        databaseObj.InsertReceiptModelData(receiptModel);
-        databaseObj.InsertMaskingModelData(maskModel);
-        databaseObj.InsertLimitModelData(limitModel);
-        databaseObj.InsertUtilityTablelData(utilModel);
-
-        MerchantModel merchantModeldata = new MerchantModel();
-        merchantModeldata = databaseObj.getMerchantData(0);
-        Log.i(TAG,"Merchant NAme"+merchantModeldata.getMERCHANT_NAME());
+        merchantModelDao.insert(merchantModel);
+        pwdModelDao.insert(pwdModel);
+        transctrlModelDao.insert(transctrlModel);
+        reportModelDao.insert(reportModel);
+        hostTransModelDao.insert(hostTransModel);
+        receiptModelDao.insert(receiptModel);
+        maskModelDao.insert(maskModel);
+        limitModelDao.insert(limitModel);
+        utilityModelDao.insert(utilModel);
 
 
 
     }
 
     private int inProcessPacket() {
-        // keep basic.xml in assets folder
-        //  Log.i(TAG,"inProcessPacket");
-        // InputStream inputstream =
-        // getApplicationContext().getAssets().open("basic.xml");
-        // MihirPackager packager = new MihirPackager(inputstream);
+
         try {
-            // GenericPackager packager = new
-            // GenericPackager("src/asset/basic.xml");
-
-            //  Log.i(TAG,"Packager");
-
             isoMsg.unpack(FinalData);
             // print the DE list
             logISOMsg(isoMsg);
         } catch (ISOException ex) {
-            Log.i(TAG, "ISO EXCEPTION");
-            Log.i(TAG, ex.getMessage());
+            EFTPOSLog.d(TAG, "ISO EXCEPTION");
+            EFTPOSLog.d(TAG, ex.getMessage());
         }
 
         return 0;
     }
 
-    private int inConnection() {
-        Log.i(TAG, "Connection");
-        Log.i(TAG, "203.125.11.228");
+    private int inConnection(String ServerIP,int Port) {
+        EFTPOSLog.d(TAG, "Connection");
+        EFTPOSLog.d(TAG, connectToStr);
+
         try {
 
-            smtpSocket = new Socket("203.125.11.228", 8585);
+            smtpSocket = new Socket(ServerIP, Port);
         } catch (UnknownHostException e) {
-            Log.i(TAG, "UnknownHostException");
-            Log.i(TAG, "Don't know about host: hostname");
+            EFTPOSLog.d(TAG, "UnknownHostException");
+            EFTPOSLog.d(TAG, "Don't know about host: hostname");
             return 1;
         } catch (IOException e) {
-            Log.i(TAG, "Couldn't get I/O for the connection to: hostname");
+            EFTPOSLog.d(TAG, "Couldn't get I/O for the connection to: hostname");
             return 1;
         }
         return 0;
@@ -874,35 +1233,45 @@ public class AdminActivity extends Activity {
             if (smtpSocket != null)
                 smtpSocket.close();
         } catch (UnknownHostException e) {
-            Log.i(TAG, "Don't know about host: hostname");
+            EFTPOSLog.d(TAG, "Don't know about host: hostname");
             return 1;
         } catch (IOException e) {
-            Log.i(TAG, "Couldn't get I/O for the connection to: hostname");
+            EFTPOSLog.d(TAG, "Couldn't get I/O for the connection to: hostname");
             return 1;
         }
         return 0;
     }
 
     private void logISOMsg(ISOMsg msg) {
-        Log.i(TAG, "----ISO MESSAGE-----");
+        EFTPOSLog.d(TAG, "----ISO MESSAGE-----");
         try {
-            Log.i(TAG, "  MTI : " + msg.getMTI());
+            EFTPOSLog.d(TAG, "  MTI : " + msg.getMTI());
             for (int i = 1; i <= msg.getMaxField(); i++) {
                 if (msg.hasField(i)) {
-                    Log.i(TAG, "    Field-" + i + " : " + msg.getString(i));
+                    EFTPOSLog.d(TAG, "    Field-" + i + " : " + msg.getString(i));
                 }
             }
         } catch (ISOException e) {
             e.printStackTrace();
         } finally {
-            Log.i(TAG, "--------------------");
+            EFTPOSLog.d(TAG, "--------------------");
         }
 
     }
 
+
     private int inSendRecvPacket() {
         OutputStream os = null;
         InputStream is = null;
+
+        String result;
+        result = "";
+        for (int k = 0; k < inFinalLength; k++) {
+            result = result + String.format("%02x", FinalData[k]);
+        }
+        EFTPOSLog.d(TAG,"\nSendings:");
+        EFTPOSLog.d(TAG,result);
+
         try {
             os = smtpSocket.getOutputStream();
             is = smtpSocket.getInputStream();
@@ -924,39 +1293,29 @@ public class AdminActivity extends Activity {
             if (is != null)
                 is.close();
         } catch (UnknownHostException e) {
-            Log.i(TAG, "Don't know about host: hostname");
+            EFTPOSLog.d(TAG, "Don't know about host: hostname");
             return 1;
         } catch (IOException e) {
-            Log.i(TAG, "Couldn't get I/O for the connection to: hostname");
+            EFTPOSLog.d(TAG, "Couldn't get I/O for the connection to: hostname");
             return 1;
         }
         return 0;
     }
 
+
     private int inCreatePacket() {
         String stde27 = "";
         String stde29 = "";
         try {
-
-            // keep basic.xml in assets folder
-            //  Log.i(TAG,"inCreatePacket");
-            // InputStream inputstream =
-            // getApplicationContext().getAssets().open("basic.xml");
-            //  Log.i(TAG,"Input Stream");
-            // MihirPackager packager = new MihirPackager(inputstream);
-            // GenericPackager packager = new
-            // GenericPackager("src/asset/basic.xml");
-            // ISOPackager1 packager = new ISOPackager1();
-            //  Log.i(TAG,"Packager");
-            // ISOMsg isoMsg = new ISOMsg();
-            // isoMsg.setPackager(packager);
-            switch (globalVar.getGTransactionType()) {
+            
+            switch (TransactionDetails.trxType) {
+                
                 case Constants.TransType.TMS_INITIAL_PACKET:
                     isoMsg.setHeader(globalVar.tmsParam.getTMS_TPDU().getBytes());
                     isoMsg.setMTI("0100");
                     isoMsg.set(3, Constants.PROCESSINGCODE.pcTmsInitial);
                     isoMsg.set(11, "000001");
-                    isoMsg.set(24, "700");
+                    isoMsg.set(24, "0700");
                     isoMsg.set(26, globalVar.tmsParam.getTMS_FILENAME());
                     stde27 = Constants.TMS_DEFAULT_MMS_FAMILY + "\\" + globalVar.tmsParam.getTMS_APPLICATION();
                     isoMsg.set(27, stde27);
@@ -967,40 +1326,20 @@ public class AdminActivity extends Activity {
                         isoMsg.set(30, globalVar.getActivationDate());
                     isoMsg.set(41, globalVar.tmsParam.getTMS_TERMINAL_ID());
                     break;
+                
                 case Constants.TransType.TMS_SUBSEQUENT_PACKET:
                     isoMsg.setHeader(globalVar.tmsParam.getTMS_TPDU().getBytes());
                     isoMsg.setMTI("0200");
                     isoMsg.set(3, Constants.PROCESSINGCODE.pcTmsSubsequent);
                     isoMsg.set(11, "000001");
-                    isoMsg.set(24, "700");
+                    isoMsg.set(24, "0700");
                     isoMsg.set(26, globalVar.tmsParam.getTMS_FILENAME());
                     stde27 = Constants.TMS_DEFAULT_MMS_FAMILY + "\\" + globalVar.tmsParam.getTMS_APPLICATION();
                     isoMsg.set(27, stde27);
                     stde29 = String.format("%02d", globalVar.getGPartToDownload());
                     isoMsg.set(29, stde29);
                     isoMsg.set(41, globalVar.tmsParam.getTMS_TERMINAL_ID());
-                    // strcpy((char *) message_id, DOWNLOAD_SUBSEQUENT_MSG);
-                /*
-				 * strcpy((char *) field_03, DOWNLOAD_SUBSEQUENT_PROC);
-				 *
-				 * strcpy((char *) field_11, "000001");
-				 *
-				 * strcpy((char *) field_24, stGlobalex.chGNII);
-				 *
-				 * memset((char*) field_26, 0, sizeof((char*) field_26));
-				 * sprintf((char*) field_26, "%s", stGTMSStruct.TMS_FILENAME);
-				 * //venkatt ADD_BCD_LENGTH_INFRONT(field_26);
-				 *
-				 * memset((char*) field_29, 0, sizeof((char*) field_29));
-				 * sprintf((char*) field_29, "%02d", inGPartToDownload);
-				 * //venkatt ADD_BCD_LENGTH_INFRONT(field_29);
-				 *
-				 * strcpy((char *) field_41, stGTMSStruct.TMS_TERMINAL_ID);
-				 * //venkattt memset((char*) field_27, 0, sizeof((char*)
-				 * field_27)); sprintf((char*) field_27, "%s\\%s",
-				 * TMS_DEFAULT_MMS_FAMILY, stGTMSStruct.TMS_APPLICATION);
-				 * //venkatttt ADD_BCD_LENGTH_INFRONT(field_27);
-				 */
+                   
                     break;
                 case Constants.TransType.ALIPAY_SALE:
                     break;
@@ -1014,29 +1353,27 @@ public class AdminActivity extends Activity {
                     break;
                 case Constants.TransType.REFUND:
                     break;
-                case Constants.TransType.SETTLEMENT:
-                    break;
+
             }
 
-            //  Log.i(TAG,"PACK:");
+            //  EFTPOSLog.d(TAG,"AdminActivity::PACK:");
             // Get and print the output result
             try {
                 logISOMsg(isoMsg);
                 byte[] data = isoMsg.pack();
                 inFinalLength = AddLength_Tpdu(data, FinalData);
-                //  Log.i(TAG,"data" + new String(data));
-                //  Log.i(TAG,"FINAL DATA" + new String(FinalData));
-            } catch (Exception ex) {
-                Log.i(TAG, "IOException EXCEPTION");
-                Log.i(TAG, ex.getMessage());
+             } catch (Exception ex) {
+                EFTPOSLog.d(TAG, "IOException EXCEPTION");
+                EFTPOSLog.d(TAG, ex.getMessage());
             }
 
         } catch (ISOException ex) {
-            Log.i(TAG, "ISO EXCEPTION");
-            Log.i(TAG, ex.getMessage());
+            EFTPOSLog.d(TAG, "ISO EXCEPTION");
+            EFTPOSLog.d(TAG, ex.getMessage());
         }
         return Constants.ReturnValues.RETURN_OK;
     }
+
 
     public int AddLength_Tpdu(byte[] data, byte[] FinalData) {
         int inOffset = 0;
@@ -1050,12 +1387,7 @@ public class AdminActivity extends Activity {
         for (int i = 0; i < tpdu.length; i++) {
             FinalData[inOffset++] = tpdu[i];
         }
-		/*
-		 * byte[] byLen = new BigInteger(Integer.toString(inPacLen +
-		 * tpdu.length), 16).toByteArray(); if (byLen.length == 1) {
-		 * FinalData[0] = 0x00; FinalData[1] = byLen[0]; } else { FinalData[0] =
-		 * byLen[0]; FinalData[1] = byLen[1]; }
-		 */
+
         // Check the length in BCD or HEX
         FinalData[0] = (byte) ((inPacLen + tpdu.length) / 256);
         FinalData[1] = (byte) ((inPacLen + tpdu.length) % 256);
@@ -1070,10 +1402,6 @@ public class AdminActivity extends Activity {
     public int vdProcessDownloadResponse(int inRequestType) {
 
         String applicationname;
-        // S_FS_FILE* hTMSFile = 0;
-        // int Field_31_length = 0;
-        // char temp[2 + 1];
-        // char[] temp1 = new char[4 + 1];
 
         if (inRequestType == Constants.TransType.TMS_INITIAL_PACKET) // first
         // download
@@ -1098,67 +1426,13 @@ public class AdminActivity extends Activity {
             globalVar.setdirectory(isoMsg.getString(27));
             globalVar.setActivationDate(isoMsg.getString(30));
 
-            // Delete(TEMP_DOWNLOAD_DATA_FILE, BATCH_DISK);
-            // Create(BATCH_DISK, TEMP_DOWNLOAD_DATA_FILE);
-
-            // memset((char *) &stLasttmsinfoStruct, 0, sizeof(LASTTMSINFO));
-            // if(inGetSetLastTMSDownloadInfo(&stLasttmsinfoStruct, GET,
-            // stGTMSStruct.TMS_FILENAME) == FALSE)
-            // memset((char *) &stLasttmsinfoStruct, 0, sizeof(LASTTMSINFO));
-            // Validate the info downloaded
-            // if ((memcmp((char *) field_26 + 2, (char *)
-            // stGTMSStruct.TMS_FILENAME, strlen((char *)
-            // stGTMSStruct.TMS_FILENAME)) != 0)) {
-            // return TMS_RESPONSE_KO; //validation field 26 failed
-            // }
-            // if ((memcmp((char *) field_30 + 2, (char *)
-            // stLasttmsinfoStruct.ActivationDate, strlen((char *)
-            // &field_30[2])) == 0)) {
-            // second Download not required
-            // return TMS_RESPONSE_DL_NOT_REQUIRED;
-            // }
-            // if (!(atoi((char*) field_28 + 2) > 0 && strlen((char*)
-            // &field_28[2]))) {
-            // field 28 failed
-            // return TMS_RESPONSE_KO;
-            // } else {
-            // inGTotalNumberofTMSparts = atoi((char*) &field_28[2]);
-            // }
-            // sprintf(applicationname, "%s\\%s",TMS_DEFAULT_MMS_FAMILY,
-            // stGTMSStruct.TMS_APPLICATION);
-
-            // if ((memcmp((char *) field_27 + 2, (char *) applicationname,
-            // strlen((char *) applicationname)) != 0)) {
-            // field 27 failed
-            // return TMS_RESPONSE_KO;
-            // }
-			/* Populate the filename field 26 into temp file */
-            // memcpy((char*) stLasttmsinfoStruct.filename, (char *) field_26 +
-            // 2, strlen((char*) &field_26[2])); // TID
-
-			/* Populate the application name field 27 into temp file */
-            // memcpy((char*) stLasttmsinfoStruct.directory, (char *) field_27 +
-            // 2, strlen((char*) &field_27[2])); // PATH
-
-            // Set the latest activation date into struct to be saved once the
-            // data download is successful
-            // memcpy((char*) stLasttmsinfoStruct.ActivationDate, (char *)
-            // field_30 + 2, strlen((char*) &field_30[2])); // Date of when
-            // parameter was changed
-
             return Constants.TMSReturnValues.TMS_RESPONSE_DL_REQUIRED;
+
         } else if (inRequestType == Constants.TransType.TMS_SUBSEQUENT_PACKET) {
             globalVar.TmsData = globalVar.TmsData + isoMsg.getString(31);
-			/*
-			 * memset(temp1, 0, sizeof(temp1)); vdHexToStr(temp1, field_31, 2);
-			 *
-			 * Field_31_length = atoi(temp1);
-			 *
-			 * hTMSFile = Open(BATCH_DISK, TEMP_DOWNLOAD_DATA_FILE); if
-			 * (hTMSFile == NULL) return TMS_RESPONSE_KO; else {
-			 * FS_seek(hTMSFile, 0, FS_SEEKEND); Write(hTMSFile, (char*)
-			 * &field_31[2], Field_31_length); FS_close(hTMSFile); }
-			 */
+
+            //EFTPOSLog.d(TAG,"AdminActivity::globalVar.TmsData:::"+globalVar.TmsData);
+            EFTPOSLog.d(TAG, "globalVar.TmsData_Len:::" + globalVar.TmsData.length());
 
             return Constants.TMSReturnValues.TMS_RESPONSE_OK;
         }
@@ -1169,14 +1443,29 @@ public class AdminActivity extends Activity {
 
     private class AsyncTaskRunner extends AsyncTask<String, Void, String> {
 
-        private String resp;
-        ProgressDialog progressDialog;
+        private String resp="";
+
+        @Override
+        protected void onPreExecute() {
+            progress=new ProgressDialog(AdminActivity.this);
+            progress.setTitle("EFTPOS");
+            progress.setMessage("Downloading..");
+            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progress.setMax(100);
+            progress.setIndeterminate(true);
+            progress.setProgress(0);
+            progress.setCancelable(false);
+            progress.setIndeterminate(false);
+            progress.show();
+
+        }
+
 
         @Override
         protected String doInBackground(String... params) {
             try {
 
-                processRequest();
+                resp = processRequest();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -1186,18 +1475,34 @@ public class AdminActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
+
             // execution of result of Long time consuming operation
-            progressDialog.dismiss();
+
+            if(result.equals("OK")) {
+                progress.dismiss();
+                Toast.makeText(AdminActivity.this, "DOWNLOAD SUCCESSFUL", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(AdminActivity.this, HomePagerActivity.class));
+
+            }else{
+
+                TransactionDetails.responseMessge = "TMS DOWNLOAD FAILED";
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent(AdminActivity.this, PaymentFailure.class);
+                        startActivity(intent);
+                    }
+                }, TIME_OUT);
+                        progress.dismiss();
+
+            }
+
         }
 
 
-        @Override
-        protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(AdminActivity.this,
-                    "EFTPOS",
-                    "Please wait...");
-            progressDialog.show();
-        }
+
 
     }
+
+
 }
